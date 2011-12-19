@@ -6,7 +6,7 @@ class TreePrinterSpec extends Specification { def is =
   "This is a specification to check a TreePrinter"                            ^
                                                                               p^
   "The tree printer should"                                                   ^
-    """print println("hello, world!")"""                                      ! e1^
+    """print println("Hello, world!")"""                                      ! e1^
     """print def hello()"""                                                   ! e2^
                                                                               end
   
@@ -15,16 +15,22 @@ class TreePrinterSpec extends Specification { def is =
   import definitions._
   
   def e1 = {  
-    val tree = mkMethodCall(sym.println, Literal(Constant("hello, world!")) :: Nil)
+    val tree = mkMethodCall(sym.println, Literal(Constant("Hello, world!")) :: Nil)
     val s = treeToString(tree); println(s)
-    s must_== """println("hello, world!")"""
+    
+    s must_== """println("Hello, world!")"""
   }
   
   def e2 = {
-    val rhs = mkMethodCall(sym.println, Literal(Constant("hello, world!")) :: Nil)
+    val rhs = Block(Nil, mkMethodCall(sym.println, Literal(Constant("Hello, world!")) :: Nil))
     val tree = DefDef(NoMods, newTermName("hello"), Nil, Nil, TypeTree(typeRef(UnitClass)), rhs)
     val s = treeToString(tree); println(s)
-    s must_== """def hello: Unit = println("hello, world!")"""
+    
+    s.lines.toList must contain(
+      """def hello: Unit = {""",
+      """  println("Hello, world!")""",
+      """}"""
+    ).inOrder
   }
   
   object sym {
