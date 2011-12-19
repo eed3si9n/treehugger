@@ -21,6 +21,8 @@ trait Symbols extends api.Symbols { self: Universe =>
     var rawflags = 0L
     val id = { ids += 1; ids } // identity displayed when -uniqid
     
+    def pos = rawpos
+    
     override def hasModifier(mod: Modifier.Value) =
       hasFlag(flagOfModifier(mod)) &&
       (!(mod == Modifier.bynameParameter) || isTerm) &&
@@ -62,7 +64,10 @@ trait Symbols extends api.Symbols { self: Universe =>
     /** The owner of this symbol.
      */
     def owner: Symbol = rawowner
-
+    
+    def ownerChain: List[Symbol] = this :: owner.ownerChain
+    
+    
     /** The name of the symbol as a member of the `Name` type.
      */
     def name: Name = rawname
@@ -81,15 +86,35 @@ trait Symbols extends api.Symbols { self: Universe =>
      */
     def nameString = decodedName
     
+    override def toString = nameString
+    
     /** The module class corresponding to this module.
      */
     def moduleClass: Symbol = NoSymbol
     
+    private def finishModule(m: ModuleSymbol, clazz: ClassSymbol): ModuleSymbol = {
+      // Top-level objects can be automatically marked final, but others
+      // must be explicitly marked final if overridable objects are enabled.
+      val flags = if (isPackage) MODULE | FINAL else MODULE
+      m setFlag flags
+      m setModuleClass clazz
+      m
+    }
+    private def finishModule(m: ModuleSymbol): ModuleSymbol =
+      finishModule(m, new ModuleClassSymbol(m))
+    
+    final def newModule(pos: Position, name: TermName, clazz: ClassSymbol): ModuleSymbol =
+      finishModule(new ModuleSymbol(this, pos, name), clazz)
+    
+    final def newModule(name: TermName, clazz: Symbol, pos: Position = NoPosition): ModuleSymbol =
+      newModule(pos, name, clazz.asInstanceOf[ClassSymbol])
+    
     final def newModule(pos: Position, name: TermName): ModuleSymbol =
-      new ModuleSymbol(this, pos, name)
-    final def newModule(name: TermName, pos: Position = NoPosition): ModuleSymbol =
-      new ModuleSymbol(this, pos, name)      
-      
+      finishModule(new ModuleSymbol(this, pos, name))   
+    
+    final def newModule(name: TermName): ModuleSymbol =
+      finishModule(new ModuleSymbol(this, NoPosition, name))
+    
     final def newPackage(pos: Position, name: TermName): ModuleSymbol = {
       val m = newModule(pos, name)
       m
@@ -148,7 +173,16 @@ trait Symbols extends api.Symbols { self: Universe =>
     final def newExistential(pos: Position, name: TypeName): Symbol =
       newAbstractType(pos, name).setFlag(EXISTENTIAL)
     
+    /** Get type. The type of a symbol is:
+     *  for a type symbol, the type corresponding to the symbol itself,
+     *    @M you should use tpeHK for a type symbol with type parameters if
+     *       the kind of the type need not be *, as tpe introduces dummy arguments
+     *       to generate a type of kind *
+     *  for a term symbol, its usual type.
+     *  See the tpe/tpeHK overrides in TypeSymbol for more.
+     */
     def tpe: Type = NoType
+    def tpeHK: Type = tpe
     
     /** The type constructor of a symbol is:
      *  For a type symbol, the type corresponding to the symbol itself,
@@ -194,7 +228,9 @@ trait Symbols extends api.Symbols { self: Universe =>
     final def isError = hasFlag(IS_ERROR)
     
     final def isAnonymousClass             = isClass && (name containsName tpnme.ANON_CLASS_NAME)
-    
+    final def isAnonymousFunction          = isSynthetic && (name containsName tpnme.ANON_FUN_NAME)
+    final def isAnonOrRefinementClass      = isAnonymousClass || isRefinementClass
+        
     // A package object or its module class
     final def isPackageObjectOrClass = name == nme.PACKAGE || name == tpnme.PACKAGE
     final def isPackageObject        = name == nme.PACKAGE && owner.isPackageClass
@@ -208,8 +244,48 @@ trait Symbols extends api.Symbols { self: Universe =>
      */
     final def skipPackageObject: Symbol = if (isPackageObjectOrClass) owner else this
     
+    /** Conditions where we omit the prefix when printing a symbol, to avoid
+     *  unpleasantries like Predef.String, $iw.$iw.Foo and <empty>.Bippy.
+     */
+    final def isOmittablePrefix = (
+         UnqualifiedOwners(skipPackageObject)
+      || isEmptyPrefix
+    )
+    
+    def isEmptyPrefix = (
+         isEffectiveRoot                      // has no prefix for real, <empty> or <root>
+      || isAnonOrRefinementClass              // has uninteresting <anon> or <refinement> prefix
+      // || nme.isReplWrapperName(name)          // has ugly $iw. prefix (doesn't call isInterpreterWrapper due to nesting)
+    )
+    
+    /** The encoded full path name of this symbol, where outer names and inner names
+     *  are separated by `separator` characters.
+     *  Never translates expansions of operators back to operator symbol.
+     *  Never adds id.
+     *  Drops package objects.
+     */
+    final def fullName(separator: Char): String = stripNameString(fullNameInternal(separator))
+
+    /** Doesn't drop package objects, for those situations (e.g. classloading)
+     *  where the true path is needed.
+     */
+    private def fullNameInternal(separator: Char): String = (
+      if (isRoot || isRootPackage || this == NoSymbol) this.toString
+      else if (owner.isEffectiveRoot) decodedName
+      else effectiveOwner.enclClass.fullName(separator) + separator + decodedName
+    )
+    
     /** Is this symbol locally defined? I.e. not accessed from outside `this` instance */
     final def isLocal: Boolean = owner.isTerm
+    
+    /** Strip package objects and any local suffix.
+     */
+    private def stripNameString(s: String) = s stripSuffix nme.LOCAL_SUFFIX_STRING
+      
+    /** The encoded full path name of this symbol, where outer names and inner names
+     *  are separated by periods.
+     */
+    final def fullName: String = fullName('.')
     
 // ------ flags attribute --------------------------------------------------------------
 
@@ -310,19 +386,50 @@ trait Symbols extends api.Symbols { self: Universe =>
       flags & mask,
       if (hasAccessBoundary) privateWithin.toString else ""
     )
+
+    // ------ comparisons ----------------------------------------------------------------
+
+    /** Is this class symbol a subclass of that symbol? */
+    final def isNonBottomSubClass(that: Symbol): Boolean = (
+      (this eq that) || this.isError || that.isError // || info.baseTypeIndex(that) >= 0
+    )
+
+    /** Overridden in NullClass and NothingClass for custom behavior.
+     */
+    def isSubClass(that: Symbol) = isNonBottomSubClass(that)
     
 // ------ access to related symbols --------------------------------------------------    
+    
+    /** The next enclosing class. */
+    def enclClass: Symbol = if (isClass) this else owner.enclClass
+    
+    /** If symbol is a class, the type <code>this.type</code> in this class,
+     * otherwise <code>NoPrefix</code>.
+     * We always have: thisType <:< typeOfThis
+     */
+    def thisType: Type = NoPrefix
     
     /** The module corresponding to this module class (note that this
      *  is not updated when a module is cloned), or NoSymbol if this is not a ModuleClass.
      */
     def sourceModule: Symbol = NoSymbol
+    
   }
   
   /** A class for term symbols */
   class TermSymbol(initOwner: Symbol, initPos: Position, initName: TermName)
   extends Symbol(initOwner, initPos, initName) {
     final override def isTerm = true
+    
+    private var referenced: Symbol = NoSymbol
+    override def moduleClass: Symbol =
+      if (hasFlag(MODULE)) referenced
+      else NoSymbol
+    def setModuleClass(clazz: Symbol): TermSymbol = {
+      assert(hasFlag(MODULE))
+      referenced = clazz
+      this
+    }
   } 
   
   /** A class for module symbols */
@@ -341,13 +448,13 @@ trait Symbols extends api.Symbols { self: Universe =>
     
     override def isNonClassType = true
     
-    // private def newTypeRef(targs: List[Type]) = {
-    //   // val pre = if (hasFlag(PARAM | EXISTENTIAL)) NoPrefix else owner.thisType
-    //   val pre = owner.thisType
-    //   typeRef(pre, this, targs)
-    // }
+    private def newTypeRef(targs: List[Type]) = {
+      val pre = if (hasFlag(PARAM | EXISTENTIAL)) NoPrefix else owner.thisType
+      typeRef(pre, this, targs)
+    }
     
-    // override def typeConstructor: Type = newTypeRef(Nil)
+    override def typeConstructor: Type = newTypeRef(Nil)
+    override def tpeHK = typeConstructor // @M! used in memberType
   }
   
   /** A class for class symbols */
@@ -365,6 +472,11 @@ trait Symbols extends api.Symbols { self: Universe =>
    */
   class ModuleClassSymbol(owner: Symbol, pos: Position, name: TypeName)
   extends ClassSymbol(owner, pos, name) {
+    def this(module: TermSymbol) = {
+      this(module.owner, module.pos, module.name.toTypeName)
+      setFlag(module.getFlag(ModuleToClassFlags) | MODULE)
+      // sourceModule = module
+    }
   }
   
   object NoSymbol extends Symbol(null, NoPosition, nme.NO_NAME) {}

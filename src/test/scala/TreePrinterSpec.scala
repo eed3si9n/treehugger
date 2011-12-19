@@ -7,19 +7,27 @@ class TreePrinterSpec extends Specification { def is =
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("hello, world!")"""                                      ! e1^
+    """print def hello()"""                                                   ! e2^
                                                                               end
   
-  def e1 = {
-    import universe._
-    
+  lazy val universe = new treehugger.Universe
+  import universe._
+  import definitions._
+  
+  def e1 = {  
     val tree = mkMethodCall(sym.println, Literal(Constant("hello, world!")) :: Nil)
-    treeToString(tree) must_== """println("hello, world!")"""
+    val s = treeToString(tree); println(s)
+    s must_== """println("hello, world!")"""
+  }
+  
+  def e2 = {
+    val rhs = mkMethodCall(sym.println, Literal(Constant("hello, world!")) :: Nil)
+    val tree = DefDef(NoMods, newTermName("hello"), Nil, Nil, TypeTree(typeRef(UnitClass)), rhs)
+    val s = treeToString(tree); println(s)
+    s must_== """def hello: Unit = println("hello, world!")"""
   }
   
   object sym {
-    import universe._
     val println = NoSymbol.newMethod(newTermName("println"))
   }
-  
-  lazy val universe = new treehugger.Universe
 }

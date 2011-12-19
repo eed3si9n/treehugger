@@ -20,4 +20,6 @@ class Universe extends api.Universe
   type TreeCopier = TreeCopierOps
   def newStrictTreeCopier: TreeCopier = new StrictTreeCopier
   def newLazyTreeCopier: TreeCopier = new LazyTreeCopier
+  
+  definitions.init()
 }

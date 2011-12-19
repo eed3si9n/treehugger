@@ -18,6 +18,9 @@ trait Names {
     final def isEmpty = length == 0
     final def nonEmpty = !isEmpty
     
+    /** @return the string representation of this name */
+    final override def toString(): String = name
+    
     /** @return the i'th Char of this name */
     final def apply(i: Int): Char = name(i)
     
