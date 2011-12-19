@@ -1,6 +1,7 @@
 package treehugger
 
 import Flags._
+import PartialFunction._
 
 trait Definitions extends api.StandardDefinitions { self: Universe =>
   // the scala value classes
@@ -255,84 +256,20 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
     lazy val ArrayModule  = getModule("scala.Array")
     lazy val ArrayClass   = getClass("scala.Array")
     
-    def getClass(fullname: Name): Symbol = getModuleOrClass(fullname.toTypeName)
+    // Option classes
+    lazy val OptionClass: Symbol = getClass("scala.Option")
+    lazy val SomeClass: Symbol   = getClass("scala.Some")
+    lazy val NoneModule: Symbol  = getModule("scala.None")
+    lazy val SomeModule: Symbol  = getModule("scala.Some")
     
-    def getModule(fullname: Name): Symbol = getModuleOrClass(fullname.toTermName)
-    
-    private def getModuleOrClass(path: Name, len: Int): Symbol = getModuleOrClass(path, len, path.isTypeName)
-    
-    private def getModuleOrClass(path: Name, len: Int, isTypeName: Boolean): Symbol =
-      symbolCache.getOrElseUpdate(path, {
-        val point = path lastPos('.', len - 1)
-        val owner =
-          if (point > 0) getModuleOrClass(path.toTermName, point)
-          else RootClass
-        val name = path subName (point + 1, len)
-        if (isTypeName) owner.newClass(name.toTypeName)
-        else owner.newModule(name.toTermName)
-      })
-    
-    def getMember(owner: Symbol, name: Name): Symbol = {
-      if (owner == NoSymbol) NoSymbol
-      else symbolCache.getOrElseUpdate(owner.fullName + "." + name.toString, {
-        newMethod(owner, name)
-      })
-    }
-    
-    /** If you're looking for a class, pass a type name.
-     *  If a module, a term name.
-     */
-    private def getModuleOrClass(path: Name): Symbol = getModuleOrClass(path, path.length)
-    
-    private def newClass(owner: Symbol, name: TypeName, parents: List[Type]): Symbol = {
-      val clazz = owner.newClass(NoPosition, name)
-      // clazz.setInfo(ClassInfoType(parents, new Scope, clazz))
-      // owner.info.decls.enter(clazz)
-      clazz
-    }
-    
-    private def newCovariantPolyClass(owner: Symbol, name: TypeName, parent: Symbol => Type): Symbol = {
-      val clazz  = newClass(owner, name, List())
-      // val tparam = newTypeParam(clazz, 0) setFlag COVARIANT
-      // val p      = parent(tparam)
-      // clazz.setInfo(
-      //   polyType(
-      //     List(tparam),
-      //     ClassInfoType(List(AnyRefClass.tpe, p), new Scope, clazz)))
-      clazz
-    }
-    
-    private def newAlias(owner: Symbol, name: TypeName, alias: Type): Symbol = {
-      val tpsym = owner.newAliasType(NoPosition, name)
-      // tpsym.setInfo(alias)
-      // owner.info.decls.enter(tpsym)
-      tpsym
-    }
-    
-    private def newMethod(owner: Symbol, name: TermName): Symbol = {
-      val msym = owner.newMethod(NoPosition, name)
-      // owner.info.decls.enter(msym)
-      msym
-    }
-    
-    private[Definitions] def newMethod(owner: Symbol, name: TermName, formals: List[Type], restpe: Type): Symbol = {
-      val msym = newMethod(owner, name)
-      val params = msym.newSyntheticValueParams(formals)
-      // msym.setInfo(MethodType(params, restpe))
-      msym
-    }
-    
-    /** tcon receives the type parameter symbol as argument */
-    private def newPolyMethod(owner: Symbol, name: TermName, tcon: Symbol => Type): Symbol =
-      newPolyMethodCon(owner, name, tparam => msym => tcon(tparam))
+    def isOptionType(tp: Type)  = cond(tp.normalize) { case TypeRef(_, OptionClass, List(_)) => true }
+    def isSomeType(tp: Type)    = cond(tp.normalize) { case TypeRef(_,   SomeClass, List(_)) => true }
+    def isNoneType(tp: Type)    = cond(tp.normalize) { case TypeRef(_,   NoneModule, List(_)) => true }
 
-    /** tcon receives the type parameter symbol and the method symbol as arguments */
-    private def newPolyMethodCon(owner: Symbol, name: TermName, tcon: Symbol => Symbol => Type): Symbol = {
-      val msym = newMethod(owner, name)
-      // val tparam = newTypeParam(msym, 0)
-      // msym.setInfo(polyType(List(tparam), tcon(tparam)(msym)))
-      msym
-    }    
+    def optionType(tp: Type)    = typeRef(NoPrefix, OptionClass, List(tp))
+    def someType(tp: Type)      = typeRef(NoPrefix, SomeClass, List(tp))
+    def symbolType              = typeRef(SymbolClass.typeConstructor.prefix, SymbolClass, List())
+    def longType                = typeRef(LongClass.typeConstructor.prefix, LongClass, List())
     
     // Product, Tuple, Function
     private def mkArityArray(name: String, arity: Int, countFrom: Int = 1): Array[Symbol] = {
@@ -470,6 +407,83 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
       Object_synchronized = newPolyMethodCon(
         ObjectClass, nme.synchronized_,
         tparam => msym => MethodType(msym.newSyntheticValueParams(List(tparam.typeConstructor)), tparam.typeConstructor)) setFlag FINAL
+    }
+    
+    def getClass(fullname: Name): Symbol = getModuleOrClass(fullname.toTypeName)
+    
+    def getModule(fullname: Name): Symbol = getModuleOrClass(fullname.toTermName)
+    
+    private def getModuleOrClass(path: Name, len: Int): Symbol =
+      symbolCache.getOrElseUpdate(path, {
+        val point = path lastPos('.', len - 1)
+        val owner =
+          if (point > 0) getModuleOrClass(path.toTermName, point)
+          else RootClass
+        val name = path subName (point + 1, len)
+        if (path.isTypeName) owner.newClass(name.toTypeName)
+        else owner.newModule(name.toTermName)
+      })
+    
+    def getMember(owner: Symbol, name: Name): Symbol = {
+      if (owner == NoSymbol) NoSymbol
+      else symbolCache.getOrElseUpdate(owner.fullName + "." + name.toString, {
+        newMethod(owner, name)
+      })
+    }
+    
+    /** If you're looking for a class, pass a type name.
+     *  If a module, a term name.
+     */
+    private def getModuleOrClass(path: Name): Symbol = getModuleOrClass(path, path.length)
+    
+    private def newClass(owner: Symbol, name: TypeName, parents: List[Type]): Symbol = {
+      val clazz = owner.newClass(NoPosition, name)
+      // clazz.setInfo(ClassInfoType(parents, new Scope, clazz))
+      // owner.info.decls.enter(clazz)
+      clazz
+    }
+    
+    private def newCovariantPolyClass(owner: Symbol, name: TypeName, parent: Symbol => Type): Symbol = {
+      val clazz  = newClass(owner, name, List())
+      // val tparam = newTypeParam(clazz, 0) setFlag COVARIANT
+      // val p      = parent(tparam)
+      // clazz.setInfo(
+      //   polyType(
+      //     List(tparam),
+      //     ClassInfoType(List(AnyRefClass.tpe, p), new Scope, clazz)))
+      clazz
+    }
+    
+    private def newAlias(owner: Symbol, name: TypeName, alias: Type): Symbol = {
+      val tpsym = owner.newAliasType(NoPosition, name)
+      // tpsym.setInfo(alias)
+      // owner.info.decls.enter(tpsym)
+      tpsym
+    }
+    
+    private def newMethod(owner: Symbol, name: TermName): Symbol = {
+      val msym = owner.newMethod(NoPosition, name)
+      // owner.info.decls.enter(msym)
+      msym
+    }
+    
+    private[Definitions] def newMethod(owner: Symbol, name: TermName, formals: List[Type], restpe: Type): Symbol = {
+      val msym = newMethod(owner, name)
+      val params = msym.newSyntheticValueParams(formals)
+      // msym.setInfo(MethodType(params, restpe))
+      msym
+    }
+    
+    /** tcon receives the type parameter symbol as argument */
+    private def newPolyMethod(owner: Symbol, name: TermName, tcon: Symbol => Type): Symbol =
+      newPolyMethodCon(owner, name, tparam => msym => tcon(tparam))
+
+    /** tcon receives the type parameter symbol and the method symbol as arguments */
+    private def newPolyMethodCon(owner: Symbol, name: TermName, tcon: Symbol => Symbol => Type): Symbol = {
+      val msym = newMethod(owner, name)
+      // val tparam = newTypeParam(msym, 0)
+      // msym.setInfo(polyType(List(tparam), tcon(tparam)(msym)))
+      msym
     }
     
     // todo: reconcile with javaSignature!!!

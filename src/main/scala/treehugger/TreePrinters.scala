@@ -424,11 +424,11 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
   def newTreePrinter(stream: OutputStream): TreePrinter = newTreePrinter(new PrintWriter(stream))
   def newTreePrinter(): TreePrinter = newTreePrinter(new PrintWriter(ConsoleWriter))
   
-  def treeToString(tree: Tree): String = {
+  def treeToString(args: Any*): String = {
     val sw = new StringWriter
     val writer = new PrintWriter(sw)
     val printer = newTreePrinter(writer)  
-    printer.print(tree)
+    printer.print(args: _*)
     sw.toString
   }
   

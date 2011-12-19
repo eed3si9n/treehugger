@@ -85,9 +85,7 @@ trait Symbols extends api.Symbols { self: Universe =>
      *  If settings.uniqid, adds id.
      */
     def nameString = decodedName
-    
-    override def toString = nameString
-    
+        
     /** The module class corresponding to this module.
      */
     def moduleClass: Symbol = NoSymbol
@@ -198,6 +196,32 @@ trait Symbols extends api.Symbols { self: Universe =>
     def isBottomClass  = false  // to be overridden
     def isAliasType    = false  // to be overridden
     def isAbstractType = false  // to be overridden
+    private[treehugger] def isSkolem = false // to be overridden
+    
+    /** Is this symbol a type but not a class? */
+    def isNonClassType = false // to be overridden
+    
+    override final def isTrait     = isClass && hasFlag(TRAIT)
+    final def isAbstractClass      = isClass && hasFlag(ABSTRACT)
+    final def isBridge             = hasFlag(BRIDGE)
+    final def isContravariant      = isType && hasFlag(CONTRAVARIANT)
+    final def isConcreteClass      = isClass && !hasFlag(ABSTRACT | TRAIT)
+    final def isCovariant          = isType && hasFlag(COVARIANT)
+    final def isEarlyInitialized   = isTerm && hasFlag(PRESUPER)
+    final def isExistentiallyBound = isType && hasFlag(EXISTENTIAL)
+    final def isImplClass          = isClass && hasFlag(IMPLCLASS)
+    final def isLazyAccessor       = isLazy && lazyAccessor != NoSymbol
+    final def isMethod             = isTerm && hasFlag(METHOD)
+    final def isModule             = isTerm && hasFlag(MODULE)
+    final def isModuleClass        = isClass && hasFlag(MODULE)
+    final def isNumericValueClass  = definitions.isNumericValueClass(this)
+    final def isOverloaded         = hasFlag(OVERLOADED)
+    final def isOverridableMember  = !(isClass || isEffectivelyFinal) && owner.isClass
+    final def isRefinementClass    = isClass && name == tpnme.REFINE_CLASS_NAME
+    final def isSourceMethod       = isMethod && !hasFlag(STABLE) // exclude all accessors!!!
+    final def isTypeParameter      = isType && isParameter && !isSkolem
+    final def isValueClass         = definitions.isValueClass(this)
+    final def isVarargsMethod      = isMethod && hasFlag(VARARGS)
     
     /** Package tests */
     final def isEmptyPackage      = isPackage && name == nme.EMPTY_PACKAGE_NAME
@@ -211,14 +235,11 @@ trait Symbols extends api.Symbols { self: Universe =>
      */
     def isEffectiveRoot = isRoot || isEmptyPackageClass
     
-    /** Is this symbol a type but not a class? */
-    def isNonClassType = false // to be overridden
+    /** Term symbols with the exception of static parts of Java classes and packages.
+     */
+    final def isValue = isTerm && !(isModule && hasFlag(PACKAGE | JAVA))
     
-    final def isMethod             = isTerm && hasFlag(METHOD)
-    final def isModule             = isTerm && hasFlag(MODULE)
-    final def isModuleClass        = isClass && hasFlag(MODULE)
-    final def isRefinementClass    = isClass && name == tpnme.REFINE_CLASS_NAME
-    
+    final def isVariable  = isTerm && isMutable && !isMethod
     
     final def isValueParameter = isTerm && hasFlag(PARAM)
     // final def isLocalDummy = isTerm && nme.isLocalDummyName(name)
@@ -235,6 +256,8 @@ trait Symbols extends api.Symbols { self: Universe =>
     final def isPackageObjectOrClass = name == nme.PACKAGE || name == tpnme.PACKAGE
     final def isPackageObject        = name == nme.PACKAGE && owner.isPackageClass
     final def isPackageObjectClass   = name == tpnme.PACKAGE && owner.isPackageClass
+    
+    final def isJavaInterface = isJavaDefined && isTrait
     
     /** The owner, skipping package objects.
      */
@@ -275,6 +298,17 @@ trait Symbols extends api.Symbols { self: Universe =>
       else effectiveOwner.enclClass.fullName(separator) + separator + decodedName
     )
     
+    /** Is this symbol effectively final? I.e, it cannot be overridden */
+    final def isEffectivelyFinal: Boolean = (
+         isFinal
+      || hasModuleFlag
+      || isTerm && (
+             isPrivate
+          || isLocal
+          || owner.isClass && owner.isEffectivelyFinal
+      )
+    )
+    
     /** Is this symbol locally defined? I.e. not accessed from outside `this` instance */
     final def isLocal: Boolean = owner.isTerm
     
@@ -286,6 +320,12 @@ trait Symbols extends api.Symbols { self: Universe =>
      *  are separated by periods.
      */
     final def fullName: String = fullName('.')
+    
+    /** The variance of this symbol as an integer */
+    final def variance: Int =
+      if (isCovariant) 1
+      else if (isContravariant) -1
+      else 0    
     
 // ------ flags attribute --------------------------------------------------------------
 
@@ -382,12 +422,7 @@ trait Symbols extends api.Symbols { self: Universe =>
     def addAnnotation(sym: Symbol, args: Tree*): this.type =
       addAnnotation(AnnotationInfo(sym.tpe, args.toList, Nil))
     
-    def hasFlagsToString(mask: Long): String = flagsToString(
-      flags & mask,
-      if (hasAccessBoundary) privateWithin.toString else ""
-    )
-
-    // ------ comparisons ----------------------------------------------------------------
+// ------ comparisons ----------------------------------------------------------------
 
     /** Is this class symbol a subclass of that symbol? */
     final def isNonBottomSubClass(that: Symbol): Boolean = (
@@ -408,12 +443,72 @@ trait Symbols extends api.Symbols { self: Universe =>
      * We always have: thisType <:< typeOfThis
      */
     def thisType: Type = NoPrefix
-    
+
     /** The module corresponding to this module class (note that this
      *  is not updated when a module is cloned), or NoSymbol if this is not a ModuleClass.
      */
     def sourceModule: Symbol = NoSymbol
     
+    /** For a lazy value, its lazy accessor. NoSymbol for all others. */
+    def lazyAccessor: Symbol = NoSymbol
+    
+// ------ toString -------------------------------------------------------------------
+    
+    /** String representation of symbol's definition key word */
+    final def keyString: String =
+      if (isJavaInterface) "interface"
+      else if (isTrait) "trait"
+      else if (isClass) "class"
+      else if (isType && !isParameter) "type"
+      else if (isVariable) "var"
+      else if (isPackage) "package"
+      else if (isModule) "object"
+      else if (isSourceMethod) "def"
+      else if (isTerm && (!isParameter || isParamAccessor)) "val"
+      else ""
+      
+    override def toString = nameString
+    
+    def signatureString = "<_>" // if (hasRawInfo) infoString(rawInfo) else "<_>"
+        
+    def hasFlagsToString(mask: Long): String = flagsToString(
+      flags & mask,
+      if (hasAccessBoundary) privateWithin.toString else ""
+    )
+    
+    /** String representation of symbol's variance */
+    def varianceString: String =
+      if (variance == 1) "+"
+      else if (variance == -1) "-"
+      else ""
+    
+    def defaultFlagMask =
+      if (owner.isRefinementClass) ExplicitFlags & ~OVERRIDE
+      else ExplicitFlags
+
+    def accessString = hasFlagsToString(PRIVATE | PROTECTED | LOCAL)
+    def defaultFlagString = hasFlagsToString(defaultFlagMask)
+    
+
+    
+    private def defStringCompose(infoString: String) = compose(
+      defaultFlagString,
+      keyString,
+      varianceString + nameString + infoString
+    )
+    /** String representation of symbol's definition.  It uses the
+     *  symbol's raw info to avoid forcing types.
+     */
+    def defString = defStringCompose(signatureString)
+    
+    /** Concatenate strings separated by spaces */
+    private def compose(ss: String*) = ss filter (_ != "") mkString " "
+    
+    def isSingletonExistential = false
+      // nme.isSingletonName(name) && (info.bounds.hi.typeSymbol isSubClass SingletonClass)
+
+    /** String representation of existentially bound variable */
+    def existentialToString = defString
   }
   
   /** A class for term symbols */

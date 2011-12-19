@@ -271,6 +271,72 @@ trait Types extends api.Types { self: Universe =>
     }
   }
   
+  /** A common base class for intersection types and class types
+   */
+  abstract class CompoundType extends Type {
+    override def safeToString: String =
+      parents.mkString(" with ")
+  }
+  
+  /** A class representing intersection types with refinements of the form
+   *    `<parents_0> with ... with <parents_n> { decls }`
+   *  Cannot be created directly;
+   *  one should always use `refinedType` for creation.
+   */
+  case class RefinedType(override val parents: List[Type],
+                         override val decls: Scope) extends CompoundType {
+    override def isHigherKinded = (
+      parents.nonEmpty &&
+      (parents forall (_.isHigherKinded))
+    )
+    
+    override def typeParams =
+      if (isHigherKinded) parents.head.typeParams
+      else super.typeParams
+      
+  }
+  
+  final class RefinedType0(parents: List[Type], decls: Scope, clazz: Symbol) extends RefinedType(parents, decls) {
+    override def typeSymbol = clazz
+  }
+
+  object RefinedType extends RefinedTypeExtractor {
+    def apply(parents: List[Type], decls: Scope, clazz: Symbol): RefinedType =
+      new RefinedType0(parents, decls, clazz)
+  }
+  
+  /** A class representing a class info
+   */
+  case class ClassInfoType(
+    override val parents: List[Type],
+    override val decls: Scope,
+    override val typeSymbol: Symbol) extends CompoundType {
+  }
+
+  object ClassInfoType extends ClassInfoTypeExtractor
+
+  class PackageClassInfoType(decls: Scope, clazz: Symbol)
+  extends ClassInfoType(List(), decls, clazz)
+  
+  /** A class representing a constant type.
+   *
+   *  @param value ...
+   */
+  abstract case class ConstantType(value: Constant) extends SingletonType {
+    // override def underlying: Type = value.tpe
+    override def safeToString: String =
+      underlying.toString + "(" + value.escapedStringValue + ")"
+  }
+  
+  final class UniqueConstantType(value: Constant) extends ConstantType(value) with UniqueType {
+  }
+
+  object ConstantType extends ConstantTypeExtractor {
+    def apply(value: Constant): ConstantType = {
+      new UniqueConstantType(value).asInstanceOf[ConstantType]
+    }
+  }
+  
   /** A class for named types of the form
    *  `<prefix>.<sym.name>[args]`
    *  Cannot be created directly; one should always use `typeRef`
@@ -402,70 +468,19 @@ trait Types extends api.Types { self: Universe =>
   case class MethodType(override val params: List[Symbol],
                         override val resultType: Type) extends Type {
     override def finalResultType: Type = resultType.finalResultType
+    // override def safeToString = paramString(this) + resultType
   }
   
   object MethodType extends MethodTypeExtractor
   
-  /** A class representing a constant type.
-   *
-   *  @param value ...
-   */
-  abstract case class ConstantType(value: Constant) extends SingletonType {
-    // override def underlying: Type = value.tpe
-    // override def safeToString: String =
-    //  underlying.toString + "(" + value.escapedStringValue + ")"
+  class JavaMethodType(ps: List[Symbol], rt: Type) extends MethodType(ps, rt) {
+    def isJava = true
   }
   
-  final class UniqueConstantType(value: Constant) extends ConstantType(value) with UniqueType {
-  }
-
-  object ConstantType extends ConstantTypeExtractor {
-    def apply(value: Constant): ConstantType = {
-      new UniqueConstantType(value).asInstanceOf[ConstantType]
-    }
-  }  
-  
-  /** A common base class for intersection types and class types
-   */
-  abstract class CompoundType extends Type {
-  }
-
-  /** A class representing intersection types with refinements of the form
-   *    `<parents_0> with ... with <parents_n> { decls }`
-   *  Cannot be created directly;
-   *  one should always use `refinedType` for creation.
-   */
-  case class RefinedType(override val parents: List[Type],
-                         override val decls: Scope) extends CompoundType {
-    override def isHigherKinded = (
-      parents.nonEmpty &&
-      (parents forall (_.isHigherKinded))
-    )
-  }
-  
-  final class RefinedType0(parents: List[Type], decls: Scope, clazz: Symbol) extends RefinedType(parents, decls) {
-    override def typeSymbol = clazz
-  }
-
-  object RefinedType extends RefinedTypeExtractor {
-    def apply(parents: List[Type], decls: Scope, clazz: Symbol): RefinedType =
-      new RefinedType0(parents, decls, clazz)
-  }
-  
-  /** A class representing a class info
-   */
-  case class ClassInfoType(
-    override val parents: List[Type],
-    override val decls: Scope,
-    override val typeSymbol: Symbol) extends CompoundType {
-  }
-
-  object ClassInfoType extends ClassInfoTypeExtractor
-
-  class PackageClassInfoType(decls: Scope, clazz: Symbol)
-  extends ClassInfoType(List(), decls, clazz)
-   
   case class NullaryMethodType(override val resultType: Type) extends SimpleTypeProxy {
+    override def params            = Nil
+    // override def paramTypes        = Nil
+    override def safeToString      = "=> " + resultType
   }
   
   object NullaryMethodType extends NullaryMethodTypeExtractor
@@ -486,16 +501,52 @@ trait Types extends api.Types { self: Universe =>
        extends Type {
     override def params: List[Symbol] = resultType.params
     override def finalResultType: Type = resultType.finalResultType
+    
+    override def isHigherKinded = !typeParams.isEmpty
+    
+    // typeParamsString is in debug
+    // override def safeToString = typeParamsString(this) + resultType
   }
   
   object PolyType extends PolyTypeExtractor
   
   case class ExistentialType(quantified: List[Symbol],
                              override val underlying: Type) extends Type {
-                               
+    override def isHigherKinded = false
+    
+    override def safeToString: String = {
+      if (!(quantified exists (_.isSingletonExistential)))
+        // try to represent with wildcards first
+        underlying match {
+          case TypeRef(pre, sym, args) if args.nonEmpty =>
+            val wargs = Nil // wildcardArgsString(quantified.toSet, args)
+            if (sameLength(wargs, args))
+              return TypeRef(pre, sym, List()) + wargs.mkString("[", ", ", "]")
+          case _ =>
+        }
+      var ustr = underlying.toString
+      underlying match {
+        case MethodType(_, _) | NullaryMethodType(_) | PolyType(_, _) => ustr = "("+ustr+")"
+        case _ =>
+      }
+      val str =
+        ustr+(quantified map (_.existentialToString) mkString(" forSome { ", "; ", " }"))
+      str
+    }
   }
   
   object ExistentialType extends ExistentialTypeExtractor
+
+  /** A class containing the alternatives and type prefix of an overloaded symbol.
+   *  Not used after phase `typer`.
+   */
+  case class OverloadedType(pre: Type, alternatives: List[Symbol]) extends Type {
+    override def prefix: Type = pre
+    // override def safeToString =
+    //  (alternatives map pre.memberType).mkString("", " <and> ", "")
+  }
+  
+  
 
   //@M
   // a TypeVar used to be a case class with only an origin and a constr
@@ -559,10 +610,26 @@ trait Types extends api.Types { self: Universe =>
   case class AnnotatedType(val annotations: List[AnnotationInfo],
                            override val underlying: Type,
                            val selfsym: Symbol) extends Type {
-    
+    override def safeToString = annotations.mkString(underlying + " @", " @", "")
   }
+
+  /** Creator for AnnotatedTypes.  It returns the underlying type if annotations.isEmpty
+   *  rather than walking into the assertion.
+   */
+  def annotatedType(annots: List[AnnotationInfo], underlying: Type, selfsym: Symbol = NoSymbol): Type =
+    if (annots.isEmpty) underlying
+    else AnnotatedType(annots, underlying, selfsym)
   
   object AnnotatedType extends AnnotatedTypeExtractor
+  
+  /** A class representing types with a name. When an application uses
+   *  named arguments, the named argument types for calling isApplicable
+   *  are represented as NamedType.
+   */
+  case class NamedType(name: Name, tp: Type) extends Type {
+    override def safeToString: String = name.toString +": "+ tp
+  }
+  
   
 // Creators ---------------------------------------------------------------
   
