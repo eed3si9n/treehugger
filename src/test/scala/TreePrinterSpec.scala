@@ -17,32 +17,32 @@ class TreePrinterSpec extends Specification { def is =
   import definitions._
   
   def e1 = {  
-    val tree = mkMethodCall(sym.println, Literal(Constant("Hello, world!")) :: Nil)
+    val tree = mkMethodCall(sym.println, mkLiteral("Hello, world!") :: Nil)
     val s = treeToString(tree); println(s)
     
     s must_== """println("Hello, world!")"""
   }
   
   def e2 = {
-    val rhs = Block(Nil, mkMethodCall(sym.println, Literal(Constant("Hello, world!")) :: Nil))
+    val rhs = Block(mkMethodCall(sym.println, mkLiteral("Hello, world!") :: Nil))
     val tree = DefDef(NoMods, "hello", Nil, Nil, TypeTree(UnitClass.typeConstructor), rhs)
     val s = treeToString(tree); println(s)
     
     s.lines.toList must contain(
       """def hello: Unit = {""",
-      """  println("Hello, world!")""",
+      """  println("Hello, world!");""",
+      """  ()""",
       """}"""
     ).inOrder
   }
   
   def e3 = {
-    val greetStrings = "greetStrings"
-    val exp1 = ValDef(NoMods, greetStrings, EmptyTree,
-      New(Apply(TypeTree(arrayType(StringClass.typeConstructor)), Literal(Constant(3)) :: Nil)))
-    val exp2 = Assign(Apply(Ident(greetStrings), Literal(Constant(0)) :: Nil), Literal(Constant("Hello")))
-    val exp3 = Assign(Apply(Ident(greetStrings), Literal(Constant(1)) :: Nil), Literal(Constant(", ")))
-    val exp4 = Assign(Apply(Ident(greetStrings), Literal(Constant(2)) :: Nil), Literal(Constant("world!\n")))
-    
+    val greetStrings = RootClass.newValue("greetStrings")
+    val exp1 = ValDef(greetStrings,
+      New(Apply(TypeTree(arrayType(StringClass.typeConstructor)), mkLiteral(3) :: Nil)))
+    val exp2 = Assign(Apply(greetStrings, mkLiteral(0)), mkLiteral("Hello"))
+    val exp3 = Assign(Apply(greetStrings, mkLiteral(1)), mkLiteral(", "))
+    val exp4 = Assign(Apply(greetStrings, mkLiteral(2)), mkLiteral("world!\n"))
     
     val s = treeToString(List(exp1, NL, exp2, NL, exp3, NL, exp4): _*); println(s)
     
@@ -55,6 +55,6 @@ class TreePrinterSpec extends Specification { def is =
   }
   
   object sym {
-    val println = NoSymbol.newMethod(newTermName("println"))
+    val println = ScalaPackageClass.newMethod("println")
   }
 }

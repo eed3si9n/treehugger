@@ -119,15 +119,13 @@ trait TreeGen { self: Universe =>
 
   /** Builds a reference to given symbol. */
   def mkAttributedRef(sym: Symbol): Tree =
-    // if (sym.owner.isClass) mkAttributedRef(sym.owner.thisType, sym)
-    // else 
-    mkAttributedIdent(sym)
+    if (sym.owner.isClass) mkAttributedRef(sym.owner.thisType, sym)
+    else mkAttributedIdent(sym)
 
   /** Builds an untyped reference to given symbol. */
   def mkUnattributedRef(sym: Symbol): Tree =
-    // if (sym.owner.isClass) Select(This(sym.owner), sym)
-    // else
-    Ident(sym)
+    if (sym.owner.isClass) Select(This(sym.owner), sym)
+    else Ident(sym)
    
   // /** Replaces tree type with a stable type if possible */
   // def stabilize(tree: Tree): Tree = {
@@ -273,4 +271,6 @@ trait TreeGen { self: Universe =>
   // tree1 OR tree2
   def mkOr(tree1: Tree, tree2: Tree): Tree =
     Apply(Select(tree1, Boolean_or), List(tree2))
+    
+  def mkLiteral(value: Any): Tree = Literal(Constant(value))
 }

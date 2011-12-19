@@ -32,7 +32,7 @@ trait Symbols extends api.Symbols { self: Universe =>
       Modifier.values filter hasModifier
     
 // ------ creators -------------------------------------------------------------------
-
+    
     final def newValue(pos: Position, name: TermName) =
       new TermSymbol(this, pos, name)
     final def newValue(name: TermName, pos: Position = NoPosition) =
@@ -50,7 +50,7 @@ trait Symbols extends api.Symbols { self: Universe =>
       new MethodSymbol(this, pos, name).setFlag(METHOD)
     final def newLabel(pos: Position, name: TermName) =
       newMethod(pos, name).setFlag(LABEL)
-
+      
     /** Propagates ConstrFlags (JAVA, specifically) from owner to constructor. */
     final def newConstructor(pos: Position) =
       newMethod(pos, nme.CONSTRUCTOR) setFlag getFlag(ConstrFlags)
@@ -60,35 +60,6 @@ trait Symbols extends api.Symbols { self: Universe =>
     /** Instance constructor with info set. */
     def newClassConstructor(pos: Position) =
       newConstructor(pos)
-    
-    /** The owner of this symbol.
-     */
-    def owner: Symbol = rawowner
-    
-    def ownerChain: List[Symbol] = this :: owner.ownerChain
-    
-    
-    /** The name of the symbol as a member of the `Name` type.
-     */
-    def name: Name = rawname
-    
-    /** The simple name of this Symbol */
-    final def simpleName: Name = name
-    
-    /** The decoded name of the symbol, e.g. `==` instead of `\$eq\$eq`.
-     */
-    def decodedName: String = name.name
-    
-    /** String representation of symbol's simple name.
-     *  If !settings.debug translates expansions of operators back to operator symbol.
-     *  E.g. $eq => =.
-     *  If settings.uniqid, adds id.
-     */
-    def nameString = decodedName
-        
-    /** The module class corresponding to this module.
-     */
-    def moduleClass: Symbol = NoSymbol
     
     private def finishModule(m: ModuleSymbol, clazz: ClassSymbol): ModuleSymbol = {
       // Top-level objects can be automatically marked final, but others
@@ -326,6 +297,37 @@ trait Symbols extends api.Symbols { self: Universe =>
       if (isCovariant) 1
       else if (isContravariant) -1
       else 0    
+
+// ------ owner attribute --------------------------------------------------------------
+
+    /** The owner of this symbol.
+     */
+    def owner: Symbol = rawowner
+    
+    def ownerChain: List[Symbol] = this :: owner.ownerChain
+    
+    
+    /** The name of the symbol as a member of the `Name` type.
+     */
+    def name: Name = rawname
+    
+    /** The simple name of this Symbol */
+    final def simpleName: Name = name
+    
+    /** The decoded name of the symbol, e.g. `==` instead of `\$eq\$eq`.
+     */
+    def decodedName: String = name.name
+    
+    /** String representation of symbol's simple name.
+     *  If !settings.debug translates expansions of operators back to operator symbol.
+     *  E.g. $eq => =.
+     *  If settings.uniqid, adds id.
+     */
+    def nameString = decodedName
+        
+    /** The module class corresponding to this module.
+     */
+    def moduleClass: Symbol = NoSymbol
     
 // ------ flags attribute --------------------------------------------------------------
 

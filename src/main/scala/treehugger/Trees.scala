@@ -62,12 +62,62 @@ trait Trees extends api.Trees { self: Universe =>
   
   // ---- values and creators ---------------------------------------
   
+  /** @param sym       the class symbol
+   *  @return          the implementation template
+   */
+  // def ClassDef(sym: Symbol, impl: Template): ClassDef =
+  //   ClassDef(Modifiers(sym.flags),
+  //              sym.name.toTypeName,
+  //              sym.typeParams map TypeDef,
+  //              impl) setSymbol sym
+  
+  /**
+   *  @param sym       the class symbol
+   *  @param impl      the implementation template
+   */
+  def ModuleDef(sym: Symbol, impl: Template): ModuleDef =
+    ModuleDef(Modifiers(sym.flags), sym.name, impl) setSymbol sym
+  
+  def ValDef(sym: Symbol, rhs: Tree): ValDef =
+    ValDef(Modifiers(sym.flags), sym.name,
+             TypeTree(sym.tpe), // setPos focusPos(sym.pos),
+             rhs) setSymbol sym
+  
+  def ValDef(sym: Symbol): ValDef = ValDef(sym, EmptyTree)
+  
   object emptyValDef extends ValDef(Modifiers(PRIVATE), nme.WILDCARD, TypeTree(NoType), EmptyTree) {
     override def isEmpty = true
     super.setPos(NoPosition)
     override def setPos(pos: Position) = { assert(false); this }
   }
+      
+  /** A TypeDef node which defines given `sym` with given tight hand side `rhs`. */
+  // def TypeDef(sym: Symbol, rhs: Tree): TypeDef =
+  //   TypeDef(Modifiers(sym.flags), sym.name.toTypeName, sym.typeParams map TypeDef, rhs) setSymbol sym
+
+  /** A TypeDef node which defines abstract type or type parameter for given `sym` */
+  // def TypeDef(sym: Symbol): TypeDef =
+  //   TypeDef(sym, TypeBoundsTree(TypeTree(sym.info.bounds.lo), TypeTree(sym.info.bounds.hi)))
+
+  def LabelDef(sym: Symbol, params: List[Symbol], rhs: Tree): LabelDef =
+    LabelDef(sym.name, params map Ident, rhs) setSymbol sym
+  
+  /** casedef shorthand */
+  def CaseDef(pat: Tree, body: Tree): CaseDef = CaseDef(pat, EmptyTree, body)
+
+  def Bind(sym: Symbol, body: Tree): Bind =
+    Bind(sym.name, body) setSymbol sym
   
   def Apply(sym: Symbol, args: Tree*): Tree =
     Apply(Ident(sym), args.toList)
+  
+  def This(sym: Symbol): Tree = This(sym.name.toTypeName) setSymbol sym
+  
+  /** Block factory that flattens directly nested blocks.
+   */
+  def Block(stats: Tree*): Block = stats match {
+    case Seq(b @ Block(_, _)) => b
+    case Seq(stat) => Block(stats.toList, Literal(Constant(())))
+    case Seq(_, rest @ _*) => Block(stats.init.toList, stats.last)
+  }
 }
