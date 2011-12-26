@@ -12,6 +12,7 @@ class Universe extends api.Universe
                            with AnnotationInfos
                            with TreePrinters
                            with TreeGen
+                           with TreeDSL
 {
   type Position = String
   val NoPosition: Position = ""

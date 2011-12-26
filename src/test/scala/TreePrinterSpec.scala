@@ -12,24 +12,24 @@ class TreePrinterSpec extends Specification { def is =
                                                                               end
   
   lazy val universe = new treehugger.Universe
-  val NL = "\n"
   import universe._
   import definitions._
+  import CODE._
   
   def e1 = {  
-    val tree = mkMethodCall(sym.println, mkLiteral("Hello, world!") :: Nil)
+    val tree = sym.println APPLY LIT("Hello, world!")
     val s = treeToString(tree); println(s)
     
     s must_== """println("Hello, world!")"""
   }
   
   def e2 = {
-    val rhs = Block(mkMethodCall(sym.println, mkLiteral("Hello, world!") :: Nil))
-    val tree = DefDef(NoMods, "hello", Nil, Nil, TypeTree(UnitClass.typeConstructor), rhs)
+    val tree = DEF("hello", UnitClass.typeConstructor) :=
+      BLOCK(sym.println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
     s.lines.toList must contain(
-      """def hello: Unit = {""",
+      """def hello(): Unit = {""",
       """  println("Hello, world!");""",
       """  ()""",
       """}"""
@@ -39,17 +39,18 @@ class TreePrinterSpec extends Specification { def is =
   // p. 38
   def e3 = {
     val greetStrings = RootClass.newValue("greetStrings")
-    val exp1 = ValDef(greetStrings,
-      New(Apply(TypeTree(arrayType(StringClass.typeConstructor)), mkLiteral(3) :: Nil)))
     def assignGreetStrings(index: Int, value: String): Tree =
-      Assign(Apply(greetStrings, mkLiteral(index)), mkLiteral(value))
-    val exp2 = assignGreetStrings(0, "Hello")
-    val exp3 = assignGreetStrings(1, ", ")
-    val exp4 = assignGreetStrings(2, "world!\n")
-    val exp5 = ForTree(ValFrom(Ident("i"), Infix(mkLiteral(0), sym.to, mkLiteral(2) :: Nil)) :: Nil,
-      mkMethodCall(sym.print, Apply(greetStrings, Ident("i")) :: Nil))
+      greetStrings APPLY LIT(index) := LIT(value)
     
-    val s = treeToString(List(exp1, NL, exp2, NL, exp3, NL, exp4, NL, exp5): _*); println(s)
+    val trees = (VAL(greetStrings) := NEW(arrayType(StringClass.typeConstructor), LIT(3))) ::
+      assignGreetStrings(0, "Hello") ::
+      assignGreetStrings(1, ", ") ::
+      assignGreetStrings(2, "world!\n") ::
+      ForTree(ValFrom(Ident("i"), Infix(LIT(0), sym.to, LIT(2) :: Nil)) :: Nil,
+        sym.print APPLY (greetStrings APPLY Ident("i")) ) ::
+      Nil
+    
+    val s = treesToString(trees); println(s)
     
     s.lines.toList must contain(
       """val greetStrings = new Array[String](3)""",

@@ -466,6 +466,15 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
   def newTreePrinter(stream: OutputStream): TreePrinter = newTreePrinter(new PrintWriter(stream))
   def newTreePrinter(): TreePrinter = newTreePrinter(new PrintWriter(ConsoleWriter))
   
+  def treesToString(trees: List[Tree]): String = {
+    val NL = "\n"
+    val withNL = trees match {
+      case Nil | (_ :: Nil) => trees
+      case _ => (trees flatMap { _ :: NL :: Nil }).init
+    }
+    treeToString(withNL: _*)
+  }
+  
   def treeToString(args: Any*): String = {
     val sw = new StringWriter
     val writer = new PrintWriter(sw)

@@ -272,5 +272,5 @@ trait TreeGen { self: Universe =>
   def mkOr(tree1: Tree, tree2: Tree): Tree =
     Apply(Select(tree1, Boolean_or), List(tree2))
     
-  def mkLiteral(value: Any): Tree = Literal(Constant(value))
+  // def mkLiteral(value: Any): Tree = Literal(Constant(value))
 }
