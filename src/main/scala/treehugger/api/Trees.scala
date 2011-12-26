@@ -626,7 +626,24 @@ trait Trees { self: Universe =>
   def TypeTree(tp: Type): TypeTree = TypeTree() setType tp
   
   def emptyValDef: ValDef
-
+  
+  // ------ tree extension --------------------------------------------------------------------
+  // these are not originall part of reflection API
+  
+  // for (P_1 <- G; P_2 = E_2; if E_3; ...)
+  sealed abstract class Enumerator extends Tree { def pos: Position }
+  case class ValFrom(override val pos: Position, pat: Tree, rhs: Tree) extends Enumerator
+  case class ValEq(override val pos: Position, pat: Tree, rhs: Tree) extends Enumerator
+  case class Filter(override val pos: Position, test: Tree) extends Enumerator
+  
+  def ValFrom(pat: Tree, rhs: Tree): ValFrom = ValFrom(NoPosition, pat, rhs)
+  def ValEq(pat: Tree, rhs: Tree): ValEq = ValEq(NoPosition, pat, rhs)
+  def Filter(test: Tree): Filter = Filter(NoPosition, test)
+  
+  case class ForTree(enums: List[Enumerator], body: Tree) extends Tree
+  
+  case class ForYieldTree(enums: List[Enumerator], body: Tree) extends Tree
+  
   // ------ traversers, copiers, and transformers ---------------------------------------------
 
   val treeCopy = newLazyTreeCopier
@@ -663,7 +680,7 @@ trait Trees { self: Universe =>
           traverseTrees(mods.annotations); traverseTrees(tparams); traverse(rhs)
         }
       case LabelDef(name, params, rhs) =>
-        traverseTrees(params); traverse(rhs)
+        traverseTrees(params); traverse(rhs)   
       case Import(expr, selectors) =>
         traverse(expr)
       case Annotated(annot, arg) =>
@@ -736,6 +753,16 @@ trait Trees { self: Universe =>
         traverse(lo); traverse(hi)
       case ExistentialTypeTree(tpt, whereClauses) =>
         traverse(tpt); traverseTrees(whereClauses)
+      case ForTree(enums, body) =>
+        traverseTrees(enums); traverse(body)
+      case ForYieldTree(enums, body) =>
+        traverseTrees(enums); traverse(body)
+      case ValFrom(_, pat, rhs) =>
+        traverse(pat); traverse(rhs)
+      case ValEq(_, pat, rhs) =>
+        traverse(pat); traverse(rhs)
+      case Filter(_, test: Tree) =>
+        traverse(test)        
       case _ => xtraverse(this, tree)
     }
 
@@ -751,7 +778,7 @@ trait Trees { self: Universe =>
         else traverse(stat)
       )
     }
-
+    
     def atOwner(owner: Symbol)(traverse: => Unit) {
       val prevOwner = currentOwner
       currentOwner = owner

@@ -36,15 +36,20 @@ class TreePrinterSpec extends Specification { def is =
     ).inOrder
   }
   
+  // p. 38
   def e3 = {
     val greetStrings = RootClass.newValue("greetStrings")
     val exp1 = ValDef(greetStrings,
       New(Apply(TypeTree(arrayType(StringClass.typeConstructor)), mkLiteral(3) :: Nil)))
-    val exp2 = Assign(Apply(greetStrings, mkLiteral(0)), mkLiteral("Hello"))
-    val exp3 = Assign(Apply(greetStrings, mkLiteral(1)), mkLiteral(", "))
-    val exp4 = Assign(Apply(greetStrings, mkLiteral(2)), mkLiteral("world!\n"))
+    def assignGreetStrings(index: Int, value: String): Tree =
+      Assign(Apply(greetStrings, mkLiteral(index)), mkLiteral(value))
+    val exp2 = assignGreetStrings(0, "Hello")
+    val exp3 = assignGreetStrings(1, ", ")
+    val exp4 = assignGreetStrings(2, "world!\n")
+    val exp5 = ForTree(ValFrom(Ident("i"), mkMethodCall(mkLiteral(0), sym.to, Nil, mkLiteral(2) :: Nil)) :: Nil,
+      mkMethodCall(sym.println, Ident("i") :: Nil))
     
-    val s = treeToString(List(exp1, NL, exp2, NL, exp3, NL, exp4): _*); println(s)
+    val s = treeToString(List(exp1, NL, exp2, NL, exp3, NL, exp4, NL, exp5): _*); println(s)
     
     s.lines.toList must contain(
       """val greetStrings = new Array[String](3)""",
@@ -56,5 +61,6 @@ class TreePrinterSpec extends Specification { def is =
   
   object sym {
     val println = ScalaPackageClass.newMethod("println")
+    val to = ScalaPackageClass.newMethod("to")
   }
 }

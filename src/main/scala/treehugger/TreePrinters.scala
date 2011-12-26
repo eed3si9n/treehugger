@@ -343,6 +343,9 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
         case Select(qual @ New(tpe), name) => // if (!settings.debug.value) =>
           print(qual)
 
+        case Select(Literal(x), name) =>
+          print(x.escapedStringValue, ".", symName(tree, name))
+        
         case Select(qualifier, name) =>
           print(backquotedPath(qualifier), ".", symName(tree, name))
 
@@ -390,6 +393,38 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           print(tpt);
           printColumn(whereClauses, " forSome { ", ";", "}")
 
+// treehugger extensions
+        case ForTree(enumerators, body) =>
+          print("for ")
+          if (enumerators.size == 1) {
+            printRow(enumerators, "(", ";", ") ")
+            indent(); println();
+            print(body)
+            undent()
+          } 
+          else {
+            printColumn(enumerators, "{", "", "} ")
+            print(body)
+          }
+        case ForYieldTree(enumerators, body) =>
+          print("for ")
+          if (enumerators.size == 1) {
+            printRow(enumerators, "(", ";", ") ")
+            indent(); println();
+            print("yield "); print(body)
+            undent()
+          } 
+          else {
+            printColumn(enumerators, "{", "", "} ")
+            print("yield "); print(body)
+          }          
+        case ValFrom(_, pat, rhs) =>
+          print(pat, " <- ", rhs)  
+        case ValEq(_, pat, rhs) =>
+          print(pat, " = ", rhs)  
+        case Filter(_, test: Tree) =>
+          print("if ", test)
+          
 // SelectFromArray is no longer visible in reflect.internal.
 // eliminated until we figure out what we will do with both TreePrinters and
 // SelectFromArray.
