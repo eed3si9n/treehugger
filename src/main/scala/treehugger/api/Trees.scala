@@ -514,6 +514,12 @@ trait Trees { self: Universe =>
 
   class ApplyImplicitView(fun: Tree, args: List[Tree]) extends Apply(fun, args)
 
+  /** Infix application */
+  case class Infix(qualifier: Tree, name: Name, args: List[Tree]) extends Tree
+  
+  def Infix(qualifier: Tree, sym: Symbol, args: List[Tree]): Infix =
+    Infix(qualifier, sym.name, args)
+
   /** Dynamic value application.
    *  In a dynamic application   q.f(as)
    *   - q is stored in qual
@@ -762,7 +768,9 @@ trait Trees { self: Universe =>
       case ValEq(_, pat, rhs) =>
         traverse(pat); traverse(rhs)
       case Filter(_, test: Tree) =>
-        traverse(test)        
+        traverse(test)
+      case Infix(qual, fun, args) =>
+        traverse(qual); traverseTrees(args)
       case _ => xtraverse(this, tree)
     }
 

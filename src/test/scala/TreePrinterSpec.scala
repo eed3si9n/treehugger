@@ -46,8 +46,8 @@ class TreePrinterSpec extends Specification { def is =
     val exp2 = assignGreetStrings(0, "Hello")
     val exp3 = assignGreetStrings(1, ", ")
     val exp4 = assignGreetStrings(2, "world!\n")
-    val exp5 = ForTree(ValFrom(Ident("i"), mkMethodCall(mkLiteral(0), sym.to, Nil, mkLiteral(2) :: Nil)) :: Nil,
-      mkMethodCall(sym.println, Ident("i") :: Nil))
+    val exp5 = ForTree(ValFrom(Ident("i"), Infix(mkLiteral(0), sym.to, mkLiteral(2) :: Nil)) :: Nil,
+      mkMethodCall(sym.print, Apply(greetStrings, Ident("i")) :: Nil))
     
     val s = treeToString(List(exp1, NL, exp2, NL, exp3, NL, exp4, NL, exp5): _*); println(s)
     
@@ -55,12 +55,15 @@ class TreePrinterSpec extends Specification { def is =
       """val greetStrings = new Array[String](3)""",
       """greetStrings(0) = "Hello"""",
       """greetStrings(1) = ", """",
-      """greetStrings(2) = "world!\n""""
+      """greetStrings(2) = "world!\n"""",
+      """for (i <- 0 to 2)""",
+      """  print(greetStrings(i))"""
     ).inOrder
   }
   
   object sym {
     val println = ScalaPackageClass.newMethod("println")
+    val print = ScalaPackageClass.newMethod("print")
     val to = ScalaPackageClass.newMethod("to")
   }
 }

@@ -397,7 +397,7 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
         case ForTree(enumerators, body) =>
           print("for ")
           if (enumerators.size == 1) {
-            printRow(enumerators, "(", ";", ") ")
+            printRow(enumerators, "(", ";", ")")
             indent(); println();
             print(body)
             undent()
@@ -409,7 +409,7 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
         case ForYieldTree(enumerators, body) =>
           print("for ")
           if (enumerators.size == 1) {
-            printRow(enumerators, "(", ";", ") ")
+            printRow(enumerators, "(", ";", ")")
             indent(); println();
             print("yield "); print(body)
             undent()
@@ -424,7 +424,14 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           print(pat, " = ", rhs)  
         case Filter(_, test: Tree) =>
           print("if ", test)
-          
+        case Infix(Literal(x), name, args) =>
+          print(x.escapedStringValue, " ", symName(tree, name), " ")
+          if (args.size == 1) print(args(0))
+          else printRow(args, "(", ",", ")")
+        case Infix(qualifier, name, args) =>
+          print(backquotedPath(qualifier), " ", symName(tree, name), " ")
+          if (args.size == 1) print(args(0))
+          else printRow(args, "(", ",", ")")
 // SelectFromArray is no longer visible in reflect.internal.
 // eliminated until we figure out what we will do with both TreePrinters and
 // SelectFromArray.
