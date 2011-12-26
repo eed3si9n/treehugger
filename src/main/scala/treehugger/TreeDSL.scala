@@ -98,6 +98,9 @@ trait TreeDSL { self: Universe =>
       def DOT(member: Name)         = SelectStart(Select(target, member))
       def DOT(sym: Symbol)          = SelectStart(Select(target, sym))
 
+      def INFIX(name: Name, params: Tree*)  = Infix(target, name, params.toList)
+      def INFIX(sym: Symbol, params: Tree*) = Infix(target, sym, params.toList)
+      
       /** Assignment */
       def :=(rhs: Tree)            = Assign(target, rhs)
 
@@ -232,6 +235,10 @@ trait TreeDSL { self: Universe =>
       def FINALLY(x: Tree)    = Try(body, catches, x)
       def ENDTRY              = Try(body, catches, fin)
     }
+    class ForStart(enums: List[Enumerator]) {
+      def DO(body: Tree)    = ForTree(enums, body)
+      def YEILD(body: Tree) = ForYieldTree(enums, body) 
+    }
 
     def CASE(pat: Tree): CaseStart  = new CaseStart(pat, EmptyTree)
     def DEFAULT: CaseStart          = new CaseStart(WILD.empty, EmptyTree)
@@ -248,7 +255,12 @@ trait TreeDSL { self: Universe =>
       // def ARGS = target.paramss.head
       // def ARGNAMES = ARGS map Ident
     }
-
+    
+    class ValFromStart(val name: Name) extends TreeVODDStart {
+      type ResultTreeType = ValFrom
+      def mkTree(rhs: Tree): ValFrom = ValFrom(name, tpt, rhs)
+    }
+    
     /** Top level accessible. */
     def MATCHERROR(arg: Tree) = Throw(New(TypeTree(MatchErrorClass.tpe), List(List(arg))))
     /** !!! should generalize null guard from match error here. */
@@ -275,6 +287,9 @@ trait TreeDSL { self: Universe =>
     def LAZYVAL(name: Name): ValTreeStart           = VAL(name) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol): ValSymStart           = VAL(sym) withFlags Flags.LAZY
 
+    def VALFROM(name: Name, tp: Type): ValFromStart = VALFROM(name) withType tp
+    def VALFROM(name: Name): ValFromStart           = new ValFromStart(name)
+
     def AND(guards: Tree*) =
       if (guards.isEmpty) EmptyTree
       else guards reduceLeft mkAnd
@@ -288,6 +303,7 @@ trait TreeDSL { self: Universe =>
     def BLOCK(xs: Tree*)  = Block(xs: _*)
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
     def SOME(xs: Tree*)   = Apply(SomeModule, makeTupleTerm(xs.toList, true))
+    def FOR(xs: Enumerator*) = new ForStart(xs.toList)
 
     /** Typed trees from symbols. */
     def THIS(sym: Symbol)             = mkAttributedThis(sym)

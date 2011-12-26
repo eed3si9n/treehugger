@@ -46,8 +46,8 @@ class TreePrinterSpec extends Specification { def is =
       assignGreetStrings(0, "Hello") ::
       assignGreetStrings(1, ", ") ::
       assignGreetStrings(2, "world!\n") ::
-      ForTree(ValFrom(Ident("i"), Infix(LIT(0), sym.to, LIT(2) :: Nil)) :: Nil,
-        sym.print APPLY (greetStrings APPLY Ident("i")) ) ::
+      (FOR(VALFROM("i") := LIT(0) INFIX (sym.to, LIT(2))) DO
+        (sym.print APPLY (greetStrings APPLY Ident("i"))) ) ::
       Nil
     
     val s = treesToString(trees); println(s)

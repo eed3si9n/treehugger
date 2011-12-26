@@ -418,10 +418,14 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
             printColumn(enumerators, "{", "", "} ")
             print("yield "); print(body)
           }          
-        case ValFrom(_, pat, rhs) =>
-          print(pat, " <- ", rhs)  
-        case ValEq(_, pat, rhs) =>
-          print(pat, " = ", rhs)  
+        case ValFrom(_, name, tp, rhs) =>
+          print(symName(tree, name))
+          printOpt(": ", tp)
+          print(" <- ", rhs)  
+        case ValEq(_, name, tp, rhs) =>
+          print(symName(tree, name))
+          printOpt(": ", tp)
+          print(" = ", rhs)  
         case Filter(_, test: Tree) =>
           print("if ", test)
         case Infix(Literal(x), name, args) =>

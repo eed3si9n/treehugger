@@ -637,13 +637,17 @@ trait Trees { self: Universe =>
   // these are not originall part of reflection API
   
   // for (P_1 <- G; P_2 = E_2; if E_3; ...)
-  sealed abstract class Enumerator extends Tree { def pos: Position }
-  case class ValFrom(override val pos: Position, pat: Tree, rhs: Tree) extends Enumerator
-  case class ValEq(override val pos: Position, pat: Tree, rhs: Tree) extends Enumerator
+  sealed trait Enumerator extends Tree { def pos: Position }
+  case class ValFrom(override val pos: Position, name: TermName, tpt: Tree, rhs: Tree) extends ValOrDefDef with Enumerator {
+    def mods = Modifiers()
+  }
+  case class ValEq(override val pos: Position, name: TermName, tpt: Tree, rhs: Tree) extends ValOrDefDef with Enumerator {
+    def mods = Modifiers()
+  }
   case class Filter(override val pos: Position, test: Tree) extends Enumerator
   
-  def ValFrom(pat: Tree, rhs: Tree): ValFrom = ValFrom(NoPosition, pat, rhs)
-  def ValEq(pat: Tree, rhs: Tree): ValEq = ValEq(NoPosition, pat, rhs)
+  def ValFrom(name: TermName, tpt: Tree, rhs: Tree): ValFrom = ValFrom(NoPosition, name, tpt, rhs)
+  def ValEq(name: TermName, tpt: Tree, rhs: Tree): ValEq = ValEq(NoPosition, name, tpt, rhs)
   def Filter(test: Tree): Filter = Filter(NoPosition, test)
   
   case class ForTree(enums: List[Enumerator], body: Tree) extends Tree
@@ -763,10 +767,10 @@ trait Trees { self: Universe =>
         traverseTrees(enums); traverse(body)
       case ForYieldTree(enums, body) =>
         traverseTrees(enums); traverse(body)
-      case ValFrom(_, pat, rhs) =>
-        traverse(pat); traverse(rhs)
-      case ValEq(_, pat, rhs) =>
-        traverse(pat); traverse(rhs)
+      case ValFrom(_, _, _, rhs) =>
+        traverse(rhs)
+      case ValEq(_, _, _, rhs) =>
+        traverse(rhs)
       case Filter(_, test: Tree) =>
         traverse(test)
       case Infix(qual, fun, args) =>
