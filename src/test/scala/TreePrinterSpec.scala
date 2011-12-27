@@ -67,12 +67,12 @@ class TreePrinterSpec extends Specification { def is =
   // p. 66
   def e4 = {
     val ChecksumAccumulator = RootClass.newClass("ChecksumAccumulator".toTypeName)
-    val cache = ChecksumAccumulator.newValue("cache") setFlag(PRIVATE)
+    val cache = ChecksumAccumulator.newValue("cache")
     val s = RootClass.newValue("s")
     
     val trees = IMPORT(ScalaPackageClass DOT "collection" DOT "mutable", "Map") ::
       (MODULEDEF(ChecksumAccumulator) BODY (
-        VAL(cache) := TypeTree(mapType(StringClass.typeConstructor, IntClass.typeConstructor)) APPLY (),
+        VAL(cache) withFlags(PRIVATE) := TypeTree(mapType(StringClass.typeConstructor, IntClass.typeConstructor)) APPLY (),
         DEF("calculate", IntClass.typeConstructor) withParams(VAL(s, StringClass.typeConstructor).empty) :=
           (IF(cache DOT "contains" APPLY Ident(s)) THEN cache.APPLY(Ident(s)) 
           ELSE BLOCK(
@@ -87,7 +87,6 @@ class TreePrinterSpec extends Specification { def is =
       Nil
     
     val out = treesToString(trees); println(out)
-    
     out.lines.toList must contain(
       """import scala.collection.mutable.Map""",
       """object ChecksumAccumulator {""",

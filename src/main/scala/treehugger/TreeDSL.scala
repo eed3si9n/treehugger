@@ -187,7 +187,7 @@ trait TreeDSL { self: Universe =>
       def defaultPos  = sym.pos
 
       final def :=(rhs: Tree): ResultTreeType =
-        mkTree(rhs) setSymbol sym
+        mkTree(rhs) // setSymbol (sym resetFlag mods.flags)
     }
     trait ValCreator {
       self: VODDStart =>
