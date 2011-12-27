@@ -150,5 +150,11 @@ trait Trees extends api.Trees { self: Universe =>
     case Seq(b @ Block(_, _)) => b
     case Seq(stat) => Block(stats.toList, Literal(Constant(())))
     case Seq(_, rest @ _*) => Block(stats.init.toList, stats.last)
+    case _ => Block(stats.toList, Literal(Constant(())))
   }
+  
+  def Import(tree: Tree, names: Name*): Import = Import(tree,
+    names.toList map { name =>
+      ImportSelector(name, -1, name, -1)
+    })
 }

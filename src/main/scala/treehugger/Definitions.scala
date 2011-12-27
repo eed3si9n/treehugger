@@ -244,6 +244,7 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
     lazy val IteratorClass      = getClass("scala.collection.Iterator")
     lazy val ListClass          = getClass("scala.collection.immutable.List")
     lazy val SeqClass           = getClass("scala.collection.Seq")
+    lazy val MapClass           = getClass("scala.collection.Map")
     lazy val StringBuilderClass = getClass("scala.collection.mutable.StringBuilder")
     lazy val TraversableClass   = getClass("scala.collection.Traversable")
     
@@ -350,6 +351,7 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
     def seqType(arg: Type)    = appliedType(SeqClass.typeConstructor, List(arg))
     def arrayType(arg: Type)  = appliedType(ArrayClass.typeConstructor, List(arg))
     def byNameType(arg: Type) = appliedType(ByNameParamClass.typeConstructor, List(arg))
+    def mapType(arg1: Type, arg2: Type) = appliedType(MapClass.typeConstructor, List(arg1, arg2))
     
     // def ClassType(arg: Type) = appliedType(ClassClass.typeConstructor, List(arg))
     

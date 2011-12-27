@@ -133,28 +133,18 @@ trait TreeDSL { self: Universe =>
       def ==>(body: Tree): CaseDef  = CaseDef(pat, guard, body)
     }
 
-    /** VODD, if it's not obvious, means ValOrDefDef.  This is the
-     *  common code between a tree based on a pre-existing symbol and
-     *  one being built from scratch.
-     */
-    trait VODDStart {
+    trait DefStart {
       def name: Name
       def defaultMods: Modifiers
-      def defaultTpt: Tree
       def defaultPos: Position
 
-      type ResultTreeType <: ValOrDefDef
+      type ResultTreeType <: Tree // >
       def mkTree(rhs: Tree): ResultTreeType
       def :=(rhs: Tree): ResultTreeType
 
       private var _mods: Modifiers = null
-      private var _tpt: Tree = null
       private var _pos: Position = null
 
-      def withType(tp: Type): this.type = {
-        _tpt = TypeTree(tp)
-        this
-      }
       def withFlags(flags: Long*): this.type = {
         if (_mods == null)
           _mods = defaultMods
@@ -166,10 +156,26 @@ trait TreeDSL { self: Universe =>
         _pos = pos
         this
       }
-
+      
       final def mods = if (_mods == null) defaultMods else _mods
-      final def tpt  = if (_tpt == null) defaultTpt else _tpt
       final def pos  = if (_pos == null) defaultPos else _pos
+    }
+
+    /** VODD, if it is not obvious, means ValOrDefDef.  This is the
+     *  common code between a tree based on a pre-existing symbol and
+     *  one being built from scratch.
+     */
+    trait VODDStart extends DefStart {
+      def defaultTpt: Tree
+
+      private var _tpt: Tree = null
+
+      def withType(tp: Type): this.type = {
+        _tpt = TypeTree(tp)
+        this
+      }
+      
+      final def tpt  = if (_tpt == null) defaultTpt else _tpt
     }
     trait SymVODDStart extends VODDStart {
       def sym: Symbol
@@ -188,6 +194,7 @@ trait TreeDSL { self: Universe =>
 
       type ResultTreeType = ValDef
       def mkTree(rhs: Tree): ValDef = ValDef(mods, name, tpt, rhs)
+      def empty: ValDef = mkTree(EmptyTree)
     }
     trait DefCreator {
       self: VODDStart =>
@@ -207,22 +214,35 @@ trait TreeDSL { self: Universe =>
     class ValSymStart(val sym: Symbol) extends SymVODDStart with ValCreator {
       def symType = sym.tpe
     }
-
-    trait TreeVODDStart extends VODDStart {
+    
+    trait TreeDefStart extends DefStart {
       def defaultMods = NoMods
-      def defaultTpt  = TypeTree()
       def defaultPos  = NoPosition
-
+      
       final def :=(rhs: Tree): ResultTreeType = mkTree(rhs)
         // if (pos == NoPosition) 
         // else atPos(pos)(mkTree(rhs))
     }
 
+    trait TreeVODDStart extends VODDStart with TreeDefStart {
+      def defaultTpt  = TypeTree()
+    }
+
     class ValTreeStart(val name: Name) extends TreeVODDStart with ValCreator {
     }
     class DefTreeStart(val name: Name) extends TreeVODDStart with DefCreator {
+      private var _vparamss: List[List[ValDef]] = List(Nil)
+
+      def withParams(param: ValDef*): this.type = {
+        if (_vparamss == List(Nil))
+          _vparamss = List(param.toList)
+        else 
+          _vparamss = _vparamss ::: List(param.toList)
+        this
+      }
+      
       def tparams: List[TypeDef] = Nil
-      def vparamss: List[List[ValDef]] = List(Nil)
+      def vparamss: List[List[ValDef]] = _vparamss
     }
 
     class IfStart(cond: Tree, thenp: Tree) {
@@ -261,6 +281,21 @@ trait TreeDSL { self: Universe =>
       def mkTree(rhs: Tree): ValFrom = ValFrom(name, tpt, rhs)
     }
     
+    class ModuleDefStart(val name: TermName) extends TreeDefStart {
+      type ResultTreeType = ModuleDef
+      
+      val parents: List[Tree] = Nil
+      val selfDef: ValDef = emptyValDef
+      
+      def mkTree(rhs: Tree): ModuleDef = rhs match {
+        case Block(xs, x) => mkTree(xs ::: List(x))
+        case _ => mkTree(rhs :: Nil)
+      }
+      
+      def mkTree(body: List[Tree]): ModuleDef = ModuleDef(mods, name, Template(parents, selfDef, body))
+      def BODY(trees: Tree*): ModuleDef = mkTree(trees.toList) 
+    }
+    
     /** Top level accessible. */
     def MATCHERROR(arg: Tree) = Throw(New(TypeTree(MatchErrorClass.tpe), List(List(arg))))
     /** !!! should generalize null guard from match error here. */
@@ -277,6 +312,7 @@ trait TreeDSL { self: Universe =>
 
     def VAL(name: Name, tp: Type): ValTreeStart     = VAL(name) withType tp
     def VAL(name: Name): ValTreeStart               = new ValTreeStart(name)
+    def VAL(sym: Symbol, tp: Type): ValTreeStart    = VAL(sym.name) withType tp
     def VAL(sym: Symbol): ValSymStart               = new ValSymStart(sym)
 
     def VAR(name: Name, tp: Type): ValTreeStart     = VAL(name, tp) withFlags Flags.MUTABLE
@@ -289,6 +325,9 @@ trait TreeDSL { self: Universe =>
 
     def VALFROM(name: Name, tp: Type): ValFromStart = VALFROM(name) withType tp
     def VALFROM(name: Name): ValFromStart           = new ValFromStart(name)
+    
+    def MODULEDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
+    def MODULEDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)
 
     def AND(guards: Tree*) =
       if (guards.isEmpty) EmptyTree
@@ -304,6 +343,7 @@ trait TreeDSL { self: Universe =>
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
     def SOME(xs: Tree*)   = Apply(SomeModule, makeTupleTerm(xs.toList, true))
     def FOR(xs: Enumerator*) = new ForStart(xs.toList)
+    def IMPORT(expr: Tree, names: Name*) = Import(expr, names: _*)
 
     /** Typed trees from symbols. */
     def THIS(sym: Symbol)             = mkAttributedThis(sym)

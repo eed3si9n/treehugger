@@ -182,7 +182,10 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
         case ModuleDef(mods, name, impl) =>
           printAnnotations(tree)
           printModifiers(tree, mods);
-          print("object " + symName(tree, name), " extends ", impl)
+          print("object " + symName(tree, name))
+          if (impl.parents.isEmpty) print("") 
+          else print(" extends ")
+          print(impl)
 
         case ValDef(mods, name, tp, rhs) =>
           printAnnotations(tree)
@@ -197,7 +200,13 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
           printTypeParams(tparams); vparamss foreach printValueParams
-          printOpt(": ", tp); printOpt(" = ", rhs)
+          printOpt(": ", tp)
+          if (!rhs.isEmpty)
+            rhs match {
+              case b: Block => print(" = ", b)
+              case _ =>
+                print(" ="); indent; println(); print(rhs); undent
+            }
 
         case TypeDef(mods, name, tparams, rhs) =>
           if (mods hasFlag (PARAM | DEFERRED)) {
@@ -292,10 +301,10 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           print(lhs, " = ", rhs)
 
         case If(cond, thenp, elsep) =>
-          print("if (", cond, ")"); indent; println()
-          print(thenp); undent
+          print("if (", cond, ") ")
+          print(thenp)
           if (!elsep.isEmpty) {
-            println(); print("else"); indent; println(); print(elsep); undent
+            println(); print("else "); print(elsep)
           }
 
         case Return(expr) =>
@@ -434,7 +443,11 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           else printRow(args, "(", ",", ")")
         case Infix(qualifier, name, args) =>
           print(backquotedPath(qualifier), " ", symName(tree, name), " ")
-          if (args.size == 1) print(args(0))
+          if (args.size == 1) 
+            args(0) match {
+              case x: Infix => print("(", x, ")") 
+              case _        => print(args(0))
+            }
           else printRow(args, "(", ",", ")")
 // SelectFromArray is no longer visible in reflect.internal.
 // eliminated until we figure out what we will do with both TreePrinters and
