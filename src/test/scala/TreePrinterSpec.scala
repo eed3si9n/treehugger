@@ -26,7 +26,7 @@ class TreePrinterSpec extends Specification { def is =
   }
   
   def e2 = {
-    val tree = DEF("hello", UnitClass.typeConstructor) :=
+    val tree = DEF("hello", UnitClass.toType) :=
       BLOCK(sym.println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
@@ -44,12 +44,12 @@ class TreePrinterSpec extends Specification { def is =
     def assignGreetStrings(index: Int, value: String): Tree =
       greetStrings APPLY LIT(index) := LIT(value)
     
-    val trees = (VAL(greetStrings) := NEW(arrayType(StringClass.typeConstructor), LIT(3))) ::
+    val trees = (VAL(greetStrings) := NEW(arrayType(StringClass.toType), LIT(3))) ::
       assignGreetStrings(0, "Hello") ::
       assignGreetStrings(1, ", ") ::
       assignGreetStrings(2, "world!\n") ::
       (FOR(VALFROM("i") := LIT(0) INFIX (sym.to, LIT(2))) DO
-        (sym.print APPLY (greetStrings APPLY Ident("i"))) ) ::
+        (sym.print APPLY (greetStrings APPLY REF("i"))) ) ::
       Nil
     
     val s = treesToString(trees); println(s)
@@ -72,16 +72,16 @@ class TreePrinterSpec extends Specification { def is =
     
     val trees = IMPORT(ScalaPackageClass DOT "collection" DOT "mutable", "Map") ::
       (MODULEDEF(ChecksumAccumulator) BODY (
-        VAL(cache) withFlags(PRIVATE) := TypeTree(mapType(StringClass.typeConstructor, IntClass.typeConstructor)) APPLY (),
-        DEF("calculate", IntClass.typeConstructor) withParams(VAL(s, StringClass.typeConstructor).empty) :=
-          (IF(cache DOT "contains" APPLY Ident(s)) THEN cache.APPLY(Ident(s)) 
+        VAL(cache) withFlags(PRIVATE) := TypeTree(mapType(StringClass.toType, IntClass.toType)) APPLY (),
+        DEF("calculate", IntClass.toType) withParams(VAL(s, StringClass.toType).empty) :=
+          (IF(cache DOT "contains" APPLY REF(s)) THEN cache.APPLY(REF(s)) 
           ELSE BLOCK(
-            VAL("acc") := NEW(ChecksumAccumulator.typeConstructor),
-            FOR(VALFROM("c") := Ident(s)) DO
-              (Ident("acc") DOT "add" APPLY (Ident("c") DOT "toByte")),
-            VAL("cs") := Ident("acc") DOT "checksum" APPLY (),
-            Ident(cache) INFIX ("+=", Ident(s) INFIX ("->", Ident("cs"))),
-            Ident("cs")
+            VAL("acc") := NEW(ChecksumAccumulator.toType),
+            FOR(VALFROM("c") := REF(s)) DO
+              (REF("acc") DOT "add" APPLY (REF("c") DOT "toByte")),
+            VAL("cs") := REF("acc") DOT "checksum" APPLY (),
+            REF(cache) INFIX ("+=", REF(s) INFIX ("->", REF("cs"))),
+            REF("cs")
           ))
       )) ::
       Nil

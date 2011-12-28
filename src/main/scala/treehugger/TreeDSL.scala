@@ -348,8 +348,10 @@ trait TreeDSL { self: Universe =>
     /** Typed trees from symbols. */
     def THIS(sym: Symbol)             = mkAttributedThis(sym)
     def ID(sym: Symbol)               = mkAttributedIdent(sym)
+    def ID(name: Name)                = Ident(name)
     def REF(sym: Symbol)              = mkAttributedRef(sym)
     def REF(pre: Type, sym: Symbol)   = mkAttributedRef(pre, sym)
+    def REF(name: Name)               = Ident(name)
 
     def makeTupleTerm(trees: List[Tree], flattenUnary: Boolean): Tree = trees match {
       case Nil                        => UNIT

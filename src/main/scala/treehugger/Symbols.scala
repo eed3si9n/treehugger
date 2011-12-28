@@ -161,6 +161,8 @@ trait Symbols extends api.Symbols { self: Universe =>
     def typeConstructor: Type =
       error("typeConstructor inapplicable for " + this)
     
+    final def toType: Type = typeConstructor
+    
     def typeParams: List[Symbol] = Nil
     def paramss: List[List[Symbol]] = Nil
 
