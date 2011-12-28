@@ -141,6 +141,7 @@ trait TreeDSL { self: Universe =>
       type ResultTreeType <: Tree // >
       def mkTree(rhs: Tree): ResultTreeType
       def :=(rhs: Tree): ResultTreeType
+      final def empty: ResultTreeType = mkTree(EmptyTree)
 
       private var _mods: Modifiers = null
       private var _pos: Position = null
@@ -194,7 +195,6 @@ trait TreeDSL { self: Universe =>
 
       type ResultTreeType = ValDef
       def mkTree(rhs: Tree): ValDef = ValDef(mods, name, tpt, rhs)
-      def empty: ValDef = mkTree(EmptyTree)
     }
     trait DefCreator {
       self: VODDStart =>
@@ -281,6 +281,22 @@ trait TreeDSL { self: Universe =>
       def mkTree(rhs: Tree): ValFrom = ValFrom(name, tpt, rhs)
     }
     
+    class ClassDefStart(val name: TypeName) extends TreeDefStart {
+      type ResultTreeType = ClassDef
+      
+      def tparams: List[TypeDef] = Nil
+      val parents: List[Tree] = Nil
+      val selfDef: ValDef = emptyValDef
+      
+      def mkTree(rhs: Tree): ClassDef = rhs match {
+        case Block(xs, x) => mkTree(xs ::: List(x))
+        case _ => mkTree(rhs :: Nil)
+      }
+      
+      def mkTree(body: List[Tree]): ClassDef = ClassDef(mods, name, tparams, Template(parents, selfDef, body))
+      def BODY(trees: Tree*): ClassDef = mkTree(trees.toList) 
+    }
+    
     class ModuleDefStart(val name: TermName) extends TreeDefStart {
       type ResultTreeType = ModuleDef
       
@@ -325,7 +341,10 @@ trait TreeDSL { self: Universe =>
 
     def VALFROM(name: Name, tp: Type): ValFromStart = VALFROM(name) withType tp
     def VALFROM(name: Name): ValFromStart           = new ValFromStart(name)
-    
+
+    def CLASSDEF(name: Name): ClassDefStart       = new ClassDefStart(name.toTypeName)
+    def CLASSDEF(sym: Symbol): ClassDefStart      = new ClassDefStart(sym.name.toTypeName)
+        
     def MODULEDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
     def MODULEDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)
 

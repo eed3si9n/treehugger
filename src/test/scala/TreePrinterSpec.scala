@@ -10,6 +10,7 @@ class TreePrinterSpec extends Specification { def is =
     """print def hello()"""                                                   ! e2^
     """print val greetStrings = new Array[String](3)"""                       ! e3^
     """object ChecksumAccumulator"""                                          ! e4^
+    """abstract class IntQueue"""                                             ! e5^
                                                                               end
   
   lazy val universe = new treehugger.Universe
@@ -103,6 +104,26 @@ class TreePrinterSpec extends Specification { def is =
       """    }""",
       """}"""
     ).inOrder
+  }
+  
+  def e5 = {
+    val IntQueue = RootClass.newClass("IntQueue".toTypeName)
+    
+    val trees =
+      (CLASSDEF(IntQueue) withFlags(ABSTRACT) BODY (
+        DEF("get", IntClass.toType).empty,
+        DEF("put", IntClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
+      )) ::
+      Nil
+    
+    val out = treesToString(trees); println(out)
+    out.lines.toList must contain(
+      """abstract class IntQueue {""",
+      """  def get(): Int;""",
+      """  def put(x: Int): Int""",
+      """}"""
+    ).inOrder
+    
   }
   
   object sym {

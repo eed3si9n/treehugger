@@ -173,7 +173,9 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
 
           print(word, " ", symName(tree, name))
           printTypeParams(tparams)
-          print(if (mods.isDeferred) " <: " else " extends ", impl)
+          print(if (mods.isDeferred) " <: "
+                else if (impl.parents.isEmpty) ""
+                else " extends ", impl)
 
         case PackageDef(packaged, stats) =>
           printAnnotations(tree)
