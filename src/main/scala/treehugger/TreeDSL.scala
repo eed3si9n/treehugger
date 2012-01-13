@@ -284,8 +284,15 @@ trait TreeDSL { self: Universe =>
     class ClassDefStart(val name: TypeName) extends TreeDefStart {
       type ResultTreeType = ClassDef
       
+      private var _parents: List[Tree] = Nil
+
+      def withParents(parent: Tree*): this.type = {
+        _parents = parent.toList
+        this
+      }
+      
       def tparams: List[TypeDef] = Nil
-      val parents: List[Tree] = Nil
+      def parents: List[Tree] = _parents
       val selfDef: ValDef = emptyValDef
       
       def mkTree(rhs: Tree): ClassDef = rhs match {

@@ -386,7 +386,8 @@ trait Types extends api.Types { self: Universe =>
 
      private def preString = (
        // ensure that symbol is not a local copy with a name coincidence
-       if (shorthands(sym.fullName) && sym.ownerChain.forall(_.isClass)) ""
+       if (builtins(sym.fullName)) ""
+       else if (shorthands(sym.fullName) && sym.ownerChain.forall(_.isClass)) ""
        else pre.prefixString
      )
      private def argsString = if (args.isEmpty) "" else args.mkString("[", ",", "]")
@@ -709,6 +710,10 @@ trait Types extends api.Types { self: Universe =>
   /** Again avoiding calling length, but the lengthCompare interface is clunky.
    */
   final def hasLength(xs: List[_], len: Int) = xs.lengthCompare(len) == 0
+
+  val builtins = Set(
+    "scala.Array",
+    "java.lang.String")
 
   val shorthands = Set(
     "scala.collection.immutable.List",

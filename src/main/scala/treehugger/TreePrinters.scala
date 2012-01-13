@@ -348,7 +348,7 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
             print("[" + mix + "]")
 
         case This(qual) =>
-          if (!qual.isEmpty) print(symName(tree, qual) + ".")
+          // if (!qual.isEmpty) print(symName(tree, qual) + ".")
           print("this")
 
         case Select(qual @ New(tpe), name) => // if (!settings.debug.value) =>
@@ -358,7 +358,8 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           print(x.escapedStringValue, ".", symName(tree, name))
         
         case Select(qualifier, name) =>
-          print(backquotedPath(qualifier), ".", symName(tree, name))
+          print(qualifier, ".", symName(tree, name))
+          // print(backquotedPath(qualifier), ".", symName(tree, name))
 
         case Ident(name) =>
           print(symName(tree, name))
@@ -444,7 +445,7 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           if (args.size == 1) print(args(0))
           else printRow(args, "(", ",", ")")
         case Infix(qualifier, name, args) =>
-          print(backquotedPath(qualifier), " ", symName(tree, name), " ")
+          print(qualifier, " ", symName(tree, name), " ")
           if (args.size == 1) 
             args(0) match {
               case x: Infix => print("(", x, ")") 

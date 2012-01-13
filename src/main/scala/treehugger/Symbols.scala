@@ -85,7 +85,8 @@ trait Symbols extends api.Symbols { self: Universe =>
       finishModule(new ModuleSymbol(this, NoPosition, name))
     
     final def newPackage(pos: Position, name: TermName): ModuleSymbol = {
-      val m = newModule(pos, name)
+      val m = newModule(pos, name).setFlag(JAVA | PACKAGE)
+      m.moduleClass setFlag (JAVA | PACKAGE)
       m
     }
     final def newModuleClass(pos: Position, name: TypeName) =
@@ -309,8 +310,9 @@ trait Symbols extends api.Symbols { self: Universe =>
      */
     def owner: Symbol = rawowner
     
-    def ownerChain: List[Symbol] = this :: owner.ownerChain
-    
+    def ownerChain: List[Symbol] =
+      if (owner eq null) this :: Nil
+      else this :: owner.ownerChain
     
     /** The name of the symbol as a member of the `Name` type.
      */
@@ -523,6 +525,8 @@ trait Symbols extends api.Symbols { self: Universe =>
   extends Symbol(initOwner, initPos, initName) {
     final override def isTerm = true
     
+    override def name: TermName = super.name
+    
     private var referenced: Symbol = NoSymbol
     override def moduleClass: Symbol =
       if (hasFlag(MODULE)) referenced
@@ -546,8 +550,10 @@ trait Symbols extends api.Symbols { self: Universe =>
   
   class TypeSymbol(initOwner: Symbol, initPos: Position, initName: TypeName)
   extends Symbol(initOwner, initPos, initName) {
-    override def name: TypeName = super.name.asInstanceOf[TypeName]
+    private var tyconCache: Type = null
     
+    override def name: TypeName = super.name.asInstanceOf[TypeName]
+    final override def isType = true
     override def isNonClassType = true
     
     private def newTypeRef(targs: List[Type]) = {
@@ -555,7 +561,13 @@ trait Symbols extends api.Symbols { self: Universe =>
       typeRef(pre, this, targs)
     }
     
-    override def typeConstructor: Type = newTypeRef(Nil)
+    override def typeConstructor: Type = {
+      if (tyconCache eq null) {
+        tyconCache = newTypeRef(Nil)
+      }
+      tyconCache
+    }
+        
     override def tpeHK = typeConstructor // @M! used in memberType
   }
   
@@ -566,6 +578,16 @@ trait Symbols extends api.Symbols { self: Universe =>
     final override def isNonClassType = false
     final override def isAbstractType = false
     final override def isAliasType = false
+    
+    private var thisTypeCache: Type = null
+    /** the type this.type in this class */
+    override def thisType: Type = {
+      if (thisTypeCache eq null) {
+        thisTypeCache = ThisType(this)
+      }
+      
+      thisTypeCache
+    }
   }
   
   /** A class for module class symbols

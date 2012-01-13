@@ -71,9 +71,8 @@ class TreePrinterSpec extends Specification { def is =
     val cache = ChecksumAccumulator.newValue("cache")
     val s = RootClass.newValue("s")
     
-    val trees = IMPORT(ScalaPackageClass DOT "collection" DOT "mutable", "Map") ::
-      (MODULEDEF(ChecksumAccumulator) BODY (
-        VAL(cache) withFlags(PRIVATE) := TypeTree(mapType(StringClass.toType, IntClass.toType)) APPLY (),
+    val trees = (MODULEDEF(ChecksumAccumulator) BODY (
+        VAL(cache) withFlags(PRIVATE) := TypeTree(mutableMapType(StringClass.toType, IntClass.toType)) APPLY (),
         DEF("calculate", IntClass.toType) withParams(VAL(s, StringClass.toType).empty) :=
           (IF(cache DOT "contains" APPLY REF(s)) THEN cache.APPLY(REF(s)) 
           ELSE BLOCK(
@@ -89,9 +88,8 @@ class TreePrinterSpec extends Specification { def is =
     
     val out = treesToString(trees); println(out)
     out.lines.toList must contain(
-      """import scala.collection.mutable.Map""",
       """object ChecksumAccumulator {""",
-      """  private val cache = Map[String,Int]();""",
+      """  private val cache = scala.collection.mutable.Map[String,Int]();""",
       """  def calculate(s: String): Int =""",
       """    if (cache.contains(s)) cache(s)""",
       """    else {""",
@@ -99,20 +97,31 @@ class TreePrinterSpec extends Specification { def is =
       """      for (c <- s)""",
       """        acc.add(c.toByte);""",
       """      val cs = acc.checksum();""",
-      """      cache += (s -> cs);""",
+      """      this.cache += (s -> cs);""",
       """      cs""",
       """    }""",
       """}"""
     ).inOrder
   }
   
+  // p. 227
   def e5 = {
-    val IntQueue = RootClass.newClass("IntQueue".toTypeName)
+    val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
+    val BasicIntQueue: ClassSymbol = RootClass.newClass("BasicIntQueue".toTypeName)
+    val buf: TermSymbol = BasicIntQueue.newValue("buf")
+    def arrayBufferType(arg: Type)  = appliedType(ArrayBufferClass.typeConstructor, List(arg))
     
     val trees =
       (CLASSDEF(IntQueue) withFlags(ABSTRACT) BODY (
         DEF("get", IntClass.toType).empty,
-        DEF("put", IntClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
+        DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
+      )) ::
+      (CLASSDEF(BasicIntQueue) withParents(TypeTree(IntQueue.toType)) BODY (
+        VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass.toType)),
+        DEF("get", IntClass.toType) := (REF(buf) DOT "remove" APPLY()),
+        DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) := BLOCK(
+          REF(buf) INFIX ("+=", REF("x"))
+          )
       )) ::
       Nil
     
@@ -120,7 +129,16 @@ class TreePrinterSpec extends Specification { def is =
     out.lines.toList must contain(
       """abstract class IntQueue {""",
       """  def get(): Int;""",
-      """  def put(x: Int): Int""",
+      """  def put(x: Int): Unit""",
+      """}""",
+      """class BasicIntQueue extends IntQueue {""",
+      """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]();""",
+      """  def get(): Int =""",
+      """    this.buf.remove();""",
+      """  def put(x: Int): Unit = {""",
+      """    this.buf += x;""",
+      """    ()""",
+      """  }""",
       """}"""
     ).inOrder
     

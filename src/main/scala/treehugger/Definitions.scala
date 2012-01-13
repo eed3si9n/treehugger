@@ -247,7 +247,9 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
     lazy val MapClass           = getClass("scala.collection.Map")
     lazy val StringBuilderClass = getClass("scala.collection.mutable.StringBuilder")
     lazy val TraversableClass   = getClass("scala.collection.Traversable")
-    
+    lazy val ArrayBufferClass   = getClass("scala.collection.mutable.ArrayBuffer")
+    lazy val MutableMapClass    = getClass("scala.collection.mutable.Map")
+     
     lazy val ListModule       = getModule("scala.collection.immutable.List")
     //  lazy val List_apply = getMember(ListModule, nme.apply)
     lazy val NilModule        = getModule("scala.collection.immutable.Nil")
@@ -352,6 +354,7 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
     def arrayType(arg: Type)  = appliedType(ArrayClass.typeConstructor, List(arg))
     def byNameType(arg: Type) = appliedType(ByNameParamClass.typeConstructor, List(arg))
     def mapType(arg1: Type, arg2: Type) = appliedType(MapClass.typeConstructor, List(arg1, arg2))
+    def mutableMapType(arg1: Type, arg2: Type) = appliedType(MutableMapClass.typeConstructor, List(arg1, arg2))
     
     // def ClassType(arg: Type) = appliedType(ClassClass.typeConstructor, List(arg))
     
@@ -428,7 +431,7 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
       symbolCache.getOrElseUpdate(path, {
         val point = path lastPos('.', len - 1)
         val owner =
-          if (point > 0) getModuleOrClass(path.toTermName, point)
+          if (point > 0) getModuleOrClass(path.toTermName, point).moduleClass
           else RootClass
         val name = path subName (point + 1, len)
         if (path.isTypeName) owner.newClass(name.toTypeName)
