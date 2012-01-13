@@ -254,12 +254,12 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
             } else {
               print(" {")
             }
-            printColumn(body, "", ";", "}")
+            printColumn(body, "", "", "}")
           }
           currentOwner = currentOwner1
 
         case Block(stats, expr) =>
-          printColumn(stats ::: List(expr), "{", ";", "}")
+          printColumn(stats ::: List(expr), "{", "", "}")
 
         case Match(selector, cases) =>
           val selectorType1 = selectorType

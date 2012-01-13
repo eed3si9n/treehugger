@@ -33,7 +33,7 @@ class TreePrinterSpec extends Specification { def is =
     
     s.lines.toList must contain(
       """def hello(): Unit = {""",
-      """  println("Hello, world!");""",
+      """  println("Hello, world!")""",
       """  ()""",
       """}"""
     ).inOrder
@@ -74,7 +74,7 @@ class TreePrinterSpec extends Specification { def is =
     val trees = (MODULEDEF(ChecksumAccumulator) BODY (
         VAL(cache) withFlags(PRIVATE) := TypeTree(mutableMapType(StringClass.toType, IntClass.toType)) APPLY (),
         DEF("calculate", IntClass.toType) withParams(VAL(s, StringClass.toType).empty) :=
-          (IF(cache DOT "contains" APPLY REF(s)) THEN cache.APPLY(REF(s)) 
+          (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
           ELSE BLOCK(
             VAL("acc") := NEW(ChecksumAccumulator.toType),
             FOR(VALFROM("c") := REF(s)) DO
@@ -89,15 +89,15 @@ class TreePrinterSpec extends Specification { def is =
     val out = treesToString(trees); println(out)
     out.lines.toList must contain(
       """object ChecksumAccumulator {""",
-      """  private val cache = scala.collection.mutable.Map[String,Int]();""",
+      """  private val cache = scala.collection.mutable.Map[String,Int]()""",
       """  def calculate(s: String): Int =""",
-      """    if (cache.contains(s)) cache(s)""",
+      """    if (this.cache.contains(s)) this.cache(s)""",
       """    else {""",
-      """      val acc = new ChecksumAccumulator();""",
+      """      val acc = new ChecksumAccumulator()""",
       """      for (c <- s)""",
-      """        acc.add(c.toByte);""",
-      """      val cs = acc.checksum();""",
-      """      this.cache += (s -> cs);""",
+      """        acc.add(c.toByte)""",
+      """      val cs = acc.checksum()""",
+      """      this.cache += (s -> cs)""",
       """      cs""",
       """    }""",
       """}"""
@@ -128,15 +128,15 @@ class TreePrinterSpec extends Specification { def is =
     val out = treesToString(trees); println(out)
     out.lines.toList must contain(
       """abstract class IntQueue {""",
-      """  def get(): Int;""",
+      """  def get(): Int""",
       """  def put(x: Int): Unit""",
       """}""",
       """class BasicIntQueue extends IntQueue {""",
-      """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]();""",
+      """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]()""",
       """  def get(): Int =""",
-      """    this.buf.remove();""",
+      """    this.buf.remove()""",
       """  def put(x: Int): Unit = {""",
-      """    this.buf += x;""",
+      """    this.buf += x""",
       """    ()""",
       """  }""",
       """}"""
