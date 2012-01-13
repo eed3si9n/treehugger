@@ -32,7 +32,7 @@ class TreePrinterSpec extends Specification { def is =
     val s = treeToString(tree); println(s)
     
     s.lines.toList must contain(
-      """def hello(): Unit = {""",
+      """def hello() {""",
       """  println("Hello, world!")""",
       """  ()""",
       """}"""
@@ -135,7 +135,7 @@ class TreePrinterSpec extends Specification { def is =
       """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]()""",
       """  def get(): Int =""",
       """    this.buf.remove()""",
-      """  def put(x: Int): Unit = {""",
+      """  def put(x: Int) {""",
       """    this.buf += x""",
       """    ()""",
       """  }""",

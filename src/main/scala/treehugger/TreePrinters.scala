@@ -157,6 +157,16 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
 
     private var currentOwner: Symbol = NoSymbol
     private var selectorType: Type = NoType
+    
+    def typeTreeToString(tt: TypeTree): String =
+      if ((tt.tpe eq null) || (doPrintPositions && tt.original != null)) {
+        if (tt.original != null) "<type: " + tt.original + ">"
+        else "<type ?>"
+      } else if ((tt.tpe.typeSymbol ne null) && tt.tpe.typeSymbol.isAnonymousClass) {
+        tt.tpe.typeSymbol.toString
+      } else {
+        tt.tpe.toString
+      }
 
     def printTree(tree: Tree) {
       tree match {
@@ -197,6 +207,13 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           if (!mods.isDeferred)
             print(" = ", if (rhs.isEmpty) "_" else rhs)
 
+        case DefDef(mods, name, tparams, vparamss, tp: TypeTree, b: Block) if typeTreeToString(tp) == "Unit" =>
+          printAnnotations(tree)
+          printModifiers(tree, mods)
+          print("def " + symName(tree, name))
+          printTypeParams(tparams); vparamss foreach printValueParams
+          print(" ", b)
+            
         case DefDef(mods, name, tparams, vparamss, tp, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
@@ -368,15 +385,8 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           print(x.escapedStringValue)
 
         case tt: TypeTree =>
-          if ((tree.tpe eq null) || (doPrintPositions && tt.original != null)) {
-            if (tt.original != null) print("<type: ", tt.original, ">")
-            else print("<type ?>")
-          } else if ((tree.tpe.typeSymbol ne null) && tree.tpe.typeSymbol.isAnonymousClass) {
-            print(tree.tpe.typeSymbol.toString)
-          } else {
-            print(tree.tpe.toString)
-          }
-
+          print(typeTreeToString(tt))
+          
         case Annotated(Apply(Select(New(tpt), nme.CONSTRUCTOR), args), tree) =>
           def printAnnot() {
             print("@", tpt)
