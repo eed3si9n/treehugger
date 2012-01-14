@@ -107,9 +107,12 @@ trait Trees extends api.Trees { self: Universe =>
   }
       
   /** A TypeDef node which defines given `sym` with given tight hand side `rhs`. */
-  // def TypeDef(sym: Symbol, rhs: Tree): TypeDef =
-  //   TypeDef(Modifiers(sym.flags), sym.name.toTypeName, sym.typeParams map TypeDef, rhs) setSymbol sym
-
+  def TypeDef(sym: Symbol, rhs: Tree): TypeDef =
+    // TypeDef(Modifiers(sym.flags), sym.name.toTypeName, sym.typeParams map TypeDef, rhs) setSymbol sym
+    TypeDef(Modifiers(sym.flags), sym.name.toTypeName, Nil, rhs) setSymbol sym
+  
+  def TypeDef(sym: Symbol): TypeDef = TypeDef(sym, EmptyTree)
+  
   /** A TypeDef node which defines abstract type or type parameter for given `sym` */
   // def TypeDef(sym: Symbol): TypeDef =
   //   TypeDef(sym, TypeBoundsTree(TypeTree(sym.info.bounds.lo), TypeTree(sym.info.bounds.hi)))

@@ -232,7 +232,8 @@ trait TreeDSL { self: Universe =>
     }
     class DefTreeStart(val name: Name) extends TreeVODDStart with DefCreator {
       private var _vparamss: List[List[ValDef]] = List(Nil)
-
+      private var _tparams: List[TypeDef] = Nil
+      
       def withParams(param: ValDef*): this.type = {
         if (_vparamss == List(Nil))
           _vparamss = List(param.toList)
@@ -241,7 +242,12 @@ trait TreeDSL { self: Universe =>
         this
       }
       
-      def tparams: List[TypeDef] = Nil
+      def withTypeParams(tparam: TypeDef*): this.type = {
+        _tparams = tparam.toList
+        this
+      }
+      
+      def tparams: List[TypeDef] = _tparams
       def vparamss: List[List[ValDef]] = _vparamss
     }
 
@@ -285,13 +291,26 @@ trait TreeDSL { self: Universe =>
       type ResultTreeType = ClassDef
       
       private var _parents: List[Tree] = Nil
-
+      private var _tparams: List[TypeDef] = Nil
+      private var _vparams: List[ValDef] = Nil
+      
       def withParents(parent: Tree*): this.type = {
         _parents = parent.toList
         this
       }
       
-      def tparams: List[TypeDef] = Nil
+      def withTypeParams(tparam: TypeDef*): this.type = {
+        _tparams = tparam.toList
+        this
+      }
+      
+      def withParams(param: ValDef*): this.type = {
+        _vparams = param.toList
+        this
+      }
+      
+      def tparams: List[TypeDef] = _tparams
+      def vparams: List[ValDef] = _vparams
       def parents: List[Tree] = _parents
       val selfDef: ValDef = emptyValDef
       
@@ -300,7 +319,7 @@ trait TreeDSL { self: Universe =>
         case _ => mkTree(rhs :: Nil)
       }
       
-      def mkTree(body: List[Tree]): ClassDef = ClassDef(mods, name, tparams, Template(parents, selfDef, body))
+      def mkTree(body: List[Tree]): ClassDef = ClassDef(mods, name, tparams, vparams, Template(parents, selfDef, body))
       def BODY(trees: Tree*): ClassDef = mkTree(trees.toList) 
     }
     
@@ -317,6 +336,18 @@ trait TreeDSL { self: Universe =>
       
       def mkTree(body: List[Tree]): ModuleDef = ModuleDef(mods, name, Template(parents, selfDef, body))
       def BODY(trees: Tree*): ModuleDef = mkTree(trees.toList) 
+    }
+    
+    class PackageDefStart(val name: TermName) extends TreeDefStart {
+      type ResultTreeType = PackageDef
+      
+      def mkTree(rhs: Tree): PackageDef = rhs match {
+        case Block(xs, x) => mkTree(xs ::: List(x))
+        case _ => mkTree(rhs :: Nil)
+      }
+      
+      def mkTree(body: List[Tree]): PackageDef = PackageDef(Ident(name), body)
+      def BODY(trees: Tree*): PackageDef = mkTree(trees.toList) 
     }
     
     /** Top level accessible. */
@@ -349,11 +380,14 @@ trait TreeDSL { self: Universe =>
     def VALFROM(name: Name, tp: Type): ValFromStart = VALFROM(name) withType tp
     def VALFROM(name: Name): ValFromStart           = new ValFromStart(name)
 
-    def CLASSDEF(name: Name): ClassDefStart       = new ClassDefStart(name.toTypeName)
-    def CLASSDEF(sym: Symbol): ClassDefStart      = new ClassDefStart(sym.name.toTypeName)
-        
+    def CLASSDEF(name: Name): ClassDefStart         = new ClassDefStart(name.toTypeName)
+    def CLASSDEF(sym: Symbol): ClassDefStart        = new ClassDefStart(sym.name.toTypeName)
+
     def MODULEDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
     def MODULEDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)
+
+    def PACKAGEDEF(name: Name): PackageDefStart     = new PackageDefStart(name)
+    def PACKAGEDEF(sym: Symbol): PackageDefStart    = new PackageDefStart(sym.name)
 
     def AND(guards: Tree*) =
       if (guards.isEmpty) EmptyTree

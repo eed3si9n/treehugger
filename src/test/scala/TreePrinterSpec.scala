@@ -11,6 +11,7 @@ class TreePrinterSpec extends Specification { def is =
     """print val greetStrings = new Array[String](3)"""                       ! e3^
     """object ChecksumAccumulator"""                                          ! e4^
     """abstract class IntQueue"""                                             ! e5^
+    """package scala"""                                                       ! e6^
                                                                               end
   
   lazy val universe = new treehugger.Universe
@@ -140,8 +141,34 @@ class TreePrinterSpec extends Specification { def is =
       """    ()""",
       """  }""",
       """}"""
-    ).inOrder
+    ).inOrder  
+  }
+  
+  // p. 453
+  def e6 = {
+    val A = ArrowAssocClass.newTypeParameter("A".toTypeName)
     
+    val trees =
+      (PACKAGEDEF(ScalaPackageClass) := (MODULEDEF(PredefModule) := BLOCK(
+        (CLASSDEF(ArrowAssocClass) withTypeParams(TypeDef(A)) withParams(VAL("x", A.toType).empty) BODY (
+          DEF("->", IntClass.toType).empty
+        )),
+        
+        DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
+      ))) ::
+      Nil
+    
+    val out = treesToString(trees); println(out)
+    out.lines.toList must contain(
+      """package scala {""",
+      """  object Predef {""",
+      """    class ArrowAssoc[A](x: A) {""",
+      """      def ->(): Int""",
+      """    }""",
+      """    def put(x: Int): Unit""",
+      """  }""",
+      """}"""
+    ).inOrder  
   }
   
   object sym {

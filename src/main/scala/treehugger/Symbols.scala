@@ -129,7 +129,9 @@ trait Symbols extends api.Symbols { self: Universe =>
      */
     final def newTypeParameter(pos: Position, name: TypeName) =
       newAbstractType(pos, name).setFlag(PARAM)
-
+    final def newTypeParameter(name: TypeName, pos: Position = NoPosition) =
+      newAbstractType(pos, name).setFlag(PARAM)
+        
     /** Synthetic value parameters when parameter symbols are not available
      */
     final def newSyntheticValueParamss(argtypess: List[List[Type]]): List[List[Symbol]] = {

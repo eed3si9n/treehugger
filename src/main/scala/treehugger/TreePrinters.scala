@@ -98,7 +98,8 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
         case TypeDef(mods, name, tparams, rhs) =>
           printPosition(tree)
           print(symName(tree, name))
-          printTypeParams(tparams); print(rhs)
+          printTypeParams(tparams)
+          if (!rhs.isEmpty) print(rhs)
       }
     }
 
@@ -173,7 +174,7 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
         case EmptyTree =>
           print("<empty>")
 
-        case ClassDef(mods, name, tparams, impl) =>
+        case ClassDef(mods, name, tparams, vparams, impl) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           val word =
@@ -183,13 +184,15 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
 
           print(word, " ", symName(tree, name))
           printTypeParams(tparams)
+          if (vparams != Nil) printValueParams(vparams)
+          
           print(if (mods.isDeferred) " <: "
                 else if (impl.parents.isEmpty) ""
                 else " extends ", impl)
 
         case PackageDef(packaged, stats) =>
           printAnnotations(tree)
-          print("package ", packaged); printColumn(stats, " {", ";", "}")
+          print("package ", packaged); printColumn(stats, " {", "", "}")
 
         case ModuleDef(mods, name, impl) =>
           printAnnotations(tree)
