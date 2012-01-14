@@ -425,6 +425,16 @@ trait Trees { self: Universe =>
   case class UnApply(fun: Tree, args: List[Tree])
        extends TermTree
 
+  /** Infix extraction */
+  case class InfixUnApply(qualifier: Tree, name: Name, args: List[Tree]) extends Tree {
+    val fun = Select(qualifier, name)
+    override def symbol: Symbol = fun.symbol
+    override def symbol_=(sym: Symbol) { fun.symbol = sym }
+  }
+
+  def InfixUnApply(qualifier: Tree, sym: Symbol, args: List[Tree]): InfixUnApply =
+    InfixUnApply(qualifier, sym.name, args) setSymbol sym
+
   /** Array of expressions, needs to be translated in backend,
    */
   case class ArrayValue(elemtpt: Tree, elems: List[Tree])
@@ -515,10 +525,14 @@ trait Trees { self: Universe =>
   class ApplyImplicitView(fun: Tree, args: List[Tree]) extends Apply(fun, args)
 
   /** Infix application */
-  case class Infix(qualifier: Tree, name: Name, args: List[Tree]) extends Tree
+  case class Infix(qualifier: Tree, name: Name, args: List[Tree]) extends Tree {
+    val fun = Select(qualifier, name)
+    override def symbol: Symbol = fun.symbol
+    override def symbol_=(sym: Symbol) { fun.symbol = sym }
+  }
   
   def Infix(qualifier: Tree, sym: Symbol, args: List[Tree]): Infix =
-    Infix(qualifier, sym.name, args)
+    Infix(qualifier, sym.name, args) setSymbol sym
 
   /** Dynamic value application.
    *  In a dynamic application   q.f(as)
@@ -711,6 +725,8 @@ trait Trees { self: Universe =>
         traverse(body)
       case UnApply(fun, args) =>
         traverse(fun); traverseTrees(args)
+      case InfixUnApply(qualifier, name, args) =>
+        traverse(qualifier); traverseTrees(args)
       case ArrayValue(elemtpt, trees) =>
         traverse(elemtpt); traverseTrees(trees)
       case Function(vparams, body) =>
@@ -826,6 +842,7 @@ trait Trees { self: Universe =>
     def Star(tree: Tree, elem: Tree): Star
     def Bind(tree: Tree, name: Name, body: Tree): Bind
     def UnApply(tree: Tree, fun: Tree, args: List[Tree]): UnApply
+    def InfixUnApply(tree: Tree, qualifier: Tree, name: Name, args: List[Tree]): InfixUnApply
     def ArrayValue(tree: Tree, elemtpt: Tree, trees: List[Tree]): ArrayValue
     def Function(tree: Tree, vparams: List[ValDef], body: Tree): Function
     def Assign(tree: Tree, lhs: Tree, rhs: Tree): Assign
@@ -885,6 +902,8 @@ trait Trees { self: Universe =>
       new Bind(name, body).copyAttrs(tree)
     def UnApply(tree: Tree, fun: Tree, args: List[Tree]) =
       new UnApply(fun, args).copyAttrs(tree)
+    def InfixUnApply(tree: Tree, qualifier: Tree, name: Name, args: List[Tree]) =
+      new InfixUnApply(qualifier, name, args).copyAttrs(tree)
     def ArrayValue(tree: Tree, elemtpt: Tree, trees: List[Tree]) =
       new ArrayValue(elemtpt, trees).copyAttrs(tree)
     def Function(tree: Tree, vparams: List[ValDef], body: Tree) =
@@ -1020,6 +1039,11 @@ trait Trees { self: Universe =>
       case t @ UnApply(fun0, args0)
       if (fun0 == fun) && (args0 == args) => t
       case _ => treeCopy.UnApply(tree, fun, args)
+    }
+    def InfixUnApply(tree: Tree, qualifier: Tree, name: Name, args: List[Tree]) = tree match {
+      case t @ InfixUnApply(qualifier0, name0, args0)
+      if (qualifier0 == qualifier) && (name0 == name) && (args0 == args) => t
+      case _ => treeCopy.InfixUnApply(tree, qualifier, name, args)
     }
     def ArrayValue(tree: Tree, elemtpt: Tree, trees: List[Tree]) = tree match {
       case t @ ArrayValue(elemtpt0, trees0)

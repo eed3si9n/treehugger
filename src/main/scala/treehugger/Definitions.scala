@@ -134,6 +134,7 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
     
     // exceptions and other throwables
     lazy val ClassCastExceptionClass        = getClass("java.lang.ClassCastException")
+    lazy val IllegalArgumentExceptionClass  = getClass("java.lang.IllegalArgumentException")
     lazy val IndexOutOfBoundsExceptionClass = getClass(sn.IOOBException)
     lazy val InvocationTargetExceptionClass = getClass(sn.InvTargetException)
     lazy val MatchErrorClass                = getClass("scala.MatchError")
@@ -352,11 +353,27 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
     
     def seqType(arg: Type)    = appliedType(SeqClass.typeConstructor, List(arg))
     def arrayType(arg: Type)  = appliedType(ArrayClass.typeConstructor, List(arg))
+    def listType(arg: Type)   = appliedType(ListClass.typeConstructor, List(arg))
     def byNameType(arg: Type) = appliedType(ByNameParamClass.typeConstructor, List(arg))
     def mapType(arg1: Type, arg2: Type) = appliedType(MapClass.typeConstructor, List(arg1, arg2))
     def mutableMapType(arg1: Type, arg2: Type) = appliedType(MutableMapClass.typeConstructor, List(arg1, arg2))
     
     // def ClassType(arg: Type) = appliedType(ClassClass.typeConstructor, List(arg))
+    
+    // typeclass classes
+    lazy val EquivClass           = getClass("scala.Equiv")
+    lazy val FractionalClass      = getClass("scala.Fractional")
+    lazy val NumericClass         = getClass("scala.Numeric")
+    lazy val OrderedClass         = getClass("scala.Ordered")
+    lazy val OrderingClass        = getClass("scala.Ordering")
+    lazy val PartialOrderingClas  = getClass("scala.PartialOrdering")
+    
+    def equivType(arg: Type)      = appliedType(EquivClass.typeConstructor, List(arg))
+    def fractionalType(arg: Type) = appliedType(FractionalClass.typeConstructor, List(arg))
+    def numericType(arg: Type)    = appliedType(NumericClass.typeConstructor, List(arg))
+    def orderedType(arg: Type)    = appliedType(OrderedClass.typeConstructor, List(arg))
+    def orderingType(arg: Type)   = appliedType(OrderingClass.typeConstructor, List(arg))
+    def partialOrderingType(arg: Type) = appliedType(PartialOrderingClas.typeConstructor, List(arg))
     
     // members of class scala.Any
     var Any_==          : Symbol = _

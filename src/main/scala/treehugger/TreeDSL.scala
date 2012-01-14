@@ -94,12 +94,16 @@ trait TreeDSL { self: Universe =>
       def APPLY(params: Tree*)      = Apply(target, params.toList)
       def APPLY(params: List[Tree]) = Apply(target, params)
       def MATCH(cases: CaseDef*)    = Match(target, cases.toList)
+      def UNAPPLY(params: Tree*)    = UnApply(target, params.toList)
 
       def DOT(member: Name)         = SelectStart(Select(target, member))
       def DOT(sym: Symbol)          = SelectStart(Select(target, sym))
 
       def INFIX(name: Name, params: Tree*)  = Infix(target, name, params.toList)
       def INFIX(sym: Symbol, params: Tree*) = Infix(target, sym, params.toList)
+      
+      def INFIXUNAPPLY(name: Name, params: Tree*)  = InfixUnApply(target, name, params.toList)
+      def INFIXUNAPPLY(sym: Symbol, params: Tree*) = InfixUnApply(target, sym, params.toList)
       
       /** Assignment */
       def :=(rhs: Tree)            = Assign(target, rhs)
@@ -130,7 +134,7 @@ trait TreeDSL { self: Universe =>
 
     class CaseStart(pat: Tree, guard: Tree) {
       def IF(g: Tree): CaseStart    = new CaseStart(pat, g)
-      def ==>(body: Tree): CaseDef  = CaseDef(pat, guard, body)
+      def ==>(body: Tree): CaseDef   = CaseDef(pat, guard, body)
     }
 
     trait DefStart {
@@ -353,8 +357,9 @@ trait TreeDSL { self: Universe =>
     /** Top level accessible. */
     def MATCHERROR(arg: Tree) = Throw(New(TypeTree(MatchErrorClass.tpe), List(List(arg))))
     /** !!! should generalize null guard from match error here. */
-    def THROW(sym: Symbol): Throw = Throw(New(TypeTree(sym.tpe), List(Nil)))
-    def THROW(sym: Symbol, msg: Tree): Throw = Throw(New(TypeTree(sym.tpe), List(List(msg.TOSTRING()))))
+    def THROW(sym: Symbol): Throw = Throw(New(TypeTree(sym.toType), List(Nil)))
+    def THROW(sym: Symbol, msg: String): Throw = Throw(New(TypeTree(sym.toType), List(List(LIT(msg)))))
+    def THROW(sym: Symbol, msg: Tree): Throw = Throw(New(TypeTree(sym.toType), List(List(msg.TOSTRING()))))
 
     def NEW(tp: Type, args: Tree*): Tree = NEW(TypeTree(tp), args: _*)
     def NEW(tpt: Tree, args: Tree*): Tree   = New(tpt, List(args.toList))

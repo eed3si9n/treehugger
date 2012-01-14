@@ -12,13 +12,14 @@ class TreePrinterSpec extends Specification { def is =
     """object ChecksumAccumulator"""                                          ! e4^
     """abstract class IntQueue"""                                             ! e5^
     """package scala"""                                                       ! e6^
+    """case List(x) => x"""                                                   ! e7^
                                                                               end
   
   lazy val universe = new treehugger.Universe
   import universe._
   import definitions._
   import CODE._
-  import Flags._
+  import Flags.{PRIVATE, ABSTRACT, IMPLICIT}
   
   def e1 = {  
     val tree = sym.println APPLY LIT("Hello, world!")
@@ -178,6 +179,41 @@ class TreePrinterSpec extends Specification { def is =
       """  }""",
       """}"""
     ).inOrder  
+  }
+  
+  // p. 457
+  def e7 = {
+    val maxListUpBound = RootClass.newMethod("maxListUpBound")
+    val T = maxListUpBound.newTypeParameter("T".toTypeName)
+    val upperboundT = TypeBounds.upper(orderedType(T.toType))
+    
+    val trees =
+      (DEF(maxListUpBound.name, T.toType)
+          withTypeParams(TypeDef(T, TypeTree(upperboundT))) withParams(VAL("elements", listType(T.toType)).empty) :=
+        REF("elements") MATCH(
+          CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
+          CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
+          CASE(ID("x") INFIXUNAPPLY("::", ID("rest"))) ==> BLOCK(
+            VAL("maxRest") := maxListUpBound APPLY(REF("rest")),
+            IF(REF("x") INFIX (">", REF("maxRest"))) THEN REF("x")
+            ELSE REF("maxRest") 
+          )
+        ))::
+      Nil
+    
+    val out = treesToString(trees); println(out)
+    out.lines.toList must contain(
+      """def maxListUpBound[T <: Ordered[T]](elements: List[T]): T =""",
+      """  elements match {""",
+      """    case List() => throw new IllegalArgumentException("empty list!")""",
+      """    case List(x) => x""",
+      """    case x :: rest => {""",
+      """      val maxRest = maxListUpBound(rest)""",
+      """      if (x > maxRest) x""",
+      """      else maxRest""",
+      """    }""",
+      """  }"""
+    ).inOrder
   }
   
   object sym {

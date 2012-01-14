@@ -257,7 +257,10 @@ trait Types extends api.Types { self: Universe =>
     //   case _                => lo <:< that && that <:< hi
     // }
     // override def isNullable: Boolean = NullClass.tpe <:< lo;
-    override def safeToString = ">: " + lo + " <: " + hi
+    override def safeToString = 
+      if (lo == NothingClass.tpe) "<: " + hi.toString
+      else if (hi == NothingClass.tpe) ">: " + lo.toString
+      else ">: " + lo + " <: " + hi
   }
   
   final class UniqueTypeBounds(lo: Type, hi: Type) extends TypeBounds(lo, hi) with UniqueType { }
@@ -713,7 +716,11 @@ trait Types extends api.Types { self: Universe =>
 
   val builtins = Set(
     "scala.Array",
-    "java.lang.String")
+    "scala.Ordered",
+    "scala.Ordering",
+    "java.lang.String",
+    "java.lang.IllegalArgumentException",
+    "scala.collection.immutable.List")
 
   val shorthands = Set(
     "scala.collection.immutable.List",

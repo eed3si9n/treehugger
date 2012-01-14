@@ -99,7 +99,7 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           printPosition(tree)
           print(symName(tree, name))
           printTypeParams(tparams)
-          if (!rhs.isEmpty) print(rhs)
+          if (!rhs.isEmpty) print(" ", rhs)
       }
     }
 
@@ -310,7 +310,7 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
           print("(", symName(tree, name), " @ ", t, ")")
 
         case UnApply(fun, args) =>
-          print(fun, " <unapply> "); printRow(args, "(", ", ", ")")
+          print(fun); printRow(args, "(", ", ", ")")
 
         case ArrayValue(elemtpt, trees) =>
           print("Array[", elemtpt); printRow(trees, "]{", ", ", "}")
@@ -465,6 +465,19 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
               case _        => print(args(0))
             }
           else printRow(args, "(", ",", ")")
+        case InfixUnApply(Literal(x), name, args) =>
+          print(x.escapedStringValue, " ", symName(tree, name), " ")
+          if (args.size == 1) print(args(0))
+          else printRow(args, "(", ",", ")")
+        case InfixUnApply(qualifier, name, args) =>
+          print(qualifier, " ", symName(tree, name), " ")
+          if (args.size == 1) 
+            args(0) match {
+              case x: Infix => print("(", x, ")") 
+              case _        => print(args(0))
+            }
+          else printRow(args, "(", ",", ")")
+          
 // SelectFromArray is no longer visible in reflect.internal.
 // eliminated until we figure out what we will do with both TreePrinters and
 // SelectFromArray.
