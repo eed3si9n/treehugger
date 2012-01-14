@@ -147,11 +147,15 @@ class TreePrinterSpec extends Specification { def is =
   // p. 453
   def e6 = {
     val A = ArrowAssocClass.newTypeParameter("A".toTypeName)
+    val arrow = ArrowAssocClass.newMethod("->")
+    val B = arrow.newTypeParameter("B".toTypeName)
+    val tuple2AB = tupleType(A.toType :: B.toType :: Nil)
     
     val trees =
       (PACKAGEDEF(ScalaPackageClass) := (MODULEDEF(PredefModule) := BLOCK(
         (CLASSDEF(ArrowAssocClass) withTypeParams(TypeDef(A)) withParams(VAL("x", A.toType).empty) BODY (
-          DEF("->", IntClass.toType).empty
+          DEF(arrow.name, tuple2AB) withTypeParams(TypeDef(B)) withParams(VAL("y", B.toType).empty) :=
+            makeTupleTerm(REF("x") :: REF("y") :: Nil)
         )),
         
         DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
@@ -163,7 +167,8 @@ class TreePrinterSpec extends Specification { def is =
       """package scala {""",
       """  object Predef {""",
       """    class ArrowAssoc[A](x: A) {""",
-      """      def ->(): Int""",
+      """      def ->[B](y: B): (A, B) =""",
+      """        Tuple2(x, y)""",
       """    }""",
       """    def put(x: Int): Unit""",
       """  }""",

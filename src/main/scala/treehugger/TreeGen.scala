@@ -261,8 +261,8 @@ trait TreeGen { self: Universe =>
   def mkTuple(elems: List[Tree]): Tree =
     if (elems.isEmpty) Literal(Constant())
     else Apply(
-      Select(mkAttributedRef(TupleClass(elems.length)), nme.apply),
-      elems)
+      TupleClass(elems.length),
+      elems: _*)
 
   // tree1 AND tree2
   def mkAnd(tree1: Tree, tree2: Tree): Tree =

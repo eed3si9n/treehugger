@@ -413,12 +413,12 @@ trait TreeDSL { self: Universe =>
     def REF(pre: Type, sym: Symbol)   = mkAttributedRef(pre, sym)
     def REF(name: Name)               = Ident(name)
 
-    def makeTupleTerm(trees: List[Tree], flattenUnary: Boolean): Tree = trees match {
+    def makeTupleTerm(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
       case Nil                        => UNIT
       case List(tree) if flattenUnary => tree
       case _                          => mkTuple(trees) // Apply(TupleClass(trees.length).companionModule, trees: _*)
     }
-    def makeTupleType(trees: List[Tree], flattenUnary: Boolean): Tree = trees match {
+    def makeTupleType(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
       case Nil                        => scalaUnitConstr
       case List(tree) if flattenUnary => tree
       case _                          => AppliedTypeTree(REF(TupleClass(trees.length)), trees)
