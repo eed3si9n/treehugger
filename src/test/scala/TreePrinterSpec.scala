@@ -73,7 +73,7 @@ class TreePrinterSpec extends Specification { def is =
     val cache = ChecksumAccumulator.newValue("cache")
     val s = RootClass.newValue("s")
     
-    val trees = (MODULEDEF(ChecksumAccumulator) BODY (
+    val trees = (MODULEDEF(ChecksumAccumulator) := BLOCK(
         VAL(cache) withFlags(PRIVATE) := TypeTree(mutableMapType(StringClass.toType, IntClass.toType)) APPLY (),
         DEF("calculate", IntClass.toType) withParams(VAL(s, StringClass.toType).empty) :=
           (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
@@ -114,11 +114,11 @@ class TreePrinterSpec extends Specification { def is =
     def arrayBufferType(arg: Type)  = appliedType(ArrayBufferClass.typeConstructor, List(arg))
     
     val trees =
-      (CLASSDEF(IntQueue) withFlags(ABSTRACT) BODY (
+      (CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
         DEF("get", IntClass.toType).empty,
         DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
       )) ::
-      (CLASSDEF(BasicIntQueue) withParents(TypeTree(IntQueue.toType)) BODY (
+      (CLASSDEF(BasicIntQueue) withParents(TypeTree(IntQueue.toType)) := BLOCK(
         VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass.toType)),
         DEF("get", IntClass.toType) := (REF(buf) DOT "remove" APPLY()),
         DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) := BLOCK(
@@ -155,7 +155,7 @@ class TreePrinterSpec extends Specification { def is =
     
     val trees =
       (PACKAGEDEF(ScalaPackageClass) := (MODULEDEF(PredefModule) := BLOCK(
-        (CLASSDEF(ArrowAssocClass) withTypeParams(TypeDef(A)) withParams(VAL("x", A.toType).empty) BODY (
+        (CLASSDEF(ArrowAssocClass) withTypeParams(TypeDef(A)) withParams(VAL("x", A.toType).empty) := BLOCK(
           DEF(arrow.name, tuple2AB) withTypeParams(TypeDef(B)) withParams(VAL("y", B.toType).empty) :=
             makeTupleTerm(REF("x") :: REF("y") :: Nil)
         )),
