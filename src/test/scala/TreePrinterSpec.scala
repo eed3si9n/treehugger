@@ -19,7 +19,7 @@ class TreePrinterSpec extends Specification { def is =
   import universe._
   import definitions._
   import CODE._
-  import Flags.{PRIVATE, ABSTRACT, IMPLICIT}
+  import Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
   
   def e1 = {  
     val tree = sym.println APPLY LIT("Hello, world!")
@@ -109,6 +109,7 @@ class TreePrinterSpec extends Specification { def is =
   def e5 = {
     val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
     val BasicIntQueue: ClassSymbol = RootClass.newClass("BasicIntQueue".toTypeName)
+    val Doubling: ClassSymbol = RootClass.newClass("Doubling".toTypeName)
     val buf: TermSymbol = BasicIntQueue.newValue("buf")
     def arrayBufferType(arg: Type)  = appliedType(ArrayBufferClass.typeConstructor, List(arg))
     
@@ -122,6 +123,11 @@ class TreePrinterSpec extends Specification { def is =
         DEF("get", IntClass.toType) := (REF(buf) DOT "remove" APPLY()),
         DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) := BLOCK(
           REF(buf) INFIX ("+=", REF("x"))
+          )
+      )) ::
+      (TRAITDEF(Doubling) withParents(TypeTree(IntQueue.toType)) := BLOCK(
+        DEF("put", UnitClass.toType) withFlags(ABSTRACT, OVERRIDE) withParams(VAL("x", IntClass.toType).empty) := BLOCK(
+          SUPER DOT "put" APPLY (LIT(2) INFIX("*", REF("x")))
           )
       )) ::
       Nil
@@ -138,6 +144,11 @@ class TreePrinterSpec extends Specification { def is =
       """    this.buf.remove()""",
       """  def put(x: Int) {""",
       """    this.buf += x""",
+      """  }""",
+      """}""",
+      """trait Doubling extends IntQueue {""",
+      """  override abstract def put(x: Int) {""",
+      """    super.put(2 * x)""",
       """  }""",
       """}"""
     ).inOrder  

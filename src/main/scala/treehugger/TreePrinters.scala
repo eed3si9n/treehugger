@@ -363,7 +363,8 @@ trait TreePrinters extends api.TreePrinters { self: Universe =>
             print("[" + mix + "]")
 
         case Super(qual, mix) =>
-          print(qual, ".super")
+          if (!qual.isEmpty) print(qual + ".")
+          print("super")
           if (!mix.isEmpty)
             print("[" + mix + "]")
 

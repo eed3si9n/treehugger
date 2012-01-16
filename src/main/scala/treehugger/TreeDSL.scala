@@ -40,6 +40,7 @@ trait TreeDSL { self: Universe =>
     val ZERO          = LIT(0)
     def NULL          = LIT(null)
     def UNIT          = LIT(())
+    val SUPER         = Super(EmptyTree)
 
     object WILD {
       def empty               = Ident(nme.WILDCARD)
@@ -327,6 +328,11 @@ trait TreeDSL { self: Universe =>
       def BODY(trees: Tree*): ClassDef = mkTree(trees.toList) 
     }
     
+    class TraitDefStart(name: TypeName) extends ClassDefStart(name) {
+      override def mkTree(body: List[Tree]): ClassDef =
+        ClassDef(mods | Flags.TRAIT, name, tparams, vparams, Template(parents, selfDef, body))
+    }
+    
     class ModuleDefStart(val name: TermName) extends TreeDefStart {
       type ResultTreeType = ModuleDef
       
@@ -387,6 +393,9 @@ trait TreeDSL { self: Universe =>
 
     def CLASSDEF(name: Name): ClassDefStart         = new ClassDefStart(name.toTypeName)
     def CLASSDEF(sym: Symbol): ClassDefStart        = new ClassDefStart(sym.name.toTypeName)
+
+    def TRAITDEF(name: Name): ClassDefStart         = new TraitDefStart(name.toTypeName)
+    def TRAITDEF(sym: Symbol): ClassDefStart        = new TraitDefStart(sym.name.toTypeName)
 
     def MODULEDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
     def MODULEDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)

@@ -86,7 +86,7 @@ for (i <- 0 to 2)
   print(greetStrings(i))
 ```
 
-### class, object, and package
+### class, trait, object, and package
 
 class, object, and package declarations are something new to treehugger DSL:
 
