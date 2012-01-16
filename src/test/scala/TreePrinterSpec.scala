@@ -36,7 +36,6 @@ class TreePrinterSpec extends Specification { def is =
     s.lines.toList must contain(
       """def hello() {""",
       """  println("Hello, world!")""",
-      """  ()""",
       """}"""
     ).inOrder
   }
@@ -139,7 +138,6 @@ class TreePrinterSpec extends Specification { def is =
       """    this.buf.remove()""",
       """  def put(x: Int) {""",
       """    this.buf += x""",
-      """    ()""",
       """  }""",
       """}"""
     ).inOrder  

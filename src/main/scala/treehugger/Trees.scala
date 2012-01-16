@@ -151,7 +151,7 @@ trait Trees extends api.Trees { self: Universe =>
    */
   def Block(stats: Tree*): Block = stats match {
     case Seq(b @ Block(_, _)) => b
-    case Seq(stat) => Block(stats.toList, Literal(Constant(())))
+    case Seq(stat) => Block(Nil, stat)
     case Seq(_, rest @ _*) => Block(stats.init.toList, stats.last)
     case _ => Block(stats.toList, Literal(Constant(())))
   }
