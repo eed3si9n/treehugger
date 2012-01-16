@@ -29,8 +29,8 @@ class TreePrinterSpec extends Specification { def is =
   }
   
   def e2 = {
-    val tree = DEF("hello", UnitClass.toType) :=
-      BLOCK(sym.println APPLY LIT("Hello, world!"))
+    val tree = DEF("hello", UnitClass.toType) := BLOCK(
+      sym.println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
     s.lines.toList must contain(
