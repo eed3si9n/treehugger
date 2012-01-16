@@ -151,5 +151,6 @@ See [TreePrinterSpec](https://github.com/eed3si9n/treehugger/blob/master/src/tes
 
 ## Licensing
 
-Any code I took from scalac is covered by SCALA LICENSE.
-Any other code I wrote is covered by MIT License.
+Any code taken from scalac is covered by SCALA LICENSE. Copyright LAMP/EPFL.
+
+Any other added code is covered by MIT License. Copyright e.e d3si9n.
