@@ -20,15 +20,16 @@ Thus, treehugger. Code equivalent of Frankenstein's creature patched up by borro
 
 ## DSL
 
-treehugger DSL is an expansion of `TreeDSL` in scalac. It already did many things, but some details were missing. Let's see the actual code. Assume at the beginning of the code there's the following set up:
+treehugger DSL is an expanded version of `TreeDSL` in scalac. Let's see the actual code:
 
 ### Hello world
 
-```
+```scala
 lazy val universe = new treehugger.Universe
 import universe._
 import definitions._
 import CODE._
+import Flags.{PRIVATE, ABSTRACT, IMPLICIT}
 
 object sym {
   val println = ScalaPackageClass.newMethod("println")
@@ -73,6 +74,7 @@ def hello() {
 for expression and infix application are something that is completely missing in scalac's tree:
 
 ```scala
+val greetStrings = RootClass.newValue("greetStrings")
 FOR(VALFROM("i") := LIT(0) INFIX (sym.to, LIT(2))) DO
   (sym.print APPLY (greetStrings APPLY REF("i")))
 ```
@@ -88,7 +90,7 @@ for (i <- 0 to 2)
 
 class, object, and package declarations are something new to treehugger DSL:
 
-```
+```scala
 val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
 
 CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
@@ -142,6 +144,10 @@ def maxListUpBound[T <: Ordered[T]](elements: List[T]): T =
     }
   }
 ```
+
+### more...
+
+See [TreePrinterSpec](https://github.com/eed3si9n/treehugger/blob/master/src/test/scala/TreePrinterSpec.scala) for more examples.
 
 ## Licensing
 
