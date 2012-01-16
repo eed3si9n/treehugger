@@ -52,12 +52,18 @@ If we remove all the setups, the actual AST comes down to:
 sym.println APPLY LIT("Hello, world!")
 ```
 
+The above creates case class structure as follows:
+
+```scala
+Apply(Ident(println),List(Literal(Constant(Hello, world!))))
+```
+
 The setup code will be abbreviated from here.
 
 ### method declaration
 
 ```scala
-DEF("hello", UnitClass.toType) := BLOCK(
+DEF("hello", UnitClass) := BLOCK(
   sym.println APPLY LIT("Hello, world!"))
 ```
 
@@ -94,8 +100,8 @@ class, object, and package declarations are something new to treehugger DSL:
 val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
 
 CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
-  DEF("get", IntClass.toType).empty,
-  DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
+  DEF("get", IntClass).empty,
+  DEF("put", UnitClass) withParams(VAL("x", IntClass).empty) empty
 )
 ```
 
@@ -117,7 +123,7 @@ val maxListUpBound = RootClass.newMethod("maxListUpBound")
 val T = maxListUpBound.newTypeParameter("T".toTypeName)
 val upperboundT = TypeBounds.upper(orderedType(T.toType))
 
-DEF(maxListUpBound.name, T.toType)
+DEF(maxListUpBound.name, T)
     withTypeParams(TypeDef(T, TypeTree(upperboundT))) withParams(VAL("elements", listType(T.toType)).empty) :=
   REF("elements") MATCH(
     CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),

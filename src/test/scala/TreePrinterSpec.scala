@@ -22,14 +22,14 @@ class TreePrinterSpec extends Specification { def is =
   import Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
   
   def e1 = {  
-    val tree = sym.println APPLY LIT("Hello, world!")
+    val tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)
     
     s must_== """println("Hello, world!")"""
   }
   
   def e2 = {
-    val tree = DEF("hello", UnitClass.toType) := BLOCK(
+    val tree = DEF("hello", UnitClass) := BLOCK(
       sym.println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
@@ -74,7 +74,7 @@ class TreePrinterSpec extends Specification { def is =
     
     val trees = (MODULEDEF(ChecksumAccumulator) := BLOCK(
         VAL(cache) withFlags(PRIVATE) := TypeTree(mutableMapType(StringClass.toType, IntClass.toType)) APPLY (),
-        DEF("calculate", IntClass.toType) withParams(VAL(s, StringClass.toType).empty) :=
+        DEF("calculate", IntClass) withParams(VAL(s, StringClass).empty) :=
           (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
           ELSE BLOCK(
             VAL("acc") := NEW(ChecksumAccumulator.toType),
@@ -115,18 +115,18 @@ class TreePrinterSpec extends Specification { def is =
     
     val trees =
       (CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
-        DEF("get", IntClass.toType).empty,
-        DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) empty
+        DEF("get", IntClass).empty,
+        DEF("put", UnitClass) withParams(VAL("x", IntClass).empty) empty
       )) ::
       (CLASSDEF(BasicIntQueue) withParents(TypeTree(IntQueue.toType)) := BLOCK(
         VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass.toType)),
-        DEF("get", IntClass.toType) := (REF(buf) DOT "remove" APPLY()),
-        DEF("put", UnitClass.toType) withParams(VAL("x", IntClass.toType).empty) := BLOCK(
+        DEF("get", IntClass) := (REF(buf) DOT "remove" APPLY()),
+        DEF("put", UnitClass) withParams(VAL("x", IntClass).empty) := BLOCK(
           REF(buf) INFIX ("+=", REF("x"))
           )
       )) ::
       (TRAITDEF(Doubling) withParents(TypeTree(IntQueue.toType)) := BLOCK(
-        DEF("put", UnitClass.toType) withFlags(ABSTRACT, OVERRIDE) withParams(VAL("x", IntClass.toType).empty) := BLOCK(
+        DEF("put", UnitClass) withFlags(ABSTRACT, OVERRIDE) withParams(VAL("x", IntClass).empty) := BLOCK(
           SUPER DOT "put" APPLY (LIT(2) INFIX("*", REF("x")))
           )
       )) ::
@@ -164,13 +164,13 @@ class TreePrinterSpec extends Specification { def is =
     
     val trees =
       (PACKAGEDEF(ScalaPackageClass) := (MODULEDEF(PredefModule) := BLOCK(
-        (CLASSDEF(ArrowAssocClass) withTypeParams(TypeDef(A)) withParams(VAL("x", A.toType).empty) := BLOCK(
-          DEF(arrow.name, tuple2AB) withTypeParams(TypeDef(B)) withParams(VAL("y", B.toType).empty) :=
+        (CLASSDEF(ArrowAssocClass) withTypeParams(TypeDef(A)) withParams(VAL("x", A).empty) := BLOCK(
+          DEF(arrow.name, tuple2AB) withTypeParams(TypeDef(B)) withParams(VAL("y", B).empty) :=
             makeTupleTerm(REF("x") :: REF("y") :: Nil)
         )),
         
         DEF("any2ArrowAssoc", ArrowAssocA)
-            withFlags(IMPLICIT) withTypeParams(TypeDef(A)) withParams(VAL("x", A.toType).empty) :=
+            withFlags(IMPLICIT) withTypeParams(TypeDef(A)) withParams(VAL("x", A).empty) :=
           NEW(ArrowAssocA, REF("x"))
       ))) ::
       Nil
@@ -197,7 +197,7 @@ class TreePrinterSpec extends Specification { def is =
     val upperboundT = TypeBounds.upper(orderedType(T.toType))
     
     val trees =
-      (DEF(maxListUpBound.name, T.toType)
+      (DEF(maxListUpBound.name, T)
           withTypeParams(TypeDef(T, TypeTree(upperboundT))) withParams(VAL("elements", listType(T.toType)).empty) :=
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
