@@ -195,7 +195,7 @@ class TreePrinterSpec extends Specification { def is =
     
     val trees =
       (DEF(maxListUpBound.name, T)
-          withTypeParams(TypeDef(T, upperboundT)) withParams(VAL("elements", listType(T.toType))) :=
+          withTypeParams(TYPE(T) := upperboundT) withParams(VAL("elements", listType(T.toType))) :=
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
