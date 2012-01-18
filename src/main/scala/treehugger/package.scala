@@ -26,7 +26,4 @@ object `package` {
   
   implicit def stringToTermName(s: String): TermName = forest.newTermName(s)
   implicit def typeToTypeTree(typ: Type): TypeTree = forest.TypeTree(typ)
-  
-  def TypeDef(sym: Symbol, rhs: Tree): TypeDef = forest.TypeDef(sym, rhs)
-  def TypeDef(sym: Symbol): TypeDef = forest.TypeDef(sym)
 }
