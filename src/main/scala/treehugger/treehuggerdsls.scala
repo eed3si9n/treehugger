@@ -137,13 +137,13 @@ trait TreehuggerDSLs { self: Forest =>
       def IF(g: Tree): CaseStart    = new CaseStart(pat, g)
       def ==>(body: Tree): CaseDef   = CaseDef(pat, guard, body)
     }
-
-    trait DefStart {
+    
+    trait DefStart[ResultTreeType <: Tree] {
       def name: Name
       def defaultMods: Modifiers
       def defaultPos: Position
 
-      type ResultTreeType <: Tree // >
+      // type ResultTreeType <: Tree // >
       def mkTree(rhs: Tree): ResultTreeType
       def :=(rhs: Tree): ResultTreeType
       final def empty: ResultTreeType = mkTree(EmptyTree)
@@ -171,7 +171,7 @@ trait TreehuggerDSLs { self: Forest =>
      *  common code between a tree based on a pre-existing symbol and
      *  one being built from scratch.
      */
-    trait VODDStart extends DefStart {
+    trait VODDStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] {
       def defaultTpt: Tree
 
       private var _tpt: Tree = null
@@ -183,7 +183,7 @@ trait TreehuggerDSLs { self: Forest =>
       
       final def tpt  = if (_tpt == null) defaultTpt else _tpt
     }
-    trait SymVODDStart extends VODDStart {
+    trait SymVODDStart[ResultTreeType <: Tree] extends VODDStart[ResultTreeType] {
       def sym: Symbol
       def symType: Type
 
@@ -195,32 +195,27 @@ trait TreehuggerDSLs { self: Forest =>
       final def :=(rhs: Tree): ResultTreeType =
         mkTree(rhs) // setSymbol (sym resetFlag mods.flags)
     }
-    trait ValCreator {
-      self: VODDStart =>
-
-      type ResultTreeType = ValDef
+    trait ValCreator { self: VODDStart[ValDef] =>
+      
       def mkTree(rhs: Tree): ValDef = ValDef(mods, name, tpt, rhs)
     }
-    trait DefCreator {
-      self: VODDStart =>
-
+    trait DefCreator { self: VODDStart[DefDef] =>
       def tparams: List[TypeDef]
       def vparamss: List[List[ValDef]]
-
-      type ResultTreeType = DefDef
+      
       def mkTree(rhs: Tree): DefDef = DefDef(mods, name, tparams, vparamss, tpt, rhs)
     }
 
-    class DefSymStart(val sym: Symbol) extends SymVODDStart with DefCreator {
+    class DefSymStart(val sym: Symbol) extends SymVODDStart[DefDef] with DefCreator {
       def symType  = sym.tpe.finalResultType
       def tparams  = Nil // sym.typeParams map TypeDef
       def vparamss = sym.paramss map (xs => xs map ValDef)
     }
-    class ValSymStart(val sym: Symbol) extends SymVODDStart with ValCreator {
+    class ValSymStart(val sym: Symbol) extends SymVODDStart[ValDef] with ValCreator {
       def symType = sym.tpe
     }
     
-    trait TreeDefStart extends DefStart {
+    trait TreeDefStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] {
       def defaultMods = NoMods
       def defaultPos  = NoPosition
       
@@ -229,13 +224,13 @@ trait TreehuggerDSLs { self: Forest =>
         // else atPos(pos)(mkTree(rhs))
     }
 
-    trait TreeVODDStart extends VODDStart with TreeDefStart {
+    trait TreeVODDStart[ResultTreeType <: Tree] extends VODDStart[ResultTreeType] with TreeDefStart[ResultTreeType] {
       def defaultTpt  = TypeTree()
     }
 
-    class ValTreeStart(val name: Name) extends TreeVODDStart with ValCreator {
+    class ValTreeStart(val name: Name) extends TreeVODDStart[ValDef] with ValCreator {
     }
-    class DefTreeStart(val name: Name) extends TreeVODDStart with DefCreator {
+    class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator {
       private var _vparamss: List[List[ValDef]] = List(Nil)
       private var _tparams: List[TypeDef] = Nil
       
@@ -287,14 +282,11 @@ trait TreehuggerDSLs { self: Forest =>
       // def ARGNAMES = ARGS map Ident
     }
     
-    class ValFromStart(val name: Name) extends TreeVODDStart {
-      type ResultTreeType = ValFrom
+    class ValFromStart(val name: Name) extends TreeVODDStart[ValFrom] {
       def mkTree(rhs: Tree): ValFrom = ValFrom(name, tpt, rhs)
     }
     
-    class ClassDefStart(val name: TypeName) extends TreeDefStart {
-      type ResultTreeType = ClassDef
-      
+    class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] {
       private var _parents: List[Tree] = Nil
       private var _tparams: List[TypeDef] = Nil
       private var _vparams: List[ValDef] = Nil
@@ -333,9 +325,7 @@ trait TreehuggerDSLs { self: Forest =>
         ClassDef(mods | Flags.TRAIT, name, tparams, vparams, Template(parents, selfDef, body))
     }
     
-    class ModuleDefStart(val name: TermName) extends TreeDefStart {
-      type ResultTreeType = ModuleDef
-      
+    class ModuleDefStart(val name: TermName) extends TreeDefStart[ModuleDef] {
       val parents: List[Tree] = Nil
       val selfDef: ValDef = emptyValDef
       
@@ -348,9 +338,7 @@ trait TreehuggerDSLs { self: Forest =>
       def BODY(trees: Tree*): ModuleDef = mkTree(trees.toList) 
     }
     
-    class PackageDefStart(val name: TermName) extends TreeDefStart {
-      type ResultTreeType = PackageDef
-      
+    class PackageDefStart(val name: TermName) extends TreeDefStart[PackageDef] {
       def mkTree(rhs: Tree): PackageDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
         case _ => mkTree(rhs :: Nil)
@@ -360,14 +348,11 @@ trait TreehuggerDSLs { self: Forest =>
       def BODY(trees: Tree*): PackageDef = mkTree(trees.toList) 
     }
     
-    class TypeDefTreeStart(val name: Name) extends TreeDefStart {
-      type ResultTreeType = TypeDef
-      
+    class TypeDefTreeStart(val name: Name) extends TreeDefStart[TypeDef] {
       def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name.toTypeName, Nil, rhs)
     }
     
-    class TypeDefSymStart(val sym: Symbol) extends TreeDefStart {
-      type ResultTreeType = TypeDef
+    class TypeDefSymStart(val sym: Symbol) extends TreeDefStart[TypeDef] {
       def name        = sym.name.toTypeName
       
       def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name, Nil, rhs) setSymbol sym
@@ -473,5 +458,7 @@ trait TreehuggerDSLs { self: Forest =>
      */
     implicit def mkTreeFromSelectStart(ss: SelectStart): Select = ss.tree
     implicit def mkTreeMethodsFromSelectStart(ss: SelectStart): TreeMethods = mkTreeMethods(ss.tree)
+    
+    implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
   }
 }
