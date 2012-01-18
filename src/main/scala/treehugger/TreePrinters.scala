@@ -8,7 +8,7 @@ package treehugger
 import java.io.{ OutputStream, PrintWriter, StringWriter, Writer }
 import Flags._
 
-trait TreePrinters extends api.TreePrinters { self: Universe =>
+trait TreePrinters extends api.TreePrinters { self: Forest =>
 
   //nsc import treeInfo.{ IsTrue, IsFalse }
 

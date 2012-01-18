@@ -8,8 +8,7 @@ package treehugger
 import java.lang.Integer.toOctalString
 import annotation.switch
 
-trait Constants extends api.Constants {
-  self: Universe =>
+trait Constants extends api.Constants { self: Forest =>
 
   import definitions._
 

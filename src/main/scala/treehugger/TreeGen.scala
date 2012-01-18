@@ -1,6 +1,6 @@
 package treehugger
 
-trait TreeGen { self: Universe =>
+trait TreeGen { self: Forest =>
   import definitions._
 
   def rootId(name: Name)          = Select(Ident(nme.ROOTPKG), name)

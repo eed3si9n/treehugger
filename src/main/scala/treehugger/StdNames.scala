@@ -7,7 +7,7 @@ package treehugger
 
 import scala.collection.immutable
 
-trait StdNames extends NameManglers { self: Universe =>
+trait StdNames extends NameManglers { self: Forest =>
   val MODULE_SUFFIX_STRING = "$"
   
   def encode(str: String): TermName = newTermName(str)

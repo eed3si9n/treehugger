@@ -2,7 +2,7 @@ package treehugger
 
 trait Names {
   implicit def promoteTermNamesAsNecessary(name: Name): TermName = name.toTermName
-  
+    
   trait Name {
     def name: String
     def isTermName: Boolean = false
@@ -22,7 +22,7 @@ trait Names {
     final override def toString(): String = name
     
     /** @return the i'th Char of this name */
-    final def apply(i: Int): Char = name(i)
+    final def apply(i: Int): Char = name.charAt(i)
     
     /** @return the index of first occurrence of char c in this name, length if not found */
     final def pos(s: String): Int = name indexOf s
@@ -44,7 +44,7 @@ trait Names {
      */
     final def lastPos(c: Char, start: Int): Int = {
       var i = start
-      while (i >= 0 && name(i) != c) i -= 1
+      while (i >= 0 && name.charAt(i) != c) i -= 1
       i
     }
     

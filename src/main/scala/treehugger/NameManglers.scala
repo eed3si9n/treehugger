@@ -13,8 +13,7 @@ import Chars.isOperatorPart
  *  values and methods involved in assembling names out of other names,
  *  and not for simple synthetically named locals.
  */
-trait NameManglers {
-  self: Universe =>
+trait NameManglers { self: Forest =>
 
   trait NameManglingCommon {
     self: CommonNames =>

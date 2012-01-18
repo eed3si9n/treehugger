@@ -3,7 +3,7 @@ package treehugger
 import Flags._
 import PartialFunction._
 
-trait Definitions extends api.StandardDefinitions { self: Universe =>
+trait Definitions extends api.StandardDefinitions { self: Forest =>
   // the scala value classes
   trait ValueClassDefinitions { self: definitions.type =>
     import scala.collection.mutable
@@ -76,7 +76,7 @@ trait Definitions extends api.StandardDefinitions { self: Universe =>
       msym
     }    
   }
-
+  
   object definitions extends AbsDefinitions with ValueClassDefinitions {
     private var isInitialized = false
     def isDefinitionsInitialized = isInitialized

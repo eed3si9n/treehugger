@@ -1,6 +1,6 @@
 package treehugger
 
-class Universe extends api.Universe
+class Forest extends api.Universe
                            with StdNames
                            with Definitions
                            with Symbols
@@ -12,7 +12,7 @@ class Universe extends api.Universe
                            with AnnotationInfos
                            with TreePrinters
                            with TreeGen
-                           with TreeDSL
+                           with TreehuggerDSLs
 {
   type Position = String
   val NoPosition: Position = ""

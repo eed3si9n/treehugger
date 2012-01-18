@@ -8,7 +8,7 @@ package treehugger
 import Flags._
 import api.Modifier
 
-trait Trees extends api.Trees { self: Universe =>
+trait Trees extends api.Trees { self: Forest =>
   /** @param privateWithin the qualifier for a private (a type name)
    *    or tpnme.EMPTY, if none is given.
    *  @param annotations the annotations for the definition.

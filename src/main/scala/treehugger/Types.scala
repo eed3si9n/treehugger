@@ -2,7 +2,7 @@ package treehugger
 
 import scala.annotation.tailrec
 
-trait Types extends api.Types { self: Universe =>
+trait Types extends api.Types { self: Forest =>
   import definitions._
   
   abstract class AbsTypeImpl extends AbsType { this: Type =>

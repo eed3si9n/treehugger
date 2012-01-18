@@ -5,7 +5,7 @@
  
 package treehugger
 
-trait Scopes extends api.Scopes { self: Universe =>
+trait Scopes extends api.Scopes { self: Forest =>
   class Scope {
   }
   

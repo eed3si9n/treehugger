@@ -3,7 +3,7 @@ package treehugger
 import Flags._
 import api.Modifier
 
-trait Symbols extends api.Symbols { self: Universe =>
+trait Symbols extends api.Symbols { self: Forest =>
   import definitions._
   
   private var ids = 0

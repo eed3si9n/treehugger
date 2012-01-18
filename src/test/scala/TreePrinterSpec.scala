@@ -1,7 +1,5 @@
 import org.specs2._
 
-import treehugger._
-
 class TreePrinterSpec extends Specification { def is =
   "This is a specification to check a TreePrinter"                            ^
                                                                               p^
@@ -15,14 +13,13 @@ class TreePrinterSpec extends Specification { def is =
     """case List(x) => x"""                                                   ! e7^
                                                                               end
   
-  lazy val universe = new treehugger.Universe
-  import universe._
+  import treehugger._
   import definitions._
-  import CODE._
-  import Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
+  import treehuggerDSL._
+  import treehugger.Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
   
   def e1 = {  
-    val tree = sym.println APPLY LIT("Hello, world!"); println(tree)
+    val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)
     
     s must_== """println("Hello, world!")"""
@@ -73,7 +70,7 @@ class TreePrinterSpec extends Specification { def is =
     val s = RootClass.newValue("s")
     
     val trees = (MODULEDEF(ChecksumAccumulator) := BLOCK(
-        VAL(cache) withFlags(PRIVATE) := TypeTree(mutableMapType(StringClass.toType, IntClass.toType)) APPLY (),
+        VAL(cache) withFlags(PRIVATE) := mutableMapType(StringClass.toType, IntClass.toType) APPLY (),
         DEF("calculate", IntClass) withParams(VAL(s, StringClass).empty) :=
           (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
           ELSE BLOCK(
@@ -118,14 +115,14 @@ class TreePrinterSpec extends Specification { def is =
         DEF("get", IntClass).empty,
         DEF("put", UnitClass) withParams(VAL("x", IntClass).empty) empty
       )) ::
-      (CLASSDEF(BasicIntQueue) withParents(TypeTree(IntQueue.toType)) := BLOCK(
+      (CLASSDEF(BasicIntQueue) withParents(IntQueue.toType) := BLOCK(
         VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass.toType)),
         DEF("get", IntClass) := (REF(buf) DOT "remove" APPLY()),
         DEF("put", UnitClass) withParams(VAL("x", IntClass).empty) := BLOCK(
           REF(buf) INFIX ("+=", REF("x"))
           )
       )) ::
-      (TRAITDEF(Doubling) withParents(TypeTree(IntQueue.toType)) := BLOCK(
+      (TRAITDEF(Doubling) withParents(IntQueue.toType) := BLOCK(
         DEF("put", UnitClass) withFlags(ABSTRACT, OVERRIDE) withParams(VAL("x", IntClass).empty) := BLOCK(
           SUPER DOT "put" APPLY (LIT(2) INFIX("*", REF("x")))
           )
@@ -198,7 +195,7 @@ class TreePrinterSpec extends Specification { def is =
     
     val trees =
       (DEF(maxListUpBound.name, T)
-          withTypeParams(TypeDef(T, TypeTree(upperboundT))) withParams(VAL("elements", listType(T.toType)).empty) :=
+          withTypeParams(TypeDef(T, upperboundT)) withParams(VAL("elements", listType(T.toType)).empty) :=
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),

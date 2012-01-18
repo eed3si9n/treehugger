@@ -6,7 +6,7 @@
 package treehugger
 
 /** AnnotationInfo and its helpers */
-trait AnnotationInfos extends api.AnnotationInfos { self: Universe =>
+trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
   case class AnnotationInfo(atp: Type, args: List[Tree], assocs: List[(Name, ClassfileAnnotArg)])
   
   object AnnotationInfo extends AnnotationInfoExtractor

@@ -14,12 +14,12 @@ import Flags._
  *  generates.
  */
 
-trait TreeDSL { self: Universe =>
+trait TreehuggerDSLs { self: Forest =>
   
   import definitions._
   import self.{ scalaDot }
-
-  object CODE {
+  
+  object treehuggerDSL {
     // Add a null check to a Tree => Tree function
     def nullSafe[T](f: Tree => Tree, ifNull: Tree): Tree => Tree =
       tree => IF (tree MEMBER_== NULL) THEN ifNull ELSE f(tree)
@@ -447,6 +447,7 @@ trait TreeDSL { self: Universe =>
     /** Implicits - some of these should probably disappear **/
     implicit def mkTreeMethods(target: Tree): TreeMethods = new TreeMethods(target)
     implicit def mkTreeMethodsFromSymbol(target: Symbol): TreeMethods = new TreeMethods(Ident(target))
+    implicit def mkTreeMethodsFromType(target: Type): TreeMethods = new TreeMethods(TypeTree(target))
     implicit def mkSymbolMethodsFromSymbol(target: Symbol): SymbolMethods = new SymbolMethods(target)
 
     /** (foo DOT bar) might be simply a Select, but more likely it is to be immediately
