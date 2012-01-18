@@ -286,6 +286,12 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Block(stats, expr) =>
           printColumn(stats ::: List(expr), "{", "", "}")
 
+        case Commented(comment, expr) =>
+          for (line <- comment.lines) {
+            print("// ", line); println()
+          }
+          print(expr)
+
         case Match(selector, cases) =>
           val selectorType1 = selectorType
           selectorType = selector.tpe

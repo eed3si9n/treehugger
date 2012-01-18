@@ -130,6 +130,7 @@ trait TreehuggerDSLs { self: Forest =>
       
       def inPackage(name: Name): PackageDef = PACKAGEHEADER(name) := target
       def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
+      def withComment(comment: String): Commented = Commented(comment, target)
     }
 
     case class SelectStart(tree: Select) {

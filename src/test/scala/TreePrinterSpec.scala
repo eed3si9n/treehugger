@@ -69,7 +69,7 @@ class TreePrinterSpec extends Specification { def is =
     val cache = ChecksumAccumulator.newValue("cache")
     val s = RootClass.newValue("s")
     
-    val trees = (MODULEDEF(ChecksumAccumulator) := BLOCK(
+    val tree = (MODULEDEF(ChecksumAccumulator) := BLOCK(
         VAL(cache) withFlags(PRIVATE) := mutableMapType(StringClass.toType, IntClass.toType) APPLY (),
         DEF("calculate", IntClass) withParams(VAL(s, StringClass)) :=
           (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
@@ -81,11 +81,11 @@ class TreePrinterSpec extends Specification { def is =
             REF(cache) INFIX ("+=", REF(s) INFIX ("->", REF("cs"))),
             REF("cs")
           ))
-      )) ::
-      Nil
+      )) withComment("In file ChecksumAccumulator.scala")
     
-    val out = treesToString(trees); println(out)
+    val out = treeToString(tree); println(out)
     out.lines.toList must contain(
+      """// In file ChecksumAccumulator.scala""",
       """object ChecksumAccumulator {""",
       """  private val cache = scala.collection.mutable.Map[String,Int]()""",
       """  def calculate(s: String): Int =""",

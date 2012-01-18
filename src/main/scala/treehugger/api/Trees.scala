@@ -397,6 +397,10 @@ trait Trees { self: Universe =>
   case class Block(stats: List[Tree], expr: Tree)
        extends TermTree
 
+  /** Commented expression */
+  case class Commented(comment: String, expr: Tree)
+       extends Tree
+
   /** Case clause in a pattern match, eliminated during explicitouter
    *  (except for occurrences in switch statements)
    */
@@ -714,6 +718,8 @@ trait Trees { self: Universe =>
         traverseStats(body, tree.symbol)
       case Block(stats, expr) =>
         traverseTrees(stats); traverse(expr)
+      case Commented(comment: String, expr: Tree) =>
+        traverse(expr)
       case CaseDef(pat, guard, body) =>
         traverse(pat); traverse(guard); traverse(body)
       case Alternative(trees) =>
@@ -836,6 +842,7 @@ trait Trees { self: Universe =>
     def Import(tree: Tree, expr: Tree, selectors: List[ImportSelector]): Import
     def Template(tree: Tree, parents: List[Tree], self: ValDef, body: List[Tree]): Template
     def Block(tree: Tree, stats: List[Tree], expr: Tree): Block
+    def Commented(tree: Tree, comment: String, expr: Tree): Commented
     def CaseDef(tree: Tree, pat: Tree, guard: Tree, body: Tree): CaseDef
     def Alternative(tree: Tree, trees: List[Tree]): Alternative
     def Star(tree: Tree, elem: Tree): Star
@@ -891,6 +898,8 @@ trait Trees { self: Universe =>
       new Template(parents, self, body).copyAttrs(tree)
     def Block(tree: Tree, stats: List[Tree], expr: Tree) =
       new Block(stats, expr).copyAttrs(tree)
+    def Commented(tree: Tree, comment: String, expr: Tree) =
+      new Commented(comment, expr).copyAttrs(tree)
     def CaseDef(tree: Tree, pat: Tree, guard: Tree, body: Tree) =
       new CaseDef(pat, guard, body).copyAttrs(tree)
     def Alternative(tree: Tree, trees: List[Tree]) =
@@ -1013,6 +1022,11 @@ trait Trees { self: Universe =>
       case t @ Block(stats0, expr0)
       if ((stats0 == stats) && (expr0 == expr)) => t
       case _ => treeCopy.Block(tree, stats, expr)
+    }
+    def Commented(tree: Tree, comment: String, expr: Tree) = tree match {
+      case t @ Commented(comment0, expr0)
+      if ((comment0 == comment) && (expr0 == expr)) => t
+      case _ => treeCopy.Commented(tree, comment, expr)
     }
     def CaseDef(tree: Tree, pat: Tree, guard: Tree, body: Tree) = tree match {
       case t @ CaseDef(pat0, guard0, body0)
