@@ -360,6 +360,19 @@ trait TreehuggerDSLs { self: Forest =>
       def BODY(trees: Tree*): PackageDef = mkTree(trees.toList) 
     }
     
+    class TypeDefTreeStart(val name: Name) extends TreeDefStart {
+      type ResultTreeType = TypeDef
+      
+      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name.toTypeName, Nil, rhs)
+    }
+    
+    class TypeDefSymStart(val sym: Symbol) extends TreeDefStart {
+      type ResultTreeType = TypeDef
+      def name        = sym.name.toTypeName
+      
+      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name, Nil, rhs) setSymbol sym
+    }
+    
     /** Top level accessible. */
     def MATCHERROR(arg: Tree) = Throw(New(TypeTree(MatchErrorClass.tpe), List(List(arg))))
     /** !!! should generalize null guard from match error here. */
@@ -408,6 +421,9 @@ trait TreehuggerDSLs { self: Forest =>
 
     def PACKAGEDEF(name: Name): PackageDefStart     = new PackageDefStart(name)
     def PACKAGEDEF(sym: Symbol): PackageDefStart    = new PackageDefStart(sym.name)
+
+    def TYPE(name: Name): TypeDefTreeStart          = new TypeDefTreeStart(name)
+    def TYPE(sym: Symbol): TypeDefSymStart          = new TypeDefSymStart(sym)
 
     def AND(guards: Tree*) =
       if (guards.isEmpty) EmptyTree
