@@ -127,6 +127,9 @@ trait TreehuggerDSLs { self: Forest =>
       // def TOSTRING()          = nullSafe(fn(_: Tree, nme.toString_), LIT("null"))(target)
       def TOSTRING()          = fn(target, nme.toString_)
       def GETCLASS()          = fn(target, Object_getClass)
+      
+      def inPackage(name: Name): PackageDef = PACKAGEHEADER(name) := target
+      def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
     }
 
     case class SelectStart(tree: Select) {
@@ -317,7 +320,6 @@ trait TreehuggerDSLs { self: Forest =>
       }
       
       def mkTree(body: List[Tree]): ClassDef = ClassDef(mods, name, tparams, vparams, Template(parents, selfDef, body))
-      def BODY(trees: Tree*): ClassDef = mkTree(trees.toList) 
     }
     
     class TraitDefStart(name: TypeName) extends ClassDefStart(name) {
@@ -335,17 +337,19 @@ trait TreehuggerDSLs { self: Forest =>
       }
       
       def mkTree(body: List[Tree]): ModuleDef = ModuleDef(mods, name, Template(parents, selfDef, body))
-      def BODY(trees: Tree*): ModuleDef = mkTree(trees.toList) 
     }
     
-    class PackageDefStart(val name: TermName) extends TreeDefStart[PackageDef] {
+    class PackageDefStart(val name: TermName, val header: Boolean) extends TreeDefStart[PackageDef] {
+      override def defaultMods =
+        if (header) NoMods | HEADER
+        else NoMods
+      
       def mkTree(rhs: Tree): PackageDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
         case _ => mkTree(rhs :: Nil)
       }
       
-      def mkTree(body: List[Tree]): PackageDef = PackageDef(Ident(name), body)
-      def BODY(trees: Tree*): PackageDef = mkTree(trees.toList) 
+      def mkTree(body: List[Tree]): PackageDef = PackageDef(mods, Ident(name), body)
     }
     
     class TypeDefTreeStart(val name: Name) extends TreeDefStart[TypeDef] {
@@ -404,9 +408,11 @@ trait TreehuggerDSLs { self: Forest =>
     def MODULEDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
     def MODULEDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)
 
-    def PACKAGEDEF(name: Name): PackageDefStart     = new PackageDefStart(name)
-    def PACKAGEDEF(sym: Symbol): PackageDefStart    = new PackageDefStart(sym.name)
-
+    def PACKAGEDEF(name: Name): PackageDefStart     = new PackageDefStart(name, false)
+    def PACKAGEDEF(sym: Symbol): PackageDefStart    = new PackageDefStart(sym.name, false)
+    def PACKAGEHEADER(name: Name): PackageDefStart  = new PackageDefStart(name, true)
+    def PACKAGEHEADER(sym: Symbol): PackageDefStart = new PackageDefStart(sym.name, true)
+    
     def TYPE(name: Name): TypeDefTreeStart          = new TypeDefTreeStart(name)
     def TYPE(sym: Symbol): TypeDefSymStart          = new TypeDefSymStart(sym)
 

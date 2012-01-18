@@ -159,8 +159,8 @@ class TreePrinterSpec extends Specification { def is =
     val tuple2AB = tupleType(A.toType :: B.toType :: Nil)
     val ArrowAssocA = appliedType(ArrowAssocClass.toType, A.toType :: Nil)
     
-    val trees =
-      (PACKAGEDEF(ScalaPackageClass) := (MODULEDEF(PredefModule) := BLOCK(
+    val tree =
+      (MODULEDEF(PredefModule) := BLOCK(
         (CLASSDEF(ArrowAssocClass) withTypeParams(TYPE(A)) withParams(VAL("x", A)) := BLOCK(
           DEF(arrow.name, tuple2AB) withTypeParams(TYPE(B)) withParams(VAL("y", B)) :=
             makeTupleTerm(REF("x") :: REF("y") :: Nil)
@@ -169,20 +169,18 @@ class TreePrinterSpec extends Specification { def is =
         DEF("any2ArrowAssoc", ArrowAssocA)
             withFlags(IMPLICIT) withTypeParams(TYPE(A)) withParams(VAL("x", A)) :=
           NEW(ArrowAssocA, REF("x"))
-      ))) ::
-      Nil
+      )) inPackage(ScalaPackageClass)
     
-    val out = treesToString(trees); println(out)
+    val out = treeToString(tree); println(out)
     out.lines.toList must contain(
-      """package scala {""",
-      """  object Predef {""",
-      """    class ArrowAssoc[A](x: A) {""",
-      """      def ->[B](y: B): (A, B) =""",
-      """        Tuple2(x, y)""",
-      """    }""",
-      """    implicit def any2ArrowAssoc[A](x: A): scala.Predef.ArrowAssoc[A] =""",
-      """      new scala.Predef.ArrowAssoc[A](x)""",
+      """package scala""",
+      """object Predef {""",
+      """  class ArrowAssoc[A](x: A) {""",
+      """    def ->[B](y: B): (A, B) =""",
+      """      Tuple2(x, y)""",
       """  }""",
+      """  implicit def any2ArrowAssoc[A](x: A): scala.Predef.ArrowAssoc[A] =""",
+      """    new scala.Predef.ArrowAssoc[A](x)""",
       """}"""
     ).inOrder  
   }

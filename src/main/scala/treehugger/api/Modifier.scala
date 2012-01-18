@@ -7,6 +7,6 @@ object Modifier extends Enumeration {
         `sealed`, `implicit`, `lazy`, `macro`, `case`, `trait`,
         deferred, interface, mutable, parameter, covariant, contravariant,
         preSuper, abstractOverride, local, java, static, caseAccessor,
-        defaultParameter, defaultInit, paramAccessor, bynameParameter = Value
+        defaultParameter, defaultInit, paramAccessor, bynameParameter, `header` = Value
 
 }

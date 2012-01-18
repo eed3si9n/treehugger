@@ -116,6 +116,9 @@ class ModifierFlags {
   final val PRESUPER      = 0x2000000000L // value is evaluated before super call
   final val DEFAULTINIT   = 0x20000000000L// symbol is initialized to the default value: used by -Xcheckinit
 
+  // treehugger custom
+  final val HEADER        = 0x1000000000000L// symbol is a non-block header (i.e. package scala.collection)
+  
   // Overridden.
   def flagToString(flag: Long): String = ""
 
@@ -470,6 +473,7 @@ class Flags extends ModifierFlags {
     case Modifier.defaultInit => DEFAULTINIT
     case Modifier.paramAccessor => PARAMACCESSOR
     case Modifier.bynameParameter => BYNAMEPARAM
+    case Modifier.header => HEADER
   }
 
   def flagsOfModifiers(mods: List[Modifier.Value]): Long =

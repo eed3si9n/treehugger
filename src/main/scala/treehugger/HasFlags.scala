@@ -207,4 +207,6 @@ trait HasFlags {
 
   // Name
   def isJavaDefined = hasFlag(JAVA)
+  
+  def isHeader = hasFlag(HEADER)
 }

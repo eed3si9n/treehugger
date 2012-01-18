@@ -190,9 +190,14 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
                 else if (impl.parents.isEmpty) ""
                 else " extends ", impl)
 
-        case PackageDef(packaged, stats) =>
+        case PackageDef(mods, packaged, stats) =>
           printAnnotations(tree)
-          print("package ", packaged); printColumn(stats, " {", "", "}")
+          print("package ", packaged)
+          if (mods.isHeader) {
+            println()
+            print(stats: _*)
+          }
+          else printColumn(stats, " {", "", "}")
 
         case ModuleDef(mods, name, impl) =>
           printAnnotations(tree)

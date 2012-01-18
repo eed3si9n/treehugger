@@ -280,7 +280,7 @@ trait Trees { self: Universe =>
       case ClassDef(mods, _, _, _, _) => if (mods hasModifier Modifier.`trait`) "trait" else "class"
       case DefDef(_, _, _, _, _, _)   => "def"
       case ModuleDef(_, _, _)         => "object"
-      case PackageDef(_, _)           => "package"
+      case PackageDef(_, _, _)        => "package"
       case ValDef(mods, _, _, _)      => if (mods hasModifier Modifier.mutable) "var" else "val"
       case _ => ""
     }
@@ -289,10 +289,9 @@ trait Trees { self: Universe =>
 
   /** A packaging, such as `package pid { stats }`
    */
-  case class PackageDef(pid: RefTree, stats: List[Tree])
+  case class PackageDef(mods: Modifiers, pid: RefTree, stats: List[Tree])
        extends MemberDef {
     def name = pid.name
-    def mods = Modifiers()
   }
 
   /** A common base class for class and object definitions.
@@ -678,7 +677,7 @@ trait Trees { self: Universe =>
     def traverse(tree: Tree): Unit = tree match {
       case EmptyTree =>
         ;
-      case PackageDef(pid, stats) =>
+      case PackageDef(mods, pid, stats) =>
         traverse(pid)
         atOwner(tree.symbol.moduleClass) {
           traverseTrees(stats)
@@ -828,7 +827,7 @@ trait Trees { self: Universe =>
 
   trait TreeCopierOps {
     def ClassDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template): ClassDef
-    def PackageDef(tree: Tree, pid: RefTree, stats: List[Tree]): PackageDef
+    def PackageDef(tree: Tree, mods: Modifiers, pid: RefTree, stats: List[Tree]): PackageDef
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template): ModuleDef
     def ValDef(tree: Tree, mods: Modifiers, name: Name, tpt: Tree, rhs: Tree): ValDef
     def DefDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree): DefDef
@@ -874,8 +873,8 @@ trait Trees { self: Universe =>
   class StrictTreeCopier extends TreeCopierOps {
     def ClassDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template) =
       new ClassDef(mods, name.toTypeName, tparams, vparams, impl).copyAttrs(tree)
-    def PackageDef(tree: Tree, pid: RefTree, stats: List[Tree]) =
-      new PackageDef(pid, stats).copyAttrs(tree)
+    def PackageDef(tree: Tree, mods: Modifiers, pid: RefTree, stats: List[Tree]) =
+      new PackageDef(mods, pid, stats).copyAttrs(tree)
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template) =
       new ModuleDef(mods, name.toTermName, impl).copyAttrs(tree)
     def ValDef(tree: Tree, mods: Modifiers, name: Name, tpt: Tree, rhs: Tree) =
@@ -969,10 +968,10 @@ trait Trees { self: Universe =>
       if (mods0 == mods) && (name0 == name) && (tparams0 == tparams) && (vparams0 == vparams) && (impl0 == impl) => t
       case _ => treeCopy.ClassDef(tree, mods, name, tparams, vparams, impl)
     }
-    def PackageDef(tree: Tree, pid: RefTree, stats: List[Tree]) = tree match {
-      case t @ PackageDef(pid0, stats0)
-      if (pid0 == pid) && (stats0 == stats) => t
-      case _ => treeCopy.PackageDef(tree, pid, stats)
+    def PackageDef(tree: Tree, mods: Modifiers, pid: RefTree, stats: List[Tree]) = tree match {
+      case t @ PackageDef(mods0, pid0, stats0)
+      if (mods0 == mods) && (pid0 == pid) && (stats0 == stats) => t
+      case _ => treeCopy.PackageDef(tree, mods, pid, stats)
     }
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template) = tree match {
       case t @ ModuleDef(mods0, name0, impl0)
