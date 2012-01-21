@@ -360,6 +360,15 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     
     // def ClassType(arg: Type) = appliedType(ClassClass.typeConstructor, List(arg))
     
+    // generalized type constraints
+    lazy val TpEqualsType         = getClass("=:=")
+    lazy val ConformsType         = getClass("<:<")
+    lazy val ConformsOrViewAsType = getClass("<%<")
+    
+    def tpEqualsType(arg1: Type, arg2: Type)   = appliedType(TpEqualsType.typeConstructor, List(arg1, arg2))
+    def conformsType(arg1: Type, arg2: Type)   = appliedType(ConformsType.typeConstructor, List(arg1, arg2))
+    def conformsOrViewAsType(arg1: Type, arg2: Type)   = appliedType(ConformsOrViewAsType.typeConstructor, List(arg1, arg2))
+    
     // typeclass classes
     lazy val EquivClass           = getClass("scala.Equiv")
     lazy val FractionalClass      = getClass("scala.Fractional")
