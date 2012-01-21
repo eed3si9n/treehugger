@@ -23,6 +23,8 @@ object `package` {
   type Tree        = forest.Tree
   type TypeTree    = forest.TypeTree
   type TypeDef     = forest.TypeDef
+  type ValDef      = forest.ValDef
+  type DefDef      = forest.DefDef
   
   implicit def stringToTermName(s: String): TermName = forest.newTermName(s)
   implicit def typeToTypeTree(typ: Type): TypeTree = forest.TypeTree(typ)
