@@ -172,7 +172,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     def printTree(tree: Tree) {
       tree match {
         case EmptyTree =>
-          print("<empty>")
+          print("")
 
         case ClassDef(mods, name, tparams, vparams, impl) =>
           printAnnotations(tree)

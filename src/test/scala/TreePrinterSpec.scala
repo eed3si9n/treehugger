@@ -11,6 +11,7 @@ class TreePrinterSpec extends Specification { def is =
     """abstract class IntQueue"""                                             ! e5^
     """package scala"""                                                       ! e6^
     """case List(x) => x"""                                                   ! e7^
+    """case class Address()"""                                                ! e8^
                                                                               end
   
   import treehugger._
@@ -218,6 +219,16 @@ class TreePrinterSpec extends Specification { def is =
       """    }""",
       """  }"""
     ).inOrder
+  }
+  
+  def e8 = {
+    val tree: Tree =
+      (CASECLASSDEF("Address"))
+          
+    val out = treeToString(tree); println(out)
+    out.lines.toList must contain(
+      """case class Address"""
+    )
   }
   
   object sym {

@@ -317,6 +317,7 @@ trait TreehuggerDSLs { self: Forest =>
       
       def mkTree(rhs: Tree): ClassDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
+        case EmptyTree => mkTree(Nil)
         case _ => mkTree(rhs :: Nil)
       }
       
@@ -334,6 +335,7 @@ trait TreehuggerDSLs { self: Forest =>
       
       def mkTree(rhs: Tree): ModuleDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
+        case EmptyTree => mkTree(Nil)
         case _ => mkTree(rhs :: Nil)
       }
       
@@ -347,6 +349,7 @@ trait TreehuggerDSLs { self: Forest =>
       
       def mkTree(rhs: Tree): PackageDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
+        case EmptyTree => mkTree(Nil)
         case _ => mkTree(rhs :: Nil)
       }
       
@@ -402,13 +405,19 @@ trait TreehuggerDSLs { self: Forest =>
 
     def CLASSDEF(name: Name): ClassDefStart         = new ClassDefStart(name.toTypeName)
     def CLASSDEF(sym: Symbol): ClassDefStart        = new ClassDefStart(sym.name.toTypeName)
+    
+    def CASECLASSDEF(name: Name): ClassDefStart     = CLASSDEF(name) withFlags Flags.CASE
+    def CASECLASSDEF(sym: Symbol): ClassDefStart    = CLASSDEF(sym) withFlags Flags.CASE
 
     def TRAITDEF(name: Name): ClassDefStart         = new TraitDefStart(name.toTypeName)
     def TRAITDEF(sym: Symbol): ClassDefStart        = new TraitDefStart(sym.name.toTypeName)
 
     def MODULEDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
     def MODULEDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)
-
+    
+    def CASEMODULEDEF(name: Name): ModuleDefStart   = MODULEDEF(name) withFlags Flags.CASE
+    def CASEMODULEDEF(sym: Symbol): ModuleDefStart  = MODULEDEF(sym) withFlags Flags.CASE
+    
     def PACKAGEDEF(name: Name): PackageDefStart     = new PackageDefStart(name, false)
     def PACKAGEDEF(sym: Symbol): PackageDefStart    = new PackageDefStart(sym.name, false)
     def PACKAGEHEADER(name: Name): PackageDefStart  = new PackageDefStart(name, true)
