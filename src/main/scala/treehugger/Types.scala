@@ -262,7 +262,7 @@ trait Types extends api.Types { self: Forest =>
       else if (hi == NothingClass.tpe) ">: " + lo.toString
       else ">: " + lo + " <: " + hi
   }
-  
+    
   final class UniqueTypeBounds(lo: Type, hi: Type) extends TypeBounds(lo, hi) with UniqueType { }
 
   object TypeBounds extends TypeBoundsExtractor {
@@ -272,6 +272,26 @@ trait Types extends api.Types { self: Forest =>
     def apply(lo: Type, hi: Type): TypeBounds = {
       new UniqueTypeBounds(lo, hi).asInstanceOf[TypeBounds]
     }
+  }
+  
+  abstract case class ViewBounds(target: Type) extends Type {
+    override def safeToString = "<% " + target.toString
+  }
+  
+  final class UniqueViewBounds(target: Type) extends ViewBounds(target) with UniqueType { }
+    
+  object ViewBounds extends ViewBoundsExtractor {
+    def apply(target: Type): ViewBounds = new UniqueViewBounds(target).asInstanceOf[ViewBounds]
+  }
+  
+  abstract case class ContextBounds(typcon: Type) extends Type {
+    override def safeToString = ": " + typcon.toString
+  }
+  
+  final class UniqueContextBounds(typcon: Type) extends ContextBounds(typcon) with UniqueType { }
+    
+  object ContextBounds extends ContextBoundsExtractor {
+    def apply(typcon: Type): ContextBounds = new UniqueContextBounds(typcon).asInstanceOf[ContextBounds]
   }
   
   /** A common base class for intersection types and class types

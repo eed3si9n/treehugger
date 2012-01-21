@@ -11,7 +11,7 @@ class TreePrinterSpec extends Specification { def is =
     """abstract class IntQueue"""                                             ! e5^
     """package scala"""                                                       ! e6^
     """case List(x) => x"""                                                   ! e7^
-    """case class Address()"""                                                ! e8^
+    """case class [T <% List[T]]Address()"""                                  ! e8^
                                                                               end
   
   import treehugger._
@@ -190,11 +190,10 @@ class TreePrinterSpec extends Specification { def is =
   def e7 = {
     val maxListUpBound = RootClass.newMethod("maxListUpBound")
     val T = maxListUpBound.newTypeParameter("T".toTypeName)
-    val upperboundT = TypeBounds.upper(orderedType(T.toType))
     
     val trees =
       (DEF(maxListUpBound.name, T)
-          withTypeParams(TYPE(T) := upperboundT) withParams(VAL("elements", listType(T.toType))) :=
+          withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(VAL("elements", listType(T.toType))) :=
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
@@ -222,12 +221,17 @@ class TreePrinterSpec extends Specification { def is =
   }
   
   def e8 = {
+    val Address = RootClass.newClass("Address".toTypeName)
+    val T = Address.newTypeParameter("T".toTypeName)
+    
     val tree: Tree =
-      (CASECLASSDEF("Address") withParams(VAL("name", optionType(StringClass.toType)) := REF(NoneModule)))
+      (CASECLASSDEF(Address)
+        withTypeParams(TYPE(T) VIEWBOUNDS listType(T))
+        withParams(VAL("name", optionType(T)) := REF(NoneModule)))
           
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
-      """case class Address(name: Option[String] = None)"""
+      """case class Address[T <% List[T]](name: Option[T] = None)"""
     )
   }
   

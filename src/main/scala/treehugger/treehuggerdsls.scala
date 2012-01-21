@@ -356,11 +356,21 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(body: List[Tree]): PackageDef = PackageDef(mods, Ident(name), body)
     }
     
-    class TypeDefTreeStart(val name: Name) extends TreeDefStart[TypeDef] {
+    trait TypeDefStart extends TreeDefStart[TypeDef] {
+      def mkTree(typ: Type): TypeDef = mkTree(TypeTree(typ))
+      
+      def UPPER(hi: Type): TypeDef = mkTree(TypeBounds.upper(hi))
+      def LOWER(lo: Type): TypeDef = mkTree(TypeBounds.lower(lo))
+      def TYPEBOUNDS(lo: Type, hi: Type): TypeDef = mkTree(TypeBounds(lo, hi))
+      def VIEWBOUNDS(target: Type): TypeDef = mkTree(ViewBounds(target))
+      def CONTEXTBOUNDS(typcon: Type): TypeDef = mkTree(ContextBounds(typcon))
+    }
+    
+    class TypeDefTreeStart(val name: Name) extends TypeDefStart {
       def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name.toTypeName, Nil, rhs)
     }
     
-    class TypeDefSymStart(val sym: Symbol) extends TreeDefStart[TypeDef] {
+    class TypeDefSymStart(val sym: Symbol) extends TypeDefStart {
       def name        = sym.name.toTypeName
       
       def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name, Nil, rhs) setSymbol sym
@@ -378,29 +388,24 @@ trait TreehuggerDSLs { self: Forest =>
     def NEW(sym: Symbol, args: Tree*): Tree = New(sym, args: _*)
 
     def DEF(name: Name, tp: Type): DefTreeStart     = DEF(name) withType tp
-    def DEF(name: Name, classSym: Symbol): DefTreeStart = DEF(name, classSym.toType)
     def DEF(name: Name): DefTreeStart               = new DefTreeStart(name)
     def DEF(sym: Symbol): DefSymStart               = new DefSymStart(sym)
 
     def VAL(name: Name, tp: Type): ValTreeStart     = VAL(name) withType tp
-    def VAL(name: Name, classSym: Symbol): ValTreeStart = VAL(name, classSym.toType)
     def VAL(name: Name): ValTreeStart               = new ValTreeStart(name)
     def VAL(sym: Symbol, tp: Type): ValTreeStart    = VAL(sym.name) withType tp
     def VAL(sym: Symbol, classSym: Symbol): ValTreeStart = VAL(sym, classSym.toType)
     def VAL(sym: Symbol): ValSymStart               = new ValSymStart(sym)
 
     def VAR(name: Name, tp: Type): ValTreeStart     = VAL(name, tp) withFlags Flags.MUTABLE
-    def VAR(name: Name, classSym: Symbol): ValTreeStart = VAR(name, classSym.toType)
     def VAR(name: Name): ValTreeStart               = VAL(name) withFlags Flags.MUTABLE
     def VAR(sym: Symbol): ValSymStart               = VAL(sym) withFlags Flags.MUTABLE
 
     def LAZYVAL(name: Name, tp: Type): ValTreeStart = VAL(name, tp) withFlags Flags.LAZY
-    def LAZYVAL(name: Name, classSym: Symbol): ValTreeStart = LAZYVAL(name, classSym.toType)
     def LAZYVAL(name: Name): ValTreeStart           = VAL(name) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol): ValSymStart           = VAL(sym) withFlags Flags.LAZY
 
     def VALFROM(name: Name, tp: Type): ValFromStart = VALFROM(name) withType tp
-    def VALFROM(name: Name, classSym: Symbol): ValFromStart = VALFROM(name, classSym.toType)
     def VALFROM(name: Name): ValFromStart           = new ValFromStart(name)
 
     def CLASSDEF(name: Name): ClassDefStart         = new ClassDefStart(name.toTypeName)
@@ -476,5 +481,6 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkTreeMethodsFromSelectStart(ss: SelectStart): TreeMethods = mkTreeMethods(ss.tree)
     
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
+    implicit def mkTypeFromSymbol(sym: Symbol): Type = sym.toType
   }
 }
