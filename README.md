@@ -100,8 +100,8 @@ class, object, and package declarations are something new to treehugger DSL:
 val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
 
 CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
-  DEF("get", IntClass).empty,
-  DEF("put", UnitClass) withParams(VAL("x", IntClass).empty) empty
+  DEF("get", IntClass),
+  DEF("put", UnitClass) withParams(VAL("x", IntClass))
 )
 ```
 
@@ -121,10 +121,9 @@ pattern matching was mostly in the original DSL (except `UNAPPLY` and `INFIXUNAP
 ```scala
 val maxListUpBound = RootClass.newMethod("maxListUpBound")
 val T = maxListUpBound.newTypeParameter("T".toTypeName)
-val upperboundT = TypeBounds.upper(orderedType(T.toType))
 
 DEF(maxListUpBound.name, T)
-    withTypeParams(TypeDef(T, TypeTree(upperboundT))) withParams(VAL("elements", listType(T.toType)).empty) :=
+    withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(VAL("elements", listType(T))) :=
   REF("elements") MATCH(
     CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
     CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),

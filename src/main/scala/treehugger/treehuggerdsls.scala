@@ -294,11 +294,16 @@ trait TreehuggerDSLs { self: Forest =>
       private var _parents: List[Tree] = Nil
       private var _tparams: List[TypeDef] = Nil
       private var _vparams: List[ValDef] = Nil
-      
-      def withParents(parent: Tree*): this.type = {
-        _parents = parent.toList
+
+      def withParents(parent: Type*): this.type = {
+        _parents = parent.toList map {TypeTree(_)}
         this
       }
+            
+      // def withParents(parent: Tree*): this.type = {
+      //   _parents = parent.toList
+      //   this
+      // }
       
       def withTypeParams(tparam: TypeDef*): this.type = {
         _tparams = tparam.toList
@@ -385,7 +390,7 @@ trait TreehuggerDSLs { self: Forest =>
 
     def NEW(tp: Type, args: Tree*): Tree = NEW(TypeTree(tp), args: _*)
     def NEW(tpt: Tree, args: Tree*): Tree   = New(tpt, List(args.toList))
-    def NEW(sym: Symbol, args: Tree*): Tree = New(sym, args: _*)
+    // def NEW(sym: Symbol, args: Tree*): Tree = New(sym, args: _*)
 
     def DEF(name: Name, tp: Type): DefTreeStart     = DEF(name) withType tp
     def DEF(name: Name): DefTreeStart               = new DefTreeStart(name)
