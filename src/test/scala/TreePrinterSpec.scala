@@ -90,13 +90,13 @@ class TreePrinterSpec extends Specification { def is =
       """object ChecksumAccumulator {""",
       """  private val cache = scala.collection.mutable.Map[String,Int]()""",
       """  def calculate(s: String): Int =""",
-      """    if (this.cache.contains(s)) this.cache(s)""",
+      """    if (cache.contains(s)) cache(s)""",
       """    else {""",
       """      val acc = new ChecksumAccumulator()""",
       """      for (c <- s)""",
       """        acc.add(c.toByte)""",
       """      val cs = acc.checksum()""",
-      """      this.cache += (s -> cs)""",
+      """      cache += (s -> cs)""",
       """      cs""",
       """    }""",
       """}"""
@@ -139,9 +139,9 @@ class TreePrinterSpec extends Specification { def is =
       """class BasicIntQueue extends IntQueue {""",
       """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]()""",
       """  def get(): Int =""",
-      """    this.buf.remove()""",
+      """    buf.remove()""",
       """  def put(x: Int) {""",
-      """    this.buf += x""",
+      """    buf += x""",
       """  }""",
       """}""",
       """trait Doubling extends IntQueue {""",
@@ -223,11 +223,11 @@ class TreePrinterSpec extends Specification { def is =
   
   def e8 = {
     val tree: Tree =
-      (CASECLASSDEF("Address"))
+      (CASECLASSDEF("Address") withParams(VAL("name", optionType(StringClass.toType)) := REF(NoneModule)))
           
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
-      """case class Address"""
+      """case class Address(name: Option[String] = None)"""
     )
   }
   
