@@ -41,6 +41,7 @@ trait TreehuggerDSLs { self: Forest =>
     def NULL          = LIT(null)
     def UNIT          = LIT(())
     val SUPER         = Super(EmptyTree)
+    val UNDERSCORE    = REF("_")
 
     object WILD {
       def empty               = Ident(nme.WILDCARD)
@@ -116,14 +117,14 @@ trait TreehuggerDSLs { self: Forest =>
       def DROP(count: Int): Tree =
         if (count == 0) target
         else (target DOT nme.drop)(LIT(count))
-      val MAP: AnonFunc => Tree = APPLYLAMBDA(Traversable_map) _
-      val FILTER: AnonFunc => Tree = APPLYLAMBDA(Traversable_filter) _
-      val FLATMAP: AnonFunc => Tree = APPLYLAMBDA(Traversable_flatMap) _
-      val COLLECT: AnonFunc => Tree = APPLYLAMBDA(Traversable_collect) _
+      val MAP: Tree => Tree = APPLYFUNC(Traversable_map) _
+      val FILTER: Tree => Tree = APPLYFUNC(Traversable_filter) _
+      val FLATMAP: Tree => Tree = APPLYFUNC(Traversable_flatMap) _
+      val COLLECT: Tree => Tree = APPLYFUNC(Traversable_collect) _
       
-      def APPLYLAMBDA(sym: Symbol)(lambda: AnonFunc): Tree = lambda match {
-        case AnonFunc(_, _, rhs: Block) => target INFIX(sym, lambda)
-        case _ => target DOT sym APPLY lambda
+      def APPLYFUNC(sym: Symbol)(f: Tree): Tree = f match {
+        case AnonFunc(_, _, rhs: Block) => target INFIX(sym, f)
+        case _ => target DOT sym APPLY f
       }
       
       /** Casting & type tests -- working our way toward understanding exactly

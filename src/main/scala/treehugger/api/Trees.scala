@@ -232,6 +232,10 @@ trait Trees { self: Universe =>
    *  to reliably identify terms.
    */
   trait TermTree extends Tree
+  
+  /** A tree for a function expression.
+   */
+  trait FuncTree extends TermTree
 
   /** A tree for a type.  Not all types are TypTrees; use isType
    *  to reliably identify types.
@@ -330,7 +334,7 @@ trait Trees { self: Universe =>
   case class DefDef(mods: Modifiers, name: Name, tparams: List[TypeDef],
                     vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) extends ValOrDefDef
   
-  case class AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) extends TermTree
+  case class AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) extends FuncTree
   
   /** An abstract type, a type parameter, or a type alias.
    */
