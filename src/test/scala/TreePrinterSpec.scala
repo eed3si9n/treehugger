@@ -247,7 +247,7 @@ class TreePrinterSpec extends Specification { def is =
       """      list.map((x) => x + "x").mkString(" ")""",
       """    })""",
       """  def star(n: Int*) =""",
-      """    "foo"""",
+      """    Address[String]("foo")""",
       """}"""
     ).inOrder
   }
