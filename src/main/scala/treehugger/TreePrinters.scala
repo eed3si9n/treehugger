@@ -173,7 +173,10 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       tree match {
         case EmptyTree =>
           print("")
-
+        
+        case classdef: ClassDef if classdef.name == tpnme.ANON_CLASS_NAME =>
+           print(classdef.impl)
+        
         case ClassDef(mods, name, tparams, vparams, impl) =>
           printAnnotations(tree)
           printModifiers(tree, mods)

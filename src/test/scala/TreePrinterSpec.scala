@@ -12,7 +12,10 @@ class TreePrinterSpec extends Specification { def is =
     """package scala"""                                                       ! e6^
     """case List(x) => x"""                                                   ! e7^
     """case class [T <% List[T]]Address()"""                                  ! e8^
+    """new Addressable {}"""                                                  ! e9^
                                                                               end
+  
+  sequential
   
   import treehugger._
   import definitions._
@@ -92,7 +95,7 @@ class TreePrinterSpec extends Specification { def is =
       """  def calculate(s: String): Int =""",
       """    if (cache.contains(s)) cache(s)""",
       """    else {""",
-      """      val acc = new ChecksumAccumulator()""",
+      """      val acc = new ChecksumAccumulator""",
       """      for (c <- s)""",
       """        acc.add(c.toByte)""",
       """      val cs = acc.checksum()""",
@@ -137,7 +140,7 @@ class TreePrinterSpec extends Specification { def is =
       """  def put(x: Int): Unit""",
       """}""",
       """class BasicIntQueue extends IntQueue {""",
-      """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]()""",
+      """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]""",
       """  def get: Int =""",
       """    buf.remove()""",
       """  def put(x: Int) {""",
@@ -249,6 +252,23 @@ class TreePrinterSpec extends Specification { def is =
       """    })""",
       """  def star(n: Int*) =""",
       """    Address[String](Some("foo").map(_ + "x"))""",
+      """}"""
+    ).inOrder
+  }
+  
+  def e9 = {
+    val Addressable = RootClass.newClass("Addressable".toTypeName)
+    val street = Addressable.newMethod("street")
+    
+    val tree: Tree =
+      NEW(ANONDEF(Addressable) := BLOCK(
+        VAL(street) := LIT("123 Drive")
+      ))
+    
+    val out = treeToString(tree); println(out)
+    out.lines.toList must contain(
+      """new Addressable {""",
+      """  val street = "123 Drive"""",
       """}"""
     ).inOrder
   }

@@ -330,7 +330,7 @@ trait TreehuggerDSLs { self: Forest =>
       private var _vparams: List[ValDef] = Nil
 
       def withParents(parent: Type*): this.type = {
-        _parents = parent.toList map {TypeTree(_)}
+        _parents = _parents ::: (parent.toList map {TypeTree(_)})
         this
       }
             
@@ -423,7 +423,9 @@ trait TreehuggerDSLs { self: Forest =>
     def THROW(sym: Symbol, msg: Tree): Throw = Throw(New(TypeTree(sym.toType), List(List(msg.TOSTRING()))))
 
     def NEW(tp: Type, args: Tree*): Tree = NEW(TypeTree(tp), args: _*)
-    def NEW(tpt: Tree, args: Tree*): Tree   = New(tpt, List(args.toList))
+    def NEW(tpt: Tree, args: Tree*): Tree   =
+      if (args.toList.isEmpty) New(tpt)
+      else New(tpt, List(args.toList))
     // def NEW(sym: Symbol, args: Tree*): Tree = New(sym, args: _*)
 
     def DEF(name: Name, tp: Type): DefTreeStart     = DEF(name) withType tp
@@ -452,6 +454,8 @@ trait TreehuggerDSLs { self: Forest =>
     
     def CASECLASSDEF(name: Name): ClassDefStart     = CLASSDEF(name) withFlags Flags.CASE
     def CASECLASSDEF(sym: Symbol): ClassDefStart    = CLASSDEF(sym) withFlags Flags.CASE
+    
+    def ANONDEF(parent: Type*): ClassDefStart       = CLASSDEF(tpnme.ANON_CLASS_NAME) withParents(parent: _*)
 
     def TRAITDEF(name: Name): ClassDefStart         = new TraitDefStart(name.toTypeName)
     def TRAITDEF(sym: Symbol): ClassDefStart        = new TraitDefStart(sym.name.toTypeName)
