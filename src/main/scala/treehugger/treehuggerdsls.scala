@@ -96,7 +96,10 @@ trait TreehuggerDSLs { self: Forest =>
       def APPLY(params: List[Tree]) = Apply(target, params)
       def MATCH(cases: CaseDef*)    = Match(target, cases.toList)
       def UNAPPLY(params: Tree*)    = UnApply(target, params.toList)
-
+      
+      def TYPEAPPLY(typs: Type*)      = TypeApply(target, typs.toList map {TypeTree(_)})
+      def TYPEAPPLY(typs: List[Type]) = TypeApply(target, typs map {TypeTree(_)})
+      
       def DOT(member: Name)         = SelectStart(Select(target, member))
       def DOT(sym: Symbol)          = SelectStart(Select(target, sym))
 

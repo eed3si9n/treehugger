@@ -235,7 +235,7 @@ class TreePrinterSpec extends Specification { def is =
             (list MAP LAMBDA(VAL("x")) ==>
               (REF("x") INFIX(StringAdd_+, LIT("x")))) DOT "mkString" APPLY LIT(" ")
           )),
-        DEF("star") withParams(VAL("n", STAR(IntClass))) := LIT("foo")
+        DEF("star") withParams(VAL("n", STAR(IntClass))) := Address TYPEAPPLY(StringClass) APPLY LIT("foo")
       ))
                 
     val out = treeToString(tree); println(out)
