@@ -89,6 +89,8 @@ trait Symbols extends api.Symbols { self: Forest =>
       m.moduleClass setFlag (JAVA | PACKAGE)
       m
     }
+    final def newPackage(name: TermName, pos: Position = NoPosition): ModuleSymbol =
+      newPackage(pos, name)
     final def newModuleClass(pos: Position, name: TypeName) =
       new ModuleClassSymbol(this, pos, name)
     final def newModuleClass(name: TypeName, pos: Position = NoPosition) =
