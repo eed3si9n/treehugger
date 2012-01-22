@@ -223,20 +223,28 @@ class TreePrinterSpec extends Specification { def is =
   def e8 = {
     val Address = RootClass.newClass("Address".toTypeName)
     val T = Address.newTypeParameter("T".toTypeName)
+    val list = Address.newValue("list")
     
     val tree: Tree =
       (CASECLASSDEF(Address)
           withTypeParams(TYPE(T) VIEWBOUNDS listType(T))
           withParams(VAL("name", optionType(T)) := REF(NoneModule)) := BLOCK(
         DEF("stringOnly", Address) withParams(VAL("ev", tpEqualsType(T, StringClass)) withFlags(IMPLICIT)) :=
-          THIS(Address)
+          Address APPLY(THIS(Address) DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
+            VAL(list, listType(T)) := REF("nm"),
+            (list MAP LAMBDA(VAL("x")) ==>
+              (REF("x") INFIX(StringAdd_+, LIT("x")))) DOT "mkString" APPLY LIT(" ")
+          ))
       ))
                 
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
       """case class Address[T <% List[T]](name: Option[T] = None) {""",
       """  def stringOnly(implicit ev: =:=[T,String]): Address =""",
-      """    this""",
+      """    Address(this.name map { (nm: String) =>""",
+      """      val list: List[T] = nm""",
+      """      list.map((x) => x + "x").mkString(" ")""",
+      """    })""",
       """}"""
     ).inOrder
   }

@@ -329,7 +329,9 @@ trait Trees { self: Universe =>
    */
   case class DefDef(mods: Modifiers, name: Name, tparams: List[TypeDef],
                     vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) extends ValOrDefDef
-
+  
+  case class AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) extends TermTree
+  
   /** An abstract type, a type parameter, or a type alias.
    */
   case class TypeDef(mods: Modifiers, name: TypeName, tparams: List[TypeDef], rhs: Tree)
@@ -702,6 +704,8 @@ trait Trees { self: Universe =>
         atOwner(tree.symbol) {
           traverseTrees(mods.annotations); traverseTrees(tparams); traverseTreess(vparamss); traverse(tpt); traverse(rhs)
         }
+      case AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) =>
+        traverseTreess(vparamss); traverse(tpt); traverse(rhs)
       case TypeDef(mods, name, tparams, rhs) =>
         atOwner(tree.symbol) {
           traverseTrees(mods.annotations); traverseTrees(tparams); traverse(rhs)
@@ -837,6 +841,7 @@ trait Trees { self: Universe =>
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template): ModuleDef
     def ValDef(tree: Tree, mods: Modifiers, name: Name, tpt: Tree, rhs: Tree): ValDef
     def DefDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree): DefDef
+    def AnonFunc(tree: Tree, vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) 
     def TypeDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree): TypeDef
     def LabelDef(tree: Tree, name: Name, params: List[Ident], rhs: Tree): LabelDef
     def Import(tree: Tree, expr: Tree, selectors: List[ImportSelector]): Import
@@ -888,6 +893,8 @@ trait Trees { self: Universe =>
       new ValDef(mods, name.toTermName, tpt, rhs).copyAttrs(tree)
     def DefDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) =
       new DefDef(mods, name.toTermName, tparams, vparamss, tpt, rhs).copyAttrs(tree)
+    def AnonFunc(tree: Tree, vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) =
+      new AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree).copyAttrs(tree)
     def TypeDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree) =
       new TypeDef(mods, name.toTypeName, tparams, rhs).copyAttrs(tree)
     def LabelDef(tree: Tree, name: Name, params: List[Ident], rhs: Tree) =
@@ -997,6 +1004,11 @@ trait Trees { self: Universe =>
       if (mods0 == mods) && (name0 == name) && (tparams0 == tparams) &&
          (vparamss0 == vparamss) && (tpt0 == tpt) && (rhs == rhs0) => t
       case _ => treeCopy.DefDef(tree, mods, name, tparams, vparamss, tpt, rhs)
+    }
+    def AnonFunc(tree: Tree, vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) = tree match {
+      case t @ AnonFunc(vparamss0, tpt0, rhs0)
+      if (vparamss0 == vparamss0) && (tpt0 == tpt) && (rhs0 == rhs) => t
+      case _ => treeCopy.AnonFunc(tree, vparamss, tpt, rhs)  
     }
     def TypeDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree) = tree match {
       case t @ TypeDef(mods0, name0, tparams0, rhs0)

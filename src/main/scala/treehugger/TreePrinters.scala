@@ -234,7 +234,19 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               case _ =>
                 print(" ="); indent; println(); print(rhs); undent
             }
-
+        
+        case AnonFunc(vparamss, tp: TypeTree, rhs: Block) =>
+          print("{ ")
+          vparamss foreach printValueParams
+          print(" =>")
+          printColumn(rhs.stats ::: List(rhs.expr), "", "", "")
+          print("}")
+          
+        case AnonFunc(vparamss, tp: TypeTree, rhs) =>
+          vparamss foreach printValueParams
+          printOpt(": ", tp)
+          if (!rhs.isEmpty) print(" => ", rhs)
+                              
         case TypeDef(mods, name, tparams, rhs) =>
           if (mods hasFlag (PARAM | DEFERRED)) {
             printAnnotations(tree)
@@ -495,7 +507,6 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 // SelectFromArray.
 //          case SelectFromArray(qualifier, name, _) =>
 //          print(qualifier); print(".<arr>"); print(symName(tree, name))
-
 
         case tree =>
           xprintTree(this, tree)

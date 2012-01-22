@@ -113,7 +113,16 @@ trait TreehuggerDSLs { self: Forest =>
       def DROP(count: Int): Tree =
         if (count == 0) target
         else (target DOT nme.drop)(LIT(count))
-
+      val MAP: AnonFunc => Tree = APPLYLAMBDA(Traversable_map) _
+      val FILTER: AnonFunc => Tree = APPLYLAMBDA(Traversable_filter) _
+      val FLATMAP: AnonFunc => Tree = APPLYLAMBDA(Traversable_flatMap) _
+      val COLLECT: AnonFunc => Tree = APPLYLAMBDA(Traversable_collect) _
+      
+      def APPLYLAMBDA(sym: Symbol)(lambda: AnonFunc): Tree = lambda match {
+        case AnonFunc(_, _, rhs: Block) => target INFIX(sym, lambda)
+        case _ => target DOT sym APPLY lambda
+      }
+      
       /** Casting & type tests -- working our way toward understanding exactly
        *  what differs between the different forms of IS and AS.
        *
@@ -170,12 +179,8 @@ trait TreehuggerDSLs { self: Forest =>
       final def mods = if (_mods == null) defaultMods else _mods
       final def pos  = if (_pos == null) defaultPos else _pos
     }
-
-    /** VODD, if it is not obvious, means ValOrDefDef.  This is the
-     *  common code between a tree based on a pre-existing symbol and
-     *  one being built from scratch.
-     */
-    trait VODDStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] {
+    
+    trait TptStart[ResultTreeType <: Tree] {
       def defaultTpt: Tree
 
       private var _tpt: Tree = null
@@ -187,6 +192,13 @@ trait TreehuggerDSLs { self: Forest =>
       
       final def tpt  = if (_tpt == null) defaultTpt else _tpt
     }
+
+    /** VODD, if it is not obvious, means ValOrDefDef.  This is the
+     *  common code between a tree based on a pre-existing symbol and
+     *  one being built from scratch.
+     */
+    trait VODDStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] with TptStart[ResultTreeType]
+    
     trait SymVODDStart[ResultTreeType <: Tree] extends VODDStart[ResultTreeType] {
       def sym: Symbol
       def symType: Type
@@ -253,6 +265,24 @@ trait TreehuggerDSLs { self: Forest =>
       
       def tparams: List[TypeDef] = _tparams
       def vparamss: List[List[ValDef]] = _vparamss
+    }
+    class AnonFuncStart extends TreeDefStart[AnonFunc] with TptStart[AnonFunc] {
+      def name        = ""
+      def defaultTpt  = TypeTree()
+      
+      private var _vparamss: List[List[ValDef]] = List(Nil)
+      def withParams(param: ValDef*): this.type = {
+        if (_vparamss == List(Nil))
+          _vparamss = List(param.toList)
+        else 
+          _vparamss = _vparamss ::: List(param.toList)
+        this
+      }
+      
+      def vparamss: List[List[ValDef]] = _vparamss
+      
+      def mkTree(rhs: Tree): AnonFunc = AnonFunc(vparamss, tpt, rhs)
+      final def ==>(rhs: Tree) = mkTree(rhs)
     }
 
     class IfStart(cond: Tree, thenp: Tree) {
@@ -435,7 +465,9 @@ trait TreehuggerDSLs { self: Forest =>
     
     def TYPE(name: Name): TypeDefTreeStart          = new TypeDefTreeStart(name)
     def TYPE(sym: Symbol): TypeDefSymStart          = new TypeDefSymStart(sym)
-
+    
+    def LAMBDA(param: ValDef*): AnonFuncStart       = new AnonFuncStart() withParams(param: _*)
+    
     def AND(guards: Tree*) =
       if (guards.isEmpty) EmptyTree
       else guards reduceLeft mkAnd
