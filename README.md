@@ -70,7 +70,7 @@ DEF("hello", UnitClass) := BLOCK(
 This prints out:
 
 ```scala
-def hello() {
+def hello {
   println("Hello, world!")
 }
 ```
@@ -109,7 +109,7 @@ The above is an example of an abstract class declaration, which prints out:
 
 ```scala
 abstract class IntQueue {
-  def get(): Int
+  def get: Int
   def put(x: Int): Unit
 }
 ```

@@ -219,14 +219,22 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
-          printTypeParams(tparams); vparamss foreach printValueParams
+          printTypeParams(tparams)
+          vparamss match {
+            case List() | List(List()) => //
+            case _ => vparamss foreach printValueParams
+          }
           print(" ", b)
             
         case DefDef(mods, name, tparams, vparamss, tp, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
-          printTypeParams(tparams); vparamss foreach printValueParams
+          printTypeParams(tparams)
+          vparamss match {
+            case List() | List(List()) => //
+            case _ => vparamss foreach printValueParams
+          }
           printOpt(": ", tp)
           if (!rhs.isEmpty)
             rhs match {

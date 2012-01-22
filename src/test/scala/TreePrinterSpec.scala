@@ -5,7 +5,7 @@ class TreePrinterSpec extends Specification { def is =
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
-    """print def hello()"""                                                   ! e2^
+    """print def hello"""                                                     ! e2^
     """print val greetStrings = new Array[String](3)"""                       ! e3^
     """object ChecksumAccumulator"""                                          ! e4^
     """abstract class IntQueue"""                                             ! e5^
@@ -32,7 +32,7 @@ class TreePrinterSpec extends Specification { def is =
     val s = treeToString(tree); println(s)
     
     s.lines.toList must contain(
-      """def hello() {""",
+      """def hello {""",
       """  println("Hello, world!")""",
       """}"""
     ).inOrder
@@ -133,12 +133,12 @@ class TreePrinterSpec extends Specification { def is =
     val out = treesToString(trees); println(out)
     out.lines.toList must contain(
       """abstract class IntQueue {""",
-      """  def get(): Int""",
+      """  def get: Int""",
       """  def put(x: Int): Unit""",
       """}""",
       """class BasicIntQueue extends IntQueue {""",
       """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]()""",
-      """  def get(): Int =""",
+      """  def get: Int =""",
       """    buf.remove()""",
       """  def put(x: Int) {""",
       """    buf += x""",
