@@ -234,7 +234,8 @@ class TreePrinterSpec extends Specification { def is =
             VAL(list, listType(T)) := REF("nm"),
             (list MAP LAMBDA(VAL("x")) ==>
               (REF("x") INFIX(StringAdd_+, LIT("x")))) DOT "mkString" APPLY LIT(" ")
-          ))
+          )),
+        DEF("star") withParams(VAL("n", STAR(IntClass))) := LIT("foo")
       ))
                 
     val out = treeToString(tree); println(out)
@@ -245,6 +246,8 @@ class TreePrinterSpec extends Specification { def is =
       """      val list: List[T] = nm""",
       """      list.map((x) => x + "x").mkString(" ")""",
       """    })""",
+      """  def star(n: Int*) =""",
+      """    "foo"""",
       """}"""
     ).inOrder
   }

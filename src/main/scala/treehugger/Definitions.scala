@@ -195,7 +195,9 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       tpnme.REPEATED_PARAM_CLASS_NAME,
       tparam => seqType(tparam.typeConstructor)
     )
-
+    
+    def repeatedParamType(tp: Type)    = typeRef(NoPrefix, RepeatedParamClass, List(tp))
+    
     lazy val JavaRepeatedParamClass = newCovariantPolyClass(
       ScalaPackageClass,
       tpnme.JAVA_REPEATED_PARAM_CLASS_NAME,

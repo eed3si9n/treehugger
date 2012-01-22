@@ -492,6 +492,8 @@ trait TreehuggerDSLs { self: Forest =>
     def REF(pre: Type, sym: Symbol)   = mkAttributedRef(pre, sym)
     def REF(name: Name)               = Ident(name)
 
+    def STAR(typ: Type): Type         = repeatedParamType(typ)
+
     def makeTupleTerm(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
       case Nil                        => UNIT
       case List(tree) if flattenUnary => tree
