@@ -434,7 +434,7 @@ trait Trees { self: Universe =>
   case class UnApply(fun: Tree, args: List[Tree])
        extends TermTree
 
-  /** Infix extraction */
+  /** Infix extraction, for example `case x :: rest` */
   case class InfixUnApply(qualifier: Tree, name: Name, args: List[Tree]) extends Tree {
     val fun = Select(qualifier, name)
     override def symbol: Symbol = fun.symbol

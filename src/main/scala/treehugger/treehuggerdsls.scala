@@ -435,15 +435,16 @@ trait TreehuggerDSLs { self: Forest =>
     def VAL(name: Name, tp: Type): ValTreeStart     = VAL(name) withType tp
     def VAL(name: Name): ValTreeStart               = new ValTreeStart(name)
     def VAL(sym: Symbol, tp: Type): ValTreeStart    = VAL(sym.name) withType tp
-    def VAL(sym: Symbol, classSym: Symbol): ValTreeStart = VAL(sym, classSym.toType)
     def VAL(sym: Symbol): ValSymStart               = new ValSymStart(sym)
 
     def VAR(name: Name, tp: Type): ValTreeStart     = VAL(name, tp) withFlags Flags.MUTABLE
     def VAR(name: Name): ValTreeStart               = VAL(name) withFlags Flags.MUTABLE
+    def VAR(sym: Symbol, tp: Type): ValTreeStart    = VAL(sym, tp) withFlags Flags.MUTABLE
     def VAR(sym: Symbol): ValSymStart               = VAL(sym) withFlags Flags.MUTABLE
 
     def LAZYVAL(name: Name, tp: Type): ValTreeStart = VAL(name, tp) withFlags Flags.LAZY
     def LAZYVAL(name: Name): ValTreeStart           = VAL(name) withFlags Flags.LAZY
+    def LAZYVAL(sym: Symbol, tp: Type): ValTreeStart = VAL(sym, tp) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol): ValSymStart           = VAL(sym) withFlags Flags.LAZY
 
     def VALFROM(name: Name, tp: Type): ValFromStart = VALFROM(name) withType tp

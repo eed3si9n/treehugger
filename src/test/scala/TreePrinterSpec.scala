@@ -5,11 +5,29 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
                                                                               p^
   "Literals should"                                                           ^
     """be written as LIT("Hello")"""                                          ! literal1^
-    """be written as LIT(1)/LIT(1.23)"""                                      ! literal2^
-    """be written as TRUE/FALSE/NULL/UNIT"""                                  ! literal3^
+    """be written as LIT(1), LIT(1.23)"""                                     ! literal2^
+    """be written as TRUE, FALSE, NULL, UNIT"""                               ! literal3^
                                                                               p^
   "Comments should"                                                           ^
-    """be written as %tree% withComment("a", ...)"""                          ! comment1^
+    """be written as tree withComment("a", ...)"""                            ! comment1^
+                                                                              p^
+  "Value declarations should"                                                 ^
+    """be written as VAL(sym, typ), VAL("bar", typ)"""                        ! value1^
+                                                                              p^
+  "Value definitions should"                                                  ^
+    """be written as VAL(sym|"bar", [typ]) := rhs"""                          ! value2^
+                                                                              p^
+  "Lazy value definitions should"                                             ^
+    """be written as LAZYVAL(sym|"bar", [typ]) := rhs"""                      ! lazyvalue1^
+                                                                              p^
+  "Constant value definitions should"                                         ^
+    """be written as VAL(sym|"bar", [typ]) withFlags(Flags.FINAL) := rhs"""   ! constantvalue1^
+                                                                              p^
+  "Variable declarations should"                                              ^
+    """be written as VAR(sym, typ), VAR("bar", typ)"""                        ! variable1^
+                                                                              p^
+  "Variable definitions should"                                               ^
+    """be written as VAR(sym|"bar", [typ]) := rhs"""                          ! variable2^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
@@ -47,6 +65,40 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
       "// in comments...",
       "2"
     )
+  
+  def value1 = {
+    // They convert to trees implicitly
+    val tree1: Tree = VAL(sym.foo, IntClass)
+    val tree2: Tree = VAL("bar", listType(StringClass))
+    
+    (tree1 must print_as("val foo: Int")) and
+    (tree2 must print_as("val bar: List[String]"))
+  }
+  
+  def value2 =
+    ((VAL(sym.foo, IntClass) := LIT(3)) must print_as("val foo: Int = 3")) and
+    ((VAL("bar") := FALSE) must print_as("val bar = false"))
+  
+  def lazyvalue1 =
+    ((LAZYVAL(sym.foo, IntClass) := LIT(3)) must print_as("lazy val foo: Int = 3")) and
+    ((LAZYVAL("bar") := FALSE) must print_as("lazy val bar = false"))
+      
+  def constantvalue1 =
+    ((VAL(sym.foo, IntClass) withFlags(Flags.FINAL) := LIT(3)) must print_as("final val foo: Int = 3")) and
+    ((VAL("bar") withFlags(Flags.FINAL) := FALSE) must print_as("final val bar = false"))
+  
+  def variable1 = {
+    // They convert to trees implicitly
+    val tree1: Tree = VAR(sym.foo, IntClass)
+    val tree2: Tree = VAR("bar", listType(StringClass))
+    
+    (tree1 must print_as("var foo: Int")) and
+    (tree2 must print_as("var bar: List[String]"))
+  }
+  
+  def variable2 =
+    ((VAR(sym.foo, IntClass) := LIT(3)) must print_as("var foo: Int = 3")) and
+    ((VAR("bar") := FALSE) must print_as("var bar = false"))
   
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
@@ -303,6 +355,8 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     val println = ScalaPackageClass.newMethod("println")
     val print = ScalaPackageClass.newMethod("print")
     val to = ScalaPackageClass.newMethod("to")
+    
+    val foo = RootClass.newValue("foo")
   }
   
   def print_as(expected: String*): matcher.Matcher[Tree] =

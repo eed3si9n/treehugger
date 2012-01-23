@@ -215,8 +215,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ", symName(tree, name))
           printOpt(": ", tp)
-          if (!mods.isDeferred)
-            print(" = ", if (rhs.isEmpty) "_" else rhs)
+          if (!mods.isDeferred && !rhs.isEmpty)
+            print(" = ", rhs)
 
         case DefDef(mods, name, tparams, vparamss, tp: TypeTree, b: Block) if typeTreeToString(tp) == "Unit" =>
           printAnnotations(tree)
