@@ -1,7 +1,12 @@
 import org.specs2._
 
-class TreePrinterSpec extends Specification { def is =
+class TreePrinterSpec extends Specification { def is = sequential             ^
   "This is a specification to check a TreePrinter"                            ^
+                                                                              p^
+  "Literal should"                                                            ^
+    """be written as LIT("Hello")"""                                          ! literal1^
+    """be written as LIT(1)/LIT(1.23)"""                                      ! literal2^
+    """be written as TRUE/FALSE/NULL/UNIT"""                                  ! literal3^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
@@ -15,12 +20,23 @@ class TreePrinterSpec extends Specification { def is =
     """new Addressable {}"""                                                  ! e9^
                                                                               end
   
-  sequential
-  
   import treehugger._
   import definitions._
   import treehuggerDSL._
   import treehugger.Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
+      
+  def literal1 =
+    LIT("Hello") must print_as(""""Hello"""")
+  
+  def literal2 =
+    (LIT(1)    must print_as("1")) and
+    (LIT(1.23) must print_as("1.23"))
+  
+  def literal3 =
+    (TRUE  must print_as("true")) and
+    (FALSE must print_as("false")) and
+    (NULL  must print_as("null")) and
+    (UNIT  must print_as("()"))
   
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
@@ -278,4 +294,14 @@ class TreePrinterSpec extends Specification { def is =
     val print = ScalaPackageClass.newMethod("print")
     val to = ScalaPackageClass.newMethod("to")
   }
+  
+  def print_as(expected: String*): matcher.Matcher[Tree] =
+    (actual: Tree) => (expected.toList match {
+      case List(x) =>
+        val s = treeToString(actual); println(s)
+        (s == x, s + " doesn't equal " + x)
+      case list    => 
+        val s = treeToString(actual); println(s)
+        (s.lines.toList == list, s.lines.toList + " doesn't equal " + list)
+    })
 }

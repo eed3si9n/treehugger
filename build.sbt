@@ -13,6 +13,8 @@ libraryDependencies <++= (scalaVersion) { (sv) => sv match {
                         "org.specs2" %% "specs2-scalaz-core" % "6.0.1" % "test")
 }}
 
+parallelExecution in Test := false
+
 resolvers ++= Seq("snapshots" at "http://scala-tools.org/repo-snapshots",
                   "releases"  at "http://scala-tools.org/repo-releases")
 
