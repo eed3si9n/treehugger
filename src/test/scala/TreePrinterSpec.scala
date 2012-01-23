@@ -35,6 +35,10 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     """be written as TYPE(sym|"T") HIGHER(typ)"""                             ! type2^
     """be written as TYPE(sym|"T") TYPEBOUNDS(lo, hi)"""                      ! type3^
                                                                               p^                                                                            
+  "Type definitions should"                                                   ^
+    """be written as TYPE(sym|"T") := typ"""                                  ! type4^
+    """be written as TYPE(sym|"T") withTypeParams(TYPE(typ)) := typ"""        ! type5^
+                                                                              p^ 
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -107,18 +111,18 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     ((VAR("bar") := FALSE) must print_as("var bar = false"))
   
   // _ initializes var to 0 
-  def variable3 =
-    ((VAR(sym.foo, IntClass) := UNDERSCORE) must print_as("var foo: Int = _"))
+  def variable3 = ((VAR(sym.foo, IntClass) := UNDERSCORE) must print_as("var foo: Int = _"))
   
-  def type1 =
-    (TYPE("T") LOWER(IntClass)) must print_as("type T >: Int")
+  def type1 = (TYPE("T") LOWER(IntClass)) must print_as("type T >: Int")
   
-  def type2 =
-    (TYPE("T") UPPER(sym.Addressable)) must print_as("type T <: Addressable")
+  def type2 = (TYPE("T") UPPER(sym.Addressable)) must print_as("type T <: Addressable")
   
-  def type3 =
-    (TYPE("T") TYPEBOUNDS(IntClass, sym.Addressable)) must print_as("type T >: Int <: Addressable")
+  def type3 = (TYPE("T") TYPEBOUNDS(IntClass, sym.Addressable)) must print_as("type T >: Int <: Addressable")
   
+  def type4 = (TYPE("IntList") := listType(IntClass)) must print_as("type IntList = List[Int]")
+  
+  def type5 = (TYPE("Two") withTypeParams(TYPE(sym.A)) := tupleType(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
+    
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)
@@ -377,6 +381,7 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     
     val foo = RootClass.newValue("foo")
     val Addressable = RootClass.newClass("Addressable".toTypeName)
+    val A = RootClass.newTypeParameter("A".toTypeName)
   }
   
   def print_as(expected: String*): matcher.Matcher[Tree] =

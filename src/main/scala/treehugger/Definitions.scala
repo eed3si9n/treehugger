@@ -322,7 +322,9 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       case _ => false
     }
 
-    def tupleType(elems: List[Type]) = {
+    def tupleType(elems: Type*): Type = tupleType(elems.toList)
+    
+    def tupleType(elems: List[Type]): Type = {
       val len = elems.length
       if (len <= MaxTupleArity) {
         val sym = TupleClass(len)

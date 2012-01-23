@@ -184,7 +184,7 @@ trait TreehuggerDSLs { self: Forest =>
       final def pos  = if (_pos == null) defaultPos else _pos
     }
     
-    trait TptStart[ResultTreeType <: Tree] {
+    trait TptStart {
       def defaultTpt: Tree
 
       private var _tpt: Tree = null
@@ -201,7 +201,7 @@ trait TreehuggerDSLs { self: Forest =>
      *  common code between a tree based on a pre-existing symbol and
      *  one being built from scratch.
      */
-    trait VODDStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] with TptStart[ResultTreeType]
+    trait VODDStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] with TptStart
     
     trait SymVODDStart[ResultTreeType <: Tree] extends VODDStart[ResultTreeType] {
       def sym: Symbol
@@ -250,9 +250,20 @@ trait TreehuggerDSLs { self: Forest =>
 
     class ValTreeStart(val name: Name) extends TreeVODDStart[ValDef] with ValCreator {
     }
-    class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator {
-      private var _vparamss: List[List[ValDef]] = List(Nil)
+    
+    trait TparamsStart {
       private var _tparams: List[TypeDef] = Nil
+            
+      def withTypeParams(tparam: TypeDef*): this.type = {
+        _tparams = _tparams ::: tparam.toList
+        this
+      }
+            
+      final def tparams: List[TypeDef] = _tparams
+    }
+    
+    class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator with TparamsStart {
+      private var _vparamss: List[List[ValDef]] = List(Nil)
       
       def withParams(param: ValDef*): this.type = {
         if (_vparamss == List(Nil))
@@ -262,15 +273,9 @@ trait TreehuggerDSLs { self: Forest =>
         this
       }
       
-      def withTypeParams(tparam: TypeDef*): this.type = {
-        _tparams = tparam.toList
-        this
-      }
-      
-      def tparams: List[TypeDef] = _tparams
       def vparamss: List[List[ValDef]] = _vparamss
     }
-    class AnonFuncStart extends TreeDefStart[AnonFunc] with TptStart[AnonFunc] {
+    class AnonFuncStart extends TreeDefStart[AnonFunc] with TptStart {
       def name        = ""
       def defaultTpt  = TypeTree()
       
@@ -324,9 +329,8 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(rhs: Tree): ValFrom = ValFrom(name, tpt, rhs)
     }
     
-    class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] {
+    class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] with TparamsStart {
       private var _parents: List[Tree] = Nil
-      private var _tparams: List[TypeDef] = Nil
       private var _vparams: List[ValDef] = Nil
 
       def withParents(parent: Type*): this.type = {
@@ -339,17 +343,11 @@ trait TreehuggerDSLs { self: Forest =>
       //   this
       // }
       
-      def withTypeParams(tparam: TypeDef*): this.type = {
-        _tparams = tparam.toList
-        this
-      }
-      
       def withParams(param: ValDef*): this.type = {
         _vparams = param.toList
         this
       }
       
-      def tparams: List[TypeDef] = _tparams
       def vparams: List[ValDef] = _vparams
       def parents: List[Tree] = _parents
       val selfDef: ValDef = emptyValDef
@@ -395,7 +393,7 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(body: List[Tree]): PackageDef = PackageDef(mods, Ident(name), body)
     }
     
-    trait TypeDefStart extends TreeDefStart[TypeDef] {
+    trait TypeDefStart extends TreeDefStart[TypeDef] with TparamsStart {
       def mkTree(typ: Type): TypeDef = mkTree(TypeTree(typ))
       
       def UPPER(hi: Type): TypeDef = mkTree(TypeBounds.upper(hi))
@@ -406,13 +404,13 @@ trait TreehuggerDSLs { self: Forest =>
     }
     
     class TypeDefTreeStart(val name: Name) extends TypeDefStart {
-      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name.toTypeName, Nil, rhs)
+      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name.toTypeName, tparams, rhs)
     }
     
     class TypeDefSymStart(val sym: Symbol) extends TypeDefStart {
       def name        = sym.name.toTypeName
       
-      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name, Nil, rhs) setSymbol sym
+      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name, tparams, rhs) setSymbol sym
     }
     
     /** Top level accessible. */
