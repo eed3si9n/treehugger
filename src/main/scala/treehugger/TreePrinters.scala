@@ -265,7 +265,15 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           } else {
             printAnnotations(tree)
             printModifiers(tree, mods); print("type " + symName(tree, name))
-            printTypeParams(tparams); printOpt(" = ", rhs)
+            printTypeParams(tparams)
+            rhs match {
+              case tt: TypeTree =>
+                tt.tpe match {
+                  case bounds: TypeBounds => print(" ", bounds)
+                  case _ => printOpt(" = ", rhs)
+                }
+              case _ => printOpt(" = ", rhs)
+            }
           }
 
         case LabelDef(name, params, rhs) =>

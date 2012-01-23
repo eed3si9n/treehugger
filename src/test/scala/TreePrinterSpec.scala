@@ -28,7 +28,13 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
                                                                               p^
   "Variable definitions should"                                               ^
     """be written as VAR(sym|"bar", [typ]) := rhs"""                          ! variable2^
-                                                                              p^
+    """be written as VAR(sym, typ) := UNDERSCORE"""                           ! variable3^
+                                                                              p^                                                                            
+  "Type declaration should"                                                   ^
+    """be written as TYPE(sym|"T") LOWER(typ)"""                              ! type1^
+    """be written as TYPE(sym|"T") HIGHER(typ)"""                             ! type2^
+    """be written as TYPE(sym|"T") TYPEBOUNDS(lo, hi)"""                      ! type3^
+                                                                              p^                                                                            
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -99,6 +105,19 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
   def variable2 =
     ((VAR(sym.foo, IntClass) := LIT(3)) must print_as("var foo: Int = 3")) and
     ((VAR("bar") := FALSE) must print_as("var bar = false"))
+  
+  // _ initializes var to 0 
+  def variable3 =
+    ((VAR(sym.foo, IntClass) := UNDERSCORE) must print_as("var foo: Int = _"))
+  
+  def type1 =
+    (TYPE("T") LOWER(IntClass)) must print_as("type T >: Int")
+  
+  def type2 =
+    (TYPE("T") UPPER(sym.Addressable)) must print_as("type T <: Addressable")
+  
+  def type3 =
+    (TYPE("T") TYPEBOUNDS(IntClass, sym.Addressable)) must print_as("type T >: Int <: Addressable")
   
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
@@ -357,6 +376,7 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     val to = ScalaPackageClass.newMethod("to")
     
     val foo = RootClass.newValue("foo")
+    val Addressable = RootClass.newClass("Addressable".toTypeName)
   }
   
   def print_as(expected: String*): matcher.Matcher[Tree] =
