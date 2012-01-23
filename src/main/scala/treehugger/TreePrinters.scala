@@ -309,8 +309,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Block(stats, expr) =>
           printColumn(stats ::: List(expr), "{", "", "}")
 
-        case Commented(comment, expr) =>
-          for (line <- comment.lines) {
+        case Commented(comments, expr) =>
+          for {
+            comment <- comments
+            line <- comment.lines
+          } {
             print("// ", line); println()
           }
           print(expr)

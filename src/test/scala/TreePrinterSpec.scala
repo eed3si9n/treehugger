@@ -3,10 +3,13 @@ import org.specs2._
 class TreePrinterSpec extends Specification { def is = sequential             ^
   "This is a specification to check a TreePrinter"                            ^
                                                                               p^
-  "Literal should"                                                            ^
+  "Literals should"                                                           ^
     """be written as LIT("Hello")"""                                          ! literal1^
     """be written as LIT(1)/LIT(1.23)"""                                      ! literal2^
     """be written as TRUE/FALSE/NULL/UNIT"""                                  ! literal3^
+                                                                              p^
+  "Comments should"                                                           ^
+    """be written as %tree% withComment("a", ...)"""                          ! comment1^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
@@ -37,6 +40,13 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     (FALSE must print_as("false")) and
     (NULL  must print_as("null")) and
     (UNIT  must print_as("()"))
+    
+  def comment1 =
+    (LIT(2) withComment("if you have to explain yourself", "in comments...")) must print_as(
+      "// if you have to explain yourself",
+      "// in comments...",
+      "2"
+    )
   
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
