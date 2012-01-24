@@ -53,6 +53,9 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
                                                                               end^
   "By-name parameters should"                                                 ^
      """be written as withParams(VAL(sym|"x", BYNAME(typ)))"""                ! param2^
+                                                                              end^
+  "Repeated parameters should"                                                ^
+     """be written as withParams(VAL(sym|"x", STAR(typ)))"""                  ! param3^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
@@ -181,6 +184,12 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
       withParams(VAL("cond", BYNAME(BooleanClass))).
       withParams(VAL("stat", BYNAME(UnitClass)))
     tree must print_as("def whileLoop(cond: => Boolean)(stat: => Unit): Unit")
+  }
+  
+  def param3 = {
+    // This converts to a tree implicitly
+    val tree: Tree = DEF("sum", IntClass) withParams(VAL("args", STAR(IntClass)))
+    tree must print_as("def sum(args: Int*): Int")
   }
   
   def e1 = {  
