@@ -63,7 +63,7 @@ The setup code will be abbreviated from here.
 ### method declaration
 
 ```scala
-DEF("hello", UnitClass) := BLOCK(
+DEF("hello") := BLOCK(
   sym.println APPLY LIT("Hello, world!"))
 ```
 

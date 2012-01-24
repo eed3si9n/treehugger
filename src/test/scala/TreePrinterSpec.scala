@@ -64,6 +64,12 @@ and `typ` is the result type."""                                              ! 
                                                                               end^
   "Repeated parameters are written as"                                        ^
      """`withParams(VAL(sym|"x", STAR(typ)))`."""                             ! param3^
+                                                                              end^
+  "Procedure declarations are written as"                                     ^
+      """`DEF(sym|"write")` by omitting the result type of the function."""   ! procedure1^
+                                                                              end^
+  "Procedure definitions are written as"                                      ^
+      """`DEF(sym|"write") := BLOCK(stat, ...)` where `stat` is a tree."""    ! procedure2^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
@@ -200,6 +206,20 @@ and `typ` is the result type."""                                              ! 
     tree must print_as("def sum(args: Int*): Int")
   }
   
+  def procedure1 = {
+    val tree: Tree = DEF("write") withParams(VAL("str", StringClass))
+    tree must print_as("def write(str: String)")
+  }
+  
+  def procedure2 =
+    (DEF("write") withParams(VAL("str", StringClass)) := BLOCK(
+      UNIT
+    )) must print_as(
+      """def write(str: String) {""",
+      """  ()""",
+      """}"""
+    )
+  
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)
@@ -208,7 +228,7 @@ and `typ` is the result type."""                                              ! 
   }
   
   def e2 = {
-    val tree = DEF("hello", UnitClass) := BLOCK(
+    val tree = DEF("hello") := BLOCK(
       sym.println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
@@ -295,17 +315,17 @@ and `typ` is the result type."""                                              ! 
     val trees =
       (CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
         DEF("get", IntClass),
-        DEF("put", UnitClass) withParams(VAL("x", IntClass))
+        DEF("put") withParams(VAL("x", IntClass))
       )) ::
       (CLASSDEF(BasicIntQueue) withParents(IntQueue) := BLOCK(
         VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass)),
         DEF("get", IntClass) := (REF(buf) DOT "remove" APPLY()),
-        DEF("put", UnitClass) withParams(VAL("x", IntClass)) := BLOCK(
+        DEF("put") withParams(VAL("x", IntClass)) := BLOCK(
           REF(buf) INFIX ("+=", REF("x"))
           )
       )) ::
       (TRAITDEF(Doubling) withParents(IntQueue) := BLOCK(
-        DEF("put", UnitClass) withFlags(ABSTRACT, OVERRIDE) withParams(VAL("x", IntClass)) := BLOCK(
+        DEF("put") withFlags(ABSTRACT, OVERRIDE) withParams(VAL("x", IntClass)) := BLOCK(
           SUPER DOT "put" APPLY (LIT(2) INFIX("*", REF("x")))
           )
       )) ::
@@ -315,7 +335,7 @@ and `typ` is the result type."""                                              ! 
     out.lines.toList must contain(
       """abstract class IntQueue {""",
       """  def get: Int""",
-      """  def put(x: Int): Unit""",
+      """  def put(x: Int)""",
       """}""",
       """class BasicIntQueue extends IntQueue {""",
       """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]""",
