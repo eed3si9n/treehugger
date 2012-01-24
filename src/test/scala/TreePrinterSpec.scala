@@ -13,32 +13,47 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
                                                                               p^
   "Value declarations should"                                                 ^
     """be written as VAL(sym, typ), VAL("bar", typ)"""                        ! value1^
-                                                                              p^
+                                                                              end^
   "Value definitions should"                                                  ^
     """be written as VAL(sym|"bar", [typ]) := rhs"""                          ! value2^
-                                                                              p^
+                                                                              end^
   "Lazy value definitions should"                                             ^
     """be written as LAZYVAL(sym|"bar", [typ]) := rhs"""                      ! lazyvalue1^
-                                                                              p^
+                                                                              end^
   "Constant value definitions should"                                         ^
     """be written as VAL(sym|"bar", [typ]) withFlags(Flags.FINAL) := rhs"""   ! constantvalue1^
-                                                                              p^
+                                                                              end^
   "Variable declarations should"                                              ^
     """be written as VAR(sym, typ), VAR("bar", typ)"""                        ! variable1^
-                                                                              p^
+                                                                              end^
   "Variable definitions should"                                               ^
     """be written as VAR(sym|"bar", [typ]) := rhs"""                          ! variable2^
     """be written as VAR(sym, typ) := UNDERSCORE"""                           ! variable3^
                                                                               p^                                                                            
-  "Type declaration should"                                                   ^
+  "Type declarations should"                                                  ^
     """be written as TYPE(sym|"T") LOWER(typ)"""                              ! type1^
     """be written as TYPE(sym|"T") HIGHER(typ)"""                             ! type2^
     """be written as TYPE(sym|"T") TYPEBOUNDS(lo, hi)"""                      ! type3^
-                                                                              p^                                                                            
+                                                                              end^                                                                            
   "Type definitions should"                                                   ^
     """be written as TYPE(sym|"T") := typ"""                                  ! type4^
-    """be written as TYPE(sym|"T") withTypeParams(TYPE(typ)) := typ"""        ! type5^
-                                                                              p^ 
+    """be written as TYPE(sym|"T") withTypeParams(TYPE(typ1)) := typ2"""      ! type5^
+                                                                              p^                                                                            
+  "Function declarations should"                                              ^
+     """be written as DEF(sym|"get", typ)"""                                  ! function1^
+     """be written as DEF(sym|"put", typ) withParams(VAL("x", typ1)), ..."""  ! function2^
+     """be written as DEF(sym|"get", typ) withTypeParams(TYPE(typ1)), ..."""  ! function3^
+                                                                              end^
+  "Function definitions should"                                               ^
+     """be written as DEF(sym|"get", typ) := rhs"""                           ! function4^
+     """be written as DEF(sym|"get") := rhs"""                                ! function5^
+                                                                              end^
+  "Parameters with default arguments should"                                  ^
+     """be written as withParams(VAL(sym|"x", typ) := arg)"""                 ! param1^
+                                                                              end^
+  "By-name parameters should"                                                 ^
+     """be written as withParams(VAL(sym|"x", BYNAME(typ)))"""                ! param2^
+                                                                              p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -129,7 +144,45 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
   def type4 = (TYPE("IntList") := listType(IntClass)) must print_as("type IntList = List[Int]")
   
   def type5 = (TYPE("Two") withTypeParams(TYPE(sym.A)) := tupleType(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
-    
+  
+  def function1 = {
+    // This converts to a tree implicitly
+    val tree: Tree = DEF("get", IntClass)
+    tree must print_as("def get: Int")
+  }
+  
+  def function2 = {
+    // This converts to a tree implicitly
+    val tree: Tree = DEF("put", UnitClass) withParams(VAL("x", IntClass))
+    tree must print_as("def put(x: Int): Unit")
+  }
+  
+  def function3 = {
+    // This converts to a tree implicitly
+    val tree: Tree = DEF("put", UnitClass) withTypeParams(TYPE(sym.T)) withParams(VAL("x", sym.T))
+    tree must print_as("def put[T](x: T): Unit")
+  }
+  
+  def function4 = (DEF("get", IntClass) := LIT(0)) must print_as(
+    "def get: Int =",
+    "  0")
+  
+  def function5 = (DEF("get") := LIT(0)) must print_as(
+    "def get =",
+    "  0")
+  
+  def param1 = (DEF("put", UnitClass) withParams(VAL("x", IntClass) := LIT(0)) := UNIT) must print_as(
+    "def put(x: Int = 0): Unit =",
+    "  ()")
+  
+  def param2 = {
+    // This converts to a tree implicitly
+    val tree: Tree = DEF("whileLoop", UnitClass).
+      withParams(VAL("cond", BYNAME(BooleanClass))).
+      withParams(VAL("stat", BYNAME(UnitClass)))
+    tree must print_as("def whileLoop(cond: => Boolean)(stat: => Unit): Unit")
+  }
+  
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)

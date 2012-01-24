@@ -235,6 +235,8 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       tpnme.BYNAME_PARAM_CLASS_NAME,
       tparam => AnyClass.typeConstructor
     )
+    def byNameParamType(tp: Type) = typeRef(NoPrefix, ByNameParamClass, List(tp))
+    
     lazy val EqualsPatternClass = {
       val clazz = newClass(ScalaPackageClass, tpnme.EQUALS_PATTERN_NAME, Nil)
       // clazz setInfo polyType(List(newTypeParam(clazz, 0)), ClassInfoType(anyparam, new Scope, clazz))

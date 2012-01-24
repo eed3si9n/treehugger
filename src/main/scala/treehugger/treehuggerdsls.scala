@@ -500,6 +500,7 @@ trait TreehuggerDSLs { self: Forest =>
     def REF(name: Name)               = Ident(name)
 
     def STAR(typ: Type): Type         = repeatedParamType(typ)
+    def BYNAME(typ: Type): Type       = byNameParamType(typ)
 
     def makeTupleTerm(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
       case Nil                        => UNIT
