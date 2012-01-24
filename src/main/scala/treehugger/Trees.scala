@@ -159,9 +159,4 @@ trait Trees extends api.Trees { self: Forest =>
     case Seq(_, rest @ _*) => Block(stats.init.toList, stats.last)
     case _ => Block(stats.toList, Literal(Constant(())))
   }
-  
-  def Import(tree: Tree, names: Name*): Import = Import(tree,
-    names.toList map { name =>
-      ImportSelector(name, -1, name, -1)
-    })
 }

@@ -71,6 +71,13 @@ and `typ` is the result type."""                                              ! 
   "Procedure definitions are written as"                                      ^
       """`DEF(sym|"write") := BLOCK(stat, ...)` where `stat` is a tree."""    ! procedure2^
                                                                               p^
+  "Import clauses are written as"                                             ^
+      """`IMPORT(sym)` or `IMPORT("scala.collection.mutable")`."""            ! import1^
+      """`IMPORT(sym, "Map", ...)` and `IMPORT("scala.collection.mutable", "Map", ...)`
+limit them to some members."""                                                ! import2^
+      """Using `RENAME("x") ==> "y"`, a member can be renamed as
+`IMPORT(sym, RENAME("Map") ==> "MutableMap")` or be suppressed."""            ! import3^
+                                                                              p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -219,6 +226,17 @@ and `typ` is the result type."""                                              ! 
       """  ()""",
       """}"""
     )
+  
+  def import1 =
+    (IMPORT(MutablePackage)             must print_as("import scala.collection.mutable")) and
+    (IMPORT("scala.collection.mutable") must print_as("import scala.collection.mutable"))
+  
+  def import2 =
+    (IMPORT(MutablePackage, "Map", "Set")      must print_as("import scala.collection.mutable.{Map, Set}")) and
+    (IMPORT("scala.collection.mutable", "Map") must print_as("import scala.collection.mutable.Map"))
+  
+  def import3 =
+    IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap") must print_as("import scala.collection.mutable.{Map => MutableMap}")
   
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)

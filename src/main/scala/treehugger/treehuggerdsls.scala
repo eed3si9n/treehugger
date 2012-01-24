@@ -413,6 +413,10 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name, tparams, rhs) setSymbol sym
     }
     
+    class ImportSelectorStart(val name: TermName) {
+      def ==>(rename: String): ImportSelector = ImportSelector(name, -1, rename, -1)
+    }
+    
     /** Top level accessible. */
     def MATCHERROR(arg: Tree) = Throw(New(TypeTree(MatchErrorClass.tpe), List(List(arg))))
     /** !!! should generalize null guard from match error here. */
@@ -475,6 +479,8 @@ trait TreehuggerDSLs { self: Forest =>
     
     def LAMBDA(param: ValDef*): AnonFuncStart       = new AnonFuncStart() withParams(param: _*)
     
+    def RENAME(name: TermName): ImportSelectorStart = new ImportSelectorStart(name)
+    
     def AND(guards: Tree*) =
       if (guards.isEmpty) EmptyTree
       else guards reduceLeft mkAnd
@@ -489,7 +495,9 @@ trait TreehuggerDSLs { self: Forest =>
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
     def SOME(xs: Tree*)   = Apply(SomeModule, makeTupleTerm(xs.toList, true))
     def FOR(xs: Enumerator*) = new ForStart(xs.toList)
-    def IMPORT(expr: Tree, names: Name*) = Import(expr, names: _*)
+    def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)
+    def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
+    def IMPORT(expr: Tree, selectors: ImportSelector*)  = Import(expr, selectors.toList)
 
     /** Typed trees from symbols. */
     def THIS(sym: Symbol)             = mkAttributedThis(sym)
@@ -529,5 +537,6 @@ trait TreehuggerDSLs { self: Forest =>
     
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
     implicit def mkTypeFromSymbol(sym: Symbol): Type = sym.toType
+    implicit def mkImportSelectorFromString(name: String): ImportSelector = ImportSelector(name, -1, name, -1)
   }
 }

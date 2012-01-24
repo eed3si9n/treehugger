@@ -28,6 +28,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
    */
   def backquotedPath(t: Tree): String = t match {
     case Select(qual, name) => "%s.%s".format(backquotedPath(qual), quotedName(name))
+    case id: Ident if id.symbol != NoSymbol => id.symbol.fullName
     case Ident(name)        => quotedName(name)
     case _                  => t.toString
   }
@@ -285,17 +286,20 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           def selectorToString(s: ImportSelector): String = {
             val from = quotedName(s.name)
             if (isNotRemap(s)) from
-            else from + "=>" + quotedName(s.rename)
+            else from + " => " + quotedName(s.rename)
           }
-          print("import ", backquotedPath(expr), ".")
-          selectors match {
+          print("import ", backquotedPath(expr))
+          
+          if (selectors.isEmpty) print("")
+          else selectors match {
             case List(s) =>
+              print(".")
               // If there is just one selector and it is not remapping a name, no braces are needed
               if (isNotRemap(s)) print(selectorToString(s))
               else print("{", selectorToString(s), "}")
               // If there is more than one selector braces are always needed
             case many =>
-              print(many.map(selectorToString).mkString("{", ", ", "}"))
+              print(".", many.map(selectorToString).mkString("{", ", ", "}"))
           }
 
        case Template(parents, self, body) =>

@@ -244,6 +244,11 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     }
     
     // collections classes
+    lazy val CollectionPackage  = ScalaPackageClass.newPackage("collection")
+    lazy val CollectionPackageClass = CollectionPackage.moduleClass
+    lazy val MutablePackage     = CollectionPackageClass.newPackage("mutable")
+    lazy val MutablePackageClass = MutablePackage.moduleClass
+    
     lazy val ConsClass          = getClass("scala.collection.immutable.$colon$colon")
     lazy val IterableClass      = getClass("scala.collection.Iterable")
     lazy val IteratorClass      = getClass("scala.collection.Iterator")
