@@ -410,7 +410,7 @@ trait Types extends api.Types { self: Forest =>
      private def preString = (
        // ensure that symbol is not a local copy with a name coincidence
        if (builtins(sym.fullName)) ""
-       else if (shorthands(sym.fullName) && sym.ownerChain.forall(_.isClass)) ""
+       else if (shorthands(sym.fullName)) ""
        else pre.prefixString
      )
      private def argsString = if (args.isEmpty) "" else args.mkString("[", ",", "]")
@@ -738,6 +738,7 @@ trait Types extends api.Types { self: Forest =>
     "scala.Array",
     "scala.Ordered",
     "scala.Ordering",
+    "java.lang.Comparable",
     "java.lang.String",
     "java.lang.IllegalArgumentException",
     "scala.collection.immutable.List")

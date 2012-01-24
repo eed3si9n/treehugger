@@ -369,6 +369,7 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       case _                                    => NoType
     }
     
+    def iterableType(arg: Type) = appliedType(IterableClass.typeConstructor, List(arg))
     def seqType(arg: Type)    = appliedType(SeqClass.typeConstructor, List(arg))
     def arrayType(arg: Type)  = appliedType(ArrayClass.typeConstructor, List(arg))
     def listType(arg: Type)   = appliedType(ListClass.typeConstructor, List(arg))

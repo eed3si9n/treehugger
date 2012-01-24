@@ -115,7 +115,14 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
   
   def type1 = (TYPE("T") LOWER(IntClass)) must print_as("type T >: Int")
   
-  def type2 = (TYPE("T") UPPER(sym.Addressable)) must print_as("type T <: Addressable")
+  def type2 = {
+    val ComparableTClass = appliedType(ComparableClass.typeConstructor, List(sym.T)) 
+    val X = RootClass.newTypeParameter("X".toTypeName)
+    val CovX = RootClass.newTypeParameter("X".toTypeName) setFlag(Flags.COVARIANT)
+    
+    (TYPE("T") UPPER(ComparableTClass) must print_as("type T <: Comparable[T]")) and
+    (TYPE("MyCollection") withTypeParams(TYPE(CovX)) UPPER(iterableType(X)) must print_as("type MyCollection[X] <: Iterable[X]"))
+  }
   
   def type3 = (TYPE("T") TYPEBOUNDS(IntClass, sym.Addressable)) must print_as("type T >: Int <: Addressable")
   
@@ -382,6 +389,7 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     val foo = RootClass.newValue("foo")
     val Addressable = RootClass.newClass("Addressable".toTypeName)
     val A = RootClass.newTypeParameter("A".toTypeName)
+    val T = RootClass.newTypeParameter("T".toTypeName)
   }
   
   def print_as(expected: String*): matcher.Matcher[Tree] =
