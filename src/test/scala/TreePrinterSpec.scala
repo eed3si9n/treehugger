@@ -3,70 +3,78 @@ import org.specs2._
 class TreePrinterSpec extends Specification { def is = sequential             ^
   "This is a specification to check a TreePrinter"                            ^
                                                                               p^
-  "Literals should"                                                           ^
-    """be written as LIT("Hello")"""                                          ! literal1^
-    """be written as LIT(1), LIT(1.23)"""                                     ! literal2^
-    """be written as TRUE, FALSE, NULL, UNIT"""                               ! literal3^
+  "Literals are written as"                                                   ^
+    """`LIT("Hello")` for Strings,"""                                         ! literal1^
+    """`LIT(1)` for Ints, `LIT(1.23)` for Doubles."""                         ! literal2^
+    """The predefined constants are `TRUE`, `FALSE`, `NULL`, and `UNIT`"""    ! literal3^
                                                                               p^
-  "Comments should"                                                           ^
-    """be written as tree withComment("a", ...)"""                            ! comment1^
+  "Comments are written as"                                                   ^
+    """`tree withComment("a", ...)` where `tree` is an arbitrary tree."""     ! comment1^
                                                                               p^
-  "Value declarations should"                                                 ^
-    """be written as VAL(sym, typ), VAL("bar", typ)"""                        ! value1^
+  "Value declarations are written as"                                         ^
+    """`VAL(sym, typ)` or `VAL("bar", typ)` where `sym` is a symbol created
+from `RootClass` or another symbol, and `typ` is a type of the value."""      ! value1^
                                                                               end^
-  "Value definitions should"                                                  ^
-    """be written as VAL(sym|"bar", [typ]) := rhs"""                          ! value2^
+  "Value definitions are written as"                                          ^
+    """`VAL(sym|"bar", [typ]) := rhs` where `rhs` is a tree such as a literal.
+Notation `sym|"bar"` denotes that `VAL` takes either a symbol or a String as the first argument.
+Also, `[typ]` denotes that the type is optional"""                            ! value2^
                                                                               end^
-  "Lazy value definitions should"                                             ^
-    """be written as LAZYVAL(sym|"bar", [typ]) := rhs"""                      ! lazyvalue1^
+  "Lazy value definitions are written as"                                     ^
+    """`LAZYVAL(sym|"bar", [typ]) := rhs`."""                                 ! lazyvalue1^
                                                                               end^
-  "Constant value definitions should"                                         ^
-    """be written as VAL(sym|"bar", [typ]) withFlags(Flags.FINAL) := rhs"""   ! constantvalue1^
+  "Constant value definitions are written as"                                 ^
+    """`VAL(sym|"bar", [typ]) withFlags(Flags.FINAL) := rhs`."""              ! constantvalue1^
                                                                               end^
-  "Variable declarations should"                                              ^
-    """be written as VAR(sym, typ), VAR("bar", typ)"""                        ! variable1^
+  "Variable declarations are written as"                                      ^
+    """`VAR(sym, typ)` or `VAR("bar", typ)`."""                               ! variable1^
                                                                               end^
-  "Variable definitions should"                                               ^
-    """be written as VAR(sym|"bar", [typ]) := rhs"""                          ! variable2^
-    """be written as VAR(sym, typ) := UNDERSCORE"""                           ! variable3^
+  "Variable definitions are written as"                                       ^
+    """`VAR(sym|"bar", [typ]) := rhs`."""                                     ! variable2^
+    """`VAR(sym, typ) := UNDERSCORE` intoduces mutable field initialized to
+the default value of the type (for example `0` for Int)."""                   ! variable3^
                                                                               p^                                                                            
-  "Type declarations should"                                                  ^
-    """be written as TYPE(sym|"T") LOWER(typ)"""                              ! type1^
-    """be written as TYPE(sym|"T") HIGHER(typ)"""                             ! type2^
-    """be written as TYPE(sym|"T") TYPEBOUNDS(lo, hi)"""                      ! type3^
+  "Type declarations are written as"                                          ^
+    """`TYPE(sym|"T") LOWER(typ)`,"""                                         ! type1^
+    """`TYPE(sym|"T") HIGHER(typ)`, or"""                                     ! type2^
+    """`TYPE(sym|"T") TYPEBOUNDS(lo, hi)`."""                                 ! type3^
                                                                               end^                                                                            
-  "Type definitions should"                                                   ^
-    """be written as TYPE(sym|"T") := typ"""                                  ! type4^
-    """be written as TYPE(sym|"T") withTypeParams(TYPE(typ1)) := typ2"""      ! type5^
+  "Type definitions are written as"                                           ^
+    """`TYPE(sym|"T") := typ` or"""                                           ! type4^
+    """`TYPE(sym|"T") withTypeParams(TYPE(typ1)) := typ2`."""                 ! type5^
                                                                               p^                                                                            
-  "Function declarations should"                                              ^
-     """be written as DEF(sym|"get", typ)"""                                  ! function1^
-     """be written as DEF(sym|"put", typ) withParams(VAL("x", typ1)), ..."""  ! function2^
-     """be written as DEF(sym|"get", typ) withTypeParams(TYPE(typ1)), ..."""  ! function3^
+  "Function declarations are written as"                                      ^
+     """`DEF(sym|"get", typ)` where `sym` is the name of the function
+and `typ` is the result type."""                                              ! function1^
+     """Parameter lists may be added to the declaration as
+`DEF(sym|"put", typ) withParams(VAL("x", typ1)), ...`."""                     ! function2^
+     """Type parameter lists may be added as
+`DEF(sym|"get", typ) withTypeParams(TYPE(typ1)), ...`."""                     ! function3^
                                                                               end^
-  "Function definitions should"                                               ^
-     """be written as DEF(sym|"get", typ) := rhs"""                           ! function4^
-     """be written as DEF(sym|"get") := rhs"""                                ! function5^
+  "Function definitions are written as"                                       ^
+     """`DEF(sym|"get", typ) := rhs`."""                                      ! function4^
+     """The result type `typ` may be omitted as
+`DEF(sym|"get") := rhs`."""                                                   ! function5^
                                                                               end^
-  "Parameters with default arguments should"                                  ^
-     """be written as withParams(VAL(sym|"x", typ) := arg)"""                 ! param1^
+  "Parameters with default arguments are written as"                          ^
+     """`withParams(VAL(sym|"x", typ) := arg)`."""                            ! param1^
                                                                               end^
-  "By-name parameters should"                                                 ^
-     """be written as withParams(VAL(sym|"x", BYNAME(typ)))"""                ! param2^
+  "By-name parameters are written as"                                         ^
+     """`withParams(VAL(sym|"x", BYNAME(typ)))`"""                            ! param2^
                                                                               end^
-  "Repeated parameters should"                                                ^
-     """be written as withParams(VAL(sym|"x", STAR(typ)))"""                  ! param3^
+  "Repeated parameters are written as"                                        ^
+     """`withParams(VAL(sym|"x", STAR(typ)))`."""                             ! param3^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
     """print val greetStrings = new Array[String](3)"""                       ! e3^
-    """object ChecksumAccumulator"""                                          ! e4^
-    """abstract class IntQueue"""                                             ! e5^
-    """package scala"""                                                       ! e6^
-    """case List(x) => x"""                                                   ! e7^
-    """case class [T <% List[T]]Address()"""                                  ! e8^
-    """new Addressable {}"""                                                  ! e9^
+    """print object ChecksumAccumulator"""                                    ! e4^
+    """print abstract class IntQueue"""                                       ! e5^
+    """print package scala"""                                                 ! e6^
+    """print case List(x) => x"""                                             ! e7^
+    """print case class [T <% List[T]]Address()"""                            ! e8^
+    """print new Addressable {}"""                                            ! e9^
                                                                               end
   
   import treehugger._
