@@ -507,7 +507,8 @@ trait TreehuggerDSLs { self: Forest =>
     def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)
     def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
     def IMPORT(expr: Tree, selectors: ImportSelector*)  = Import(expr, selectors.toList)
-
+    def SEQARG(tree: Tree) = Typed(tree, Ident(tpnme.WILDCARD_STAR))
+    
     /** Typed trees from symbols. */
     def THIS(sym: Symbol)             = mkAttributedThis(sym)
     def THIS(name: Name)              = This(name.toTypeName)

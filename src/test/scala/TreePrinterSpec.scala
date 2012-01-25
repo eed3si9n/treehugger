@@ -126,9 +126,17 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """with a qualifier as `SUPER(sym|"C")` where `Tree`s are expected."""  ! super2^
       """Trait qualifier may be added as
 `SUPER TYPEAPPLY "T"`."""                                                     ! super3^      
+                                                                              p^
+  "Function applications are written as"                                      ^
+      """`sym APPLY arg` where `arg` is a tree,"""                            ! apply1^
+      """`tree APPLY arg`, or"""                                              ! apply2^
+      """as a shorthand for application on a selection
+`(sym1 DOT sym2)(arg)`."""                                                    ! apply3^
+                                                                              end^
+  "Sequence arguments are written as"                                         ^
+      """`SEQARG(arg)"` to pass a sequence into vararg."""                    ! seqarg1^
                                                                               p^                                                                                                                                                       
   "The tree printer should"                                                   ^
-    """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
     """print val greetStrings = new Array[String](3)"""                       ! e3^
     """print object ChecksumAccumulator"""                                    ! e4^
@@ -376,12 +384,18 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     
   def super3 = (SUPER TYPEAPPLY sym.T) must print_as("super[T]")
   
-  def e1 = {  
-    val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
-    val s = treeToString(tree); println(s)
+  def apply1 = (sym.println APPLY LIT("Hello, world!")) must print_as("""println("Hello, world!")""")
+  
+  def apply2 = (REF("x") DOT "y" APPLY LIT("Hello, world!")) must print_as("""x.y("Hello, world!")""")
+  
+  def apply3 = {
+    val sym1 = RootClass.newValue("x")
+    val sym2 = sym.Addressable.newValue("y")
     
-    s must_== """println("Hello, world!")"""
+    (((sym1 DOT sym2)(LIT("Hello"))) must print_as("""x.y("Hello")"""))
   }
+  
+  def seqarg1 = (THIS APPLY SEQARG(REF("list"))) must print_as("this((list: _*))")
   
   def e2 = {
     val tree = DEF("hello") := BLOCK(
