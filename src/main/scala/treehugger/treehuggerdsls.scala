@@ -41,7 +41,7 @@ trait TreehuggerDSLs { self: Forest =>
     def NULL          = LIT(null)
     def UNIT          = LIT(())
     val SUPER         = Super(EmptyTree)
-    val UNDERSCORE    = REF("_")
+    val UNDERSCORE    = Ident(nme.WILDCARD)
 
     object WILD {
       def empty               = Ident(nme.WILDCARD)
@@ -175,6 +175,15 @@ trait TreehuggerDSLs { self: Forest =>
         _mods = flags.foldLeft(_mods)(_ | _)
         this
       }
+      def withFlags(pin: PRIVATEWITHIN): this.type = {
+        if (_mods == null)
+          _mods = defaultMods
+
+        _mods = _mods | Flags.PRIVATE
+        _mods = Modifiers(_mods.flags, pin.name)
+        this
+      }
+      
       def withPos(pos: Position): this.type = {
         _pos = pos
         this
@@ -505,7 +514,9 @@ trait TreehuggerDSLs { self: Forest =>
 
     def STAR(typ: Type): Type         = repeatedParamType(typ)
     def BYNAME(typ: Type): Type       = byNameParamType(typ)
-
+    
+    case class PRIVATEWITHIN(name: Name)
+    
     def makeTupleTerm(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
       case Nil                        => UNIT
       case List(tree) if flattenUnary => tree

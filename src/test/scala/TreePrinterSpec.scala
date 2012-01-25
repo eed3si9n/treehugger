@@ -58,14 +58,13 @@ and `typ` is the result type."""                                              ! 
      """The result type `typ` may be omitted as
 `DEF(sym|"get") := rhs`."""                                                   ! function5^
                                                                               end^
-  "Parameters with default arguments are written as"                          ^
-     """`withParams(PARAM(sym|"x", typ) := arg)`."""                          ! param1^
-                                                                              end^
-  "By-name parameters are written as"                                         ^
-     """`withParams(PARAM(sym|"x", BYNAME(typ)))`"""                          ! param2^
-                                                                              end^
-  "Repeated parameters are written as"                                        ^
-     """`withParams(PARAM(sym|"x", STAR(typ)))`."""                           ! param3^
+  "Parameter lists"                                                           ^
+     """with default arguments are written as
+`withParams(PARAM(sym|"x", typ) := arg)`."""                                  ! param1^
+     """By-name parameters are written as
+`withParams(PARAM(sym|"x", BYNAME(typ)))`"""                                  ! param2^
+     """Repeated parameters are written as
+`withParams(PARAM(sym|"x", STAR(typ)))`."""                                   ! param3^
                                                                               end^
   "Procedure declarations are written as"                                     ^
       """`DEF(sym|"write")` by omitting the result type of the function."""   ! procedure1^
@@ -104,8 +103,15 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`TRAITDEF(sym|"D")`."""                                              ! trait1^
                                                                               p^
   "Object definitions are written as"                                         ^
-      """`TRAITDEF(sym|"D")`."""                                              ! trait1^
-                                                                              p^                                                                            
+      """`MODULEDEF(sym|"E")`."""                                             ! object1^
+                                                                              p^
+  "Class members can"                                                         ^
+      """be defined by placing value defitions and function definitions within the class body as
+`CLASSDEF(sym|"C"") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`."""            ! member1^
+      """Class members with access modifier can be written as
+`DEF(sym|"get", typ) withFlags(Flags.PROTECTED) := rhs` or"""                 ! member2^
+      """`DEF(sym|"get", typ) withFlags(PRIVATEWITHIN("this")) := rhs`."""    ! member3^
+                                                                              p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -300,7 +306,36 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       ))
   
   def trait1 = (TRAITDEF("D"): Tree) must print_as("trait D")
-    
+  
+  def object1 = (MODULEDEF("E"): Tree) must print_as("object E")
+  
+  def member1 =
+    (CLASSDEF("C") := BLOCK(
+      DEF("get") := LIT(0)
+    )) must print_as(
+      """class C {""",
+      """  def get = 0""",
+      """}"""
+    )
+  
+  def member2 =
+    (CLASSDEF("C") := BLOCK(
+      DEF("get") withFlags(Flags.PROTECTED) := LIT(0)
+    )) must print_as(
+      """class C {""",
+      """  protected def get = 0""",
+      """}"""
+    )
+  
+  def member3 =
+    (CLASSDEF("C") := BLOCK(
+      DEF("get") withFlags(PRIVATEWITHIN("this")) := LIT(0)
+    )) must print_as(
+      """class C {""",
+      """  private[this] def get = 0""",
+      """}"""
+    )
+  
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)

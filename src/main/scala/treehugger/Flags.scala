@@ -425,7 +425,9 @@ class Flags extends ModifierFlags {
       } else {
         "private[" + privateWithin + "]"
       }
-    List(flagsToString(f), pw) filterNot (_ == "") mkString " "
+    // List(flagsToString(f), pw) filterNot (_ == "") mkString " "
+    if (pw != "") pw
+    else flagsToString(f)
   }
 
   def flagsToString(flags: Long): String =
