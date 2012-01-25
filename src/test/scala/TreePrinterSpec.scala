@@ -35,16 +35,16 @@ Also, `[typ]` denotes that the type is optional"""                            ! 
     """`VAR(sym|"bar", [typ]) := rhs`."""                                     ! variable2^
     """`VAR(sym, typ) := UNDERSCORE` intoduces mutable field initialized to
 the default value of the type (for example `0` for Int)."""                   ! variable3^
-                                                                              p^                                                                            
+                                                                              p^
   "Type declarations are written as"                                          ^
     """`TYPE(sym|"T") LOWER(typ)`,"""                                         ! type1^
     """`TYPE(sym|"T") HIGHER(typ)`, or"""                                     ! type2^
     """`TYPE(sym|"T") TYPEBOUNDS(lo, hi)`."""                                 ! type3^
-                                                                              end^                                                                            
+                                                                              end^
   "Type definitions are written as"                                           ^
     """`TYPE(sym|"T") := typ` or"""                                           ! type4^
     """`TYPE(sym|"T") withTypeParams(TYPE(typ1)) := typ2`."""                 ! type5^
-                                                                              p^                                                                            
+                                                                              p^
   "Function declarations are written as"                                      ^
      """`DEF(sym|"get", typ)` where `sym` is the name of the function
 and `typ` is the result type."""                                              ! function1^
@@ -86,7 +86,7 @@ limit them to some members."""                                                ! 
 where `PARAM(...)` declares a parameter while 
 `VAL(...)` and `VAR(...)` declare parameters with an accessor."""             ! class3^
       """Polymorphic classes are written as
-`CLASSDEF(sym|"C") withTypeParams(TYPE(typ))`."""                             ! class4^ 
+`CLASSDEF(sym|"C") withTypeParams(TYPE(typ))`."""                             ! class4^
       """Classes with base classes are written as
 `CLASSDEF(sym|"C") withParents(typ, ...)`."""                                 ! class5^
       """Using `withFlags(flag, ...)`, classes with access modifier can be written as
@@ -121,7 +121,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`THIS` or"""                                                         ! this1^
       """with a qualifier as `THIS(sym|"C")`."""                              ! this2^
                                                                               end^
-  "References to `super` are written as"                                      ^                                                                            
+  "References to `super` are written as"                                      ^
       """`SUPER`, or"""                                                       ! super1^
       """with a qualifier as `SUPER(sym|"C")` where `Tree`s are expected."""  ! super2^
       """Trait qualifier may be added as
@@ -137,7 +137,10 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`sym APPLY SEQARG(arg)"` to pass a sequence into vararg."""          ! seqarg1^
                                                                               end^
   "Named arguments are written as"                                            ^
-      """`sym APPLY (REF(sym1) := arg)"`."""                                  ! namedarg1^                                                                            
+      """`sym APPLY (REF(sym1) := arg)"`."""                                  ! namedarg1^
+                                                                              end^
+  "Method values are written as"                                              ^
+      """`sym APPLY UNDERSCORE"`."""                                          ! methodvalue1^
                                                                               p^                                                                                                                                                       
   "The tree printer should"                                                   ^
     """print def hello"""                                                     ! e2^
@@ -401,6 +404,8 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   def seqarg1 = (THIS APPLY SEQARG(REF("list"))) must print_as("this((list: _*))")
   
   def namedarg1 = (REF("put") APPLY (REF("x") := LIT(0))) must print_as("put(x = 0)")
+  
+  def methodvalue1 = (REF("put") APPLY UNDERSCORE) must print_as("put(_)")
   
   def e2 = {
     val tree = DEF("hello") := BLOCK(
