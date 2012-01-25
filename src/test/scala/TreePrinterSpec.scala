@@ -134,7 +134,10 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
 `(sym1 DOT sym2)(arg)`."""                                                    ! apply3^
                                                                               end^
   "Sequence arguments are written as"                                         ^
-      """`SEQARG(arg)"` to pass a sequence into vararg."""                    ! seqarg1^
+      """`sym APPLY SEQARG(arg)"` to pass a sequence into vararg."""          ! seqarg1^
+                                                                              end^
+  "Named arguments are written as"                                            ^
+      """`sym APPLY (REF(sym1) := arg)"`."""                                  ! namedarg1^                                                                            
                                                                               p^                                                                                                                                                       
   "The tree printer should"                                                   ^
     """print def hello"""                                                     ! e2^
@@ -396,6 +399,8 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   }
   
   def seqarg1 = (THIS APPLY SEQARG(REF("list"))) must print_as("this((list: _*))")
+  
+  def namedarg1 = (REF("put") APPLY (REF("x") := LIT(0))) must print_as("put(x = 0)")
   
   def e2 = {
     val tree = DEF("hello") := BLOCK(
