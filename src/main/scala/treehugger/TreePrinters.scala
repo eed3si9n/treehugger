@@ -178,6 +178,23 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         tt.tpe.toString
       }
 
+    private def isinline(tree: Tree): Boolean =
+      tree match {
+        case x: Infix => true
+        case x: Apply => true
+        case x: Literal => true
+        case x: Ident => true
+        case x: Select => true
+        case x: Assign => true
+        case x: Return => true
+        case x: Throw => true
+        case x: New => true
+        case x: Typed => true
+        case x: TypeApply => true
+        
+        case _ => false
+      }
+
     def printTree(tree: Tree) {
       tree match {
         case EmptyTree =>
@@ -252,7 +269,10 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             rhs match {
               case b: Block => print(" = ", b)
               case _ =>
-                print(" ="); indent; println(); print(rhs); undent
+                if (isinline(rhs)) print(" = ", rhs)
+                else {
+                  print(" ="); indent; println(); print(rhs); undent
+                }
             }
         
         case AnonFunc(vparamss, tp: TypeTree, rhs: Block) =>

@@ -86,13 +86,26 @@ limit them to some members."""                                                ! 
       """`CLASSDEF(sym|"C") withParams(PARAM("x", typ1), VAL("y", typ2), VAR("z": typ3), ...)`
 where `PARAM(...)` declares a parameter while 
 `VAL(...)` and `VAR(...)` declare parameters with an accessor."""             ! class3^
-      """`CLASSDEF(sym|"C") withTypeParams(TYPE(typ))`
-defines a polymorphic class."""                                               ! class4^ 
-      """`CLASSDEF(sym|"C") withParents(typ, ...)`
-defines a class with parent types."""                                         ! class5^
-      """`CLASSDEF(sym|"C") withFlags(Flags.PRIVATE)`
-defines a class with access modifier."""                                      ! class6^
+      """Polymorphic classes are written as
+`CLASSDEF(sym|"C") withTypeParams(TYPE(typ))`."""                             ! class4^ 
+      """Classes with base classes are written as
+`CLASSDEF(sym|"C") withParents(typ, ...)`."""                                 ! class5^
+      """Using `withFlags(flag, ...)`, classes with access modifier can be written as
+`CLASSDEF(sym|"C") withFlags(Flags.PRIVATE)`."""                              ! class6^
+      """Other uses of `withFlags(flag)` are abstract classes withFlags(Flags.ABSTRACT)`,
+final classes `withFlags(Flags.FINAL)`,
+sealed classes `withFlags(Flags.SEALED)`."""                                  ! class7^
                                                                               p^
+  "Case class definitions are written as"                                     ^
+      """`CASECLASSDEF(sym|"C")`, or with the class body, parameters, and parents as
+`CASECLASSDEF(sym|"C")` withParams(PARAM("x", typ1), ...) withParents(typ, ...) := BLOCK(stat, ...).""" ! caseclass1^
+                                                                              p^
+  "Trait definitions are written as"                                          ^
+      """`TRAITDEF(sym|"D")`."""                                              ! trait1^
+                                                                              p^
+  "Object definitions are written as"                                         ^
+      """`TRAITDEF(sym|"D")`."""                                              ! trait1^
+                                                                              p^                                                                            
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -202,17 +215,12 @@ defines a class with access modifier."""                                      ! 
     tree must print_as("def put[T](x: T): Unit")
   }
   
-  def function4 = (DEF("get", IntClass) := LIT(0)) must print_as(
-    "def get: Int =",
-    "  0")
+  def function4 = (DEF("get", IntClass) := LIT(0)) must print_as("def get: Int = 0")
   
-  def function5 = (DEF("get") := LIT(0)) must print_as(
-    "def get =",
-    "  0")
+  def function5 = (DEF("get") := LIT(0)) must print_as("def get = 0")
   
   def param1 = (DEF("put", UnitClass) withParams(PARAM("x", IntClass) := LIT(0)) := UNIT) must print_as(
-    "def put(x: Int = 0): Unit =",
-    "  ()")
+    "def put(x: Int = 0): Unit = ()")
   
   def param2 = {
     // This converts to a tree implicitly
@@ -253,10 +261,7 @@ defines a class with access modifier."""                                      ! 
   def import3 =
     IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap") must print_as("import scala.collection.mutable.{Map => MutableMap}")
   
-  def class1 = {
-    val tree: Tree = CLASSDEF("C")
-    tree must print_as("class C")
-  }
+  def class1 = (CLASSDEF("C"): Tree) must print_as("class C")
   
   def class2 =
     (CLASSDEF("C") := BLOCK(
@@ -272,21 +277,30 @@ defines a class with access modifier."""                                      ! 
     tree must print_as("class C(x: Int, val y: String, var z: List[String])")
   }
   
-  def class4 = {
-    val tree: Tree = CLASSDEF("C") withTypeParams(TYPE(sym.T))
-    tree must print_as("class C[T]")
-  }
+  def class4 = (CLASSDEF("C") withTypeParams(TYPE(sym.T)): Tree) must print_as("class C[T]")
   
-  def class5 = {
-    val tree: Tree = CLASSDEF("C") withParents(sym.Addressable)
-    tree must print_as("class C extends Addressable")
-  }
+  def class5 = (CLASSDEF("C") withParents(sym.Addressable): Tree) must print_as("class C extends Addressable")
+    
+  def class6 = (CLASSDEF("C") withFlags(Flags.PRIVATE): Tree) must print_as("private class C")
+    
+  def class7 =
+    ((CLASSDEF("C") withFlags(Flags.ABSTRACT): Tree) must print_as("abstract class C")) and
+    ((CLASSDEF("C") withFlags(Flags.FINAL): Tree) must print_as("final class C")) and
+    ((CLASSDEF("C") withFlags(Flags.SEALED): Tree) must print_as("sealed class C"))
+      
+  def caseclass1 =
+    ((CASECLASSDEF("C"): Tree) must print_as("case class C")) and
+    ((CASECLASSDEF("C") withParams(PARAM("x", IntClass)) withParents(sym.Addressable) := BLOCK(
+      DEF("y") := LIT(0)
+    ))
+      must print_as(
+        """case class C(x: Int) extends Addressable {""",
+        """  def y = 0""",
+        """}"""
+      ))
   
-  def class6 = {
-    val tree: Tree = CLASSDEF("C") withFlags(Flags.PRIVATE)
-    tree must print_as("private class C")
-  }
-  
+  def trait1 = (TRAITDEF("D"): Tree) must print_as("trait D")
+    
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)
@@ -406,8 +420,7 @@ defines a class with access modifier."""                                      ! 
       """}""",
       """class BasicIntQueue extends IntQueue {""",
       """  private val buf = new scala.collection.mutable.ArrayBuffer[Int]""",
-      """  def get: Int =""",
-      """    buf.remove()""",
+      """  def get: Int = buf.remove()""",
       """  def put(x: Int) {""",
       """    buf += x""",
       """  }""",
@@ -445,11 +458,9 @@ defines a class with access modifier."""                                      ! 
       """package scala""",
       """object Predef {""",
       """  class ArrowAssoc[A](x: A) {""",
-      """    def ->[B](y: B): (A, B) =""",
-      """      Tuple2(x, y)""",
+      """    def ->[B](y: B): (A, B) = Tuple2(x, y)""",
       """  }""",
-      """  implicit def any2ArrowAssoc[A](x: A): scala.Predef.ArrowAssoc[A] =""",
-      """    new scala.Predef.ArrowAssoc[A](x)""",
+      """  implicit def any2ArrowAssoc[A](x: A): scala.Predef.ArrowAssoc[A] = new scala.Predef.ArrowAssoc[A](x)""",
       """}"""
     ).inOrder  
   }
@@ -510,13 +521,11 @@ defines a class with access modifier."""                                      ! 
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
       """case class Address[T <% List[T]](name: Option[T] = None) {""",
-      """  def stringOnly(implicit ev: =:=[T,String]): Address =""",
-      """    Address(this.name map { (nm: String) =>""",
-      """      val list: List[T] = nm""",
-      """      list.map((x) => x + "x").mkString(" ")""",
-      """    })""",
-      """  def star(n: Int*) =""",
-      """    Address[String](Some("foo").map(_ + "x"))""",
+      """  def stringOnly(implicit ev: =:=[T,String]): Address = Address(this.name map { (nm: String) =>""",
+      """    val list: List[T] = nm""",
+      """    list.map((x) => x + "x").mkString(" ")""",
+      """  })""",
+      """  def star(n: Int*) = Address[String](Some("foo").map(_ + "x"))""",
       """}"""
     ).inOrder
   }
