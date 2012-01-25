@@ -79,7 +79,17 @@ limit them to some members."""                                                ! 
 `IMPORT(sym, RENAME("Map") ==> "MutableMap")` or be suppressed."""            ! import3^
                                                                               p^
   "Class definitions are written as"                                          ^
-      """`CLASSDEF(sym|"Address")`."""                                        ! class1^
+      """`CLASSDEF(sym|"C")`, or"""                                           ! class1^
+      """with the class body as `CLASSDEF(sym|"C") := BLOCK(stat, ...)`."""   ! class2^
+      """`CLASSDEF(sym|"C") withParams(PARAM("x", typ1), VAL("y", typ2), VAR("z": typ3), ...)`
+where `PARAM(...)` declares a parameter while 
+`VAL(...)` and `VAR(...)` declare parameters with an accessor."""             ! class3^
+      """`CLASSDEF(sym|"C") withTypeParams(TYPE(typ))`
+defines a polymorphic class."""                                               ! class4^ 
+      """`CLASSDEF(sym|"C") withParents(typ, ...)`
+defines a class with parent types."""                                         ! class5^
+      """`CLASSDEF(sym|"C") withFlags(Flags.PRIVATE)`
+defines a class with access modifier."""                                      ! class6^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
@@ -242,8 +252,37 @@ limit them to some members."""                                                ! 
     IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap") must print_as("import scala.collection.mutable.{Map => MutableMap}")
   
   def class1 = {
-    val tree: Tree = CLASSDEF("Address")
-    tree must print_as("class Address")
+    val tree: Tree = CLASSDEF("C")
+    tree must print_as("class C")
+  }
+  
+  def class2 =
+    (CLASSDEF("C") := BLOCK(
+      VAL("x") := LIT(0)
+    )) must print_as(
+      """class C {""",
+      """  val x = 0""",
+      """}"""
+    )
+  
+  def class3 = {
+    val tree: Tree = CLASSDEF("C") withParams(PARAM("x", IntClass), VAL("y", StringClass), VAR("z", listType(StringClass)))
+    tree must print_as("class C(x: Int, val y: String, var z: List[String])")
+  }
+  
+  def class4 = {
+    val tree: Tree = CLASSDEF("C") withTypeParams(TYPE(sym.T))
+    tree must print_as("class C[T]")
+  }
+  
+  def class5 = {
+    val tree: Tree = CLASSDEF("C") withParents(sym.Addressable)
+    tree must print_as("class C extends Addressable")
+  }
+  
+  def class6 = {
+    val tree: Tree = CLASSDEF("C") withFlags(Flags.PRIVATE)
+    tree must print_as("private class C")
   }
   
   def e1 = {  

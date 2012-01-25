@@ -82,18 +82,26 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         }{print(", ")}; print("]")
       }
     }
-
+    
     def printValueParams(ts: List[ValDef]) {
+      printValueParams(ts, false)
+    }
+    
+    def printValueParams(ts: List[ValDef], isclass: Boolean) {
       print("(")
       if (!ts.isEmpty) printFlags(ts.head.mods.flags & IMPLICIT, "")
-      printSeq(ts){printParam}{print(", ")}
+      printSeq(ts){printParam(_, isclass)}{print(", ")}
       print(")")
     }
 
-    def printParam(tree: Tree) {
+    def printParam(tree: Tree, isclass: Boolean = false) {
       tree match {
         case ValDef(mods, name, tp, rhs) =>
           printPosition(tree)
+          if (isclass && !mods.hasFlag(Flags.PARAM)) {
+            if (mods.hasFlag(Flags.MUTABLE)) print("var ")
+            else print("val ")
+          } // if
           printAnnotations(tree)
           print(symName(tree, name)); printOpt(": ", tp); printOpt(" = ", rhs)
         case TypeDef(mods, name, tparams, rhs) =>
@@ -188,7 +196,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
           print(word, " ", symName(tree, name))
           printTypeParams(tparams)
-          if (vparams != Nil) printValueParams(vparams)
+          if (vparams != Nil) printValueParams(vparams, true)
           
           print(if (mods.isDeferred) " <: "
                 else if (impl.parents.isEmpty) ""
