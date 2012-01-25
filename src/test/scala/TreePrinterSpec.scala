@@ -47,7 +47,7 @@ the default value of the type (for example `0` for Int)."""                   ! 
      """`DEF(sym|"get", typ)` where `sym` is the name of the function
 and `typ` is the result type."""                                              ! function1^
      """Parameter lists may be added to the declaration as
-`DEF(sym|"put", typ) withParams(VAL("x", typ1)), ...`."""                     ! function2^
+`DEF(sym|"put", typ) withParams(PARAM("x", typ1)), ...`."""                   ! function2^
      """Type parameter lists may be added as
 `DEF(sym|"get", typ) withTypeParams(TYPE(typ1)), ...`."""                     ! function3^
                                                                               end^
@@ -57,13 +57,13 @@ and `typ` is the result type."""                                              ! 
 `DEF(sym|"get") := rhs`."""                                                   ! function5^
                                                                               end^
   "Parameters with default arguments are written as"                          ^
-     """`withParams(VAL(sym|"x", typ) := arg)`."""                            ! param1^
+     """`withParams(PARAM(sym|"x", typ) := arg)`."""                          ! param1^
                                                                               end^
   "By-name parameters are written as"                                         ^
-     """`withParams(VAL(sym|"x", BYNAME(typ)))`"""                            ! param2^
+     """`withParams(PARAM(sym|"x", BYNAME(typ)))`"""                          ! param2^
                                                                               end^
   "Repeated parameters are written as"                                        ^
-     """`withParams(VAL(sym|"x", STAR(typ)))`."""                             ! param3^
+     """`withParams(PARAM(sym|"x", STAR(typ)))`."""                           ! param3^
                                                                               end^
   "Procedure declarations are written as"                                     ^
       """`DEF(sym|"write")` by omitting the result type of the function."""   ! procedure1^
@@ -77,6 +77,9 @@ and `typ` is the result type."""                                              ! 
 limit them to some members."""                                                ! import2^
       """Using `RENAME("x") ==> "y"`, a member can be renamed as
 `IMPORT(sym, RENAME("Map") ==> "MutableMap")` or be suppressed."""            ! import3^
+                                                                              p^
+  "Class definitions are written as"                                          ^
+      """`CLASSDEF(sym|"Address")`."""                                        ! class1^
                                                                               p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
@@ -177,13 +180,13 @@ limit them to some members."""                                                ! 
   
   def function2 = {
     // This converts to a tree implicitly
-    val tree: Tree = DEF("put", UnitClass) withParams(VAL("x", IntClass))
+    val tree: Tree = DEF("put", UnitClass) withParams(PARAM("x", IntClass))
     tree must print_as("def put(x: Int): Unit")
   }
   
   def function3 = {
     // This converts to a tree implicitly
-    val tree: Tree = DEF("put", UnitClass) withTypeParams(TYPE(sym.T)) withParams(VAL("x", sym.T))
+    val tree: Tree = DEF("put", UnitClass) withTypeParams(TYPE(sym.T)) withParams(PARAM("x", sym.T))
     tree must print_as("def put[T](x: T): Unit")
   }
   
@@ -195,31 +198,31 @@ limit them to some members."""                                                ! 
     "def get =",
     "  0")
   
-  def param1 = (DEF("put", UnitClass) withParams(VAL("x", IntClass) := LIT(0)) := UNIT) must print_as(
+  def param1 = (DEF("put", UnitClass) withParams(PARAM("x", IntClass) := LIT(0)) := UNIT) must print_as(
     "def put(x: Int = 0): Unit =",
     "  ()")
   
   def param2 = {
     // This converts to a tree implicitly
     val tree: Tree = DEF("whileLoop", UnitClass).
-      withParams(VAL("cond", BYNAME(BooleanClass))).
-      withParams(VAL("stat", BYNAME(UnitClass)))
+      withParams(PARAM("cond", BYNAME(BooleanClass))).
+      withParams(PARAM("stat", BYNAME(UnitClass)))
     tree must print_as("def whileLoop(cond: => Boolean)(stat: => Unit): Unit")
   }
   
   def param3 = {
     // This converts to a tree implicitly
-    val tree: Tree = DEF("sum", IntClass) withParams(VAL("args", STAR(IntClass)))
+    val tree: Tree = DEF("sum", IntClass) withParams(PARAM("args", STAR(IntClass)))
     tree must print_as("def sum(args: Int*): Int")
   }
   
   def procedure1 = {
-    val tree: Tree = DEF("write") withParams(VAL("str", StringClass))
+    val tree: Tree = DEF("write") withParams(PARAM("str", StringClass))
     tree must print_as("def write(str: String)")
   }
   
   def procedure2 =
-    (DEF("write") withParams(VAL("str", StringClass)) := BLOCK(
+    (DEF("write") withParams(PARAM("str", StringClass)) := BLOCK(
       UNIT
     )) must print_as(
       """def write(str: String) {""",
@@ -237,6 +240,11 @@ limit them to some members."""                                                ! 
   
   def import3 =
     IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap") must print_as("import scala.collection.mutable.{Map => MutableMap}")
+  
+  def class1 = {
+    val tree: Tree = CLASSDEF("Address")
+    tree must print_as("class Address")
+  }
   
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
@@ -291,7 +299,7 @@ limit them to some members."""                                                ! 
     
     val tree = (MODULEDEF(ChecksumAccumulator) := BLOCK(
         VAL(cache) withFlags(PRIVATE) := mutableMapType(StringClass, IntClass) APPLY (),
-        DEF("calculate", IntClass) withParams(VAL(s, StringClass)) :=
+        DEF("calculate", IntClass) withParams(PARAM(s, StringClass)) :=
           (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
           ELSE BLOCK(
             VAL("acc") := NEW(ChecksumAccumulator),
@@ -333,17 +341,17 @@ limit them to some members."""                                                ! 
     val trees =
       (CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
         DEF("get", IntClass),
-        DEF("put") withParams(VAL("x", IntClass))
+        DEF("put") withParams(PARAM("x", IntClass))
       )) ::
       (CLASSDEF(BasicIntQueue) withParents(IntQueue) := BLOCK(
         VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass)),
         DEF("get", IntClass) := (REF(buf) DOT "remove" APPLY()),
-        DEF("put") withParams(VAL("x", IntClass)) := BLOCK(
+        DEF("put") withParams(PARAM("x", IntClass)) := BLOCK(
           REF(buf) INFIX ("+=", REF("x"))
           )
       )) ::
       (TRAITDEF(Doubling) withParents(IntQueue) := BLOCK(
-        DEF("put") withFlags(ABSTRACT, OVERRIDE) withParams(VAL("x", IntClass)) := BLOCK(
+        DEF("put") withFlags(ABSTRACT, OVERRIDE) withParams(PARAM("x", IntClass)) := BLOCK(
           SUPER DOT "put" APPLY (LIT(2) INFIX("*", REF("x")))
           )
       )) ::
@@ -381,13 +389,13 @@ limit them to some members."""                                                ! 
     
     val tree =
       (MODULEDEF(PredefModule) := BLOCK(
-        (CLASSDEF(ArrowAssocClass) withTypeParams(TYPE(A)) withParams(VAL("x", A)) := BLOCK(
-          DEF(arrow.name, tuple2AB) withTypeParams(TYPE(B)) withParams(VAL("y", B)) :=
+        (CLASSDEF(ArrowAssocClass) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) := BLOCK(
+          DEF(arrow.name, tuple2AB) withTypeParams(TYPE(B)) withParams(PARAM("y", B)) :=
             makeTupleTerm(REF("x") :: REF("y") :: Nil)
         )),
         
         DEF("any2ArrowAssoc", ArrowAssocA)
-            withFlags(IMPLICIT) withTypeParams(TYPE(A)) withParams(VAL("x", A)) :=
+            withFlags(IMPLICIT) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) :=
           NEW(ArrowAssocA, REF("x"))
       )) inPackage(ScalaPackageClass)
     
@@ -412,7 +420,7 @@ limit them to some members."""                                                ! 
     
     val trees =
       (DEF(maxListUpBound.name, T)
-          withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(VAL("elements", listType(T))) :=
+          withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
@@ -447,14 +455,14 @@ limit them to some members."""                                                ! 
     val tree: Tree =
       (CASECLASSDEF(Address)
           withTypeParams(TYPE(T) VIEWBOUNDS listType(T))
-          withParams(VAL("name", optionType(T)) := REF(NoneModule)) := BLOCK(
-        DEF("stringOnly", Address) withParams(VAL("ev", tpEqualsType(T, StringClass)) withFlags(IMPLICIT)) :=
+          withParams(PARAM("name", optionType(T)) := REF(NoneModule)) := BLOCK(
+        DEF("stringOnly", Address) withParams(PARAM("ev", tpEqualsType(T, StringClass)) withFlags(IMPLICIT)) :=
           Address APPLY(THIS(Address) DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
             VAL(list, listType(T)) := REF("nm"),
             (list MAP LAMBDA(VAL("x")) ==>
               (REF("x") INFIX(StringAdd_+, LIT("x")))) DOT "mkString" APPLY LIT(" ")
           )),
-        DEF("star") withParams(VAL("n", STAR(IntClass))) :=
+        DEF("star") withParams(PARAM("n", STAR(IntClass))) :=
           Address TYPEAPPLY(StringClass) APPLY SOME(LIT("foo")).MAP(UNDERSCORE INFIX(StringAdd_+, LIT("x")))
       ))
                 

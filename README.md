@@ -101,7 +101,7 @@ val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
 
 CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
   DEF("get", IntClass),
-  DEF("put", UnitClass) withParams(VAL("x", IntClass))
+  DEF("put", UnitClass) withParams(PARAM("x", IntClass))
 )
 ```
 
@@ -123,7 +123,7 @@ val maxListUpBound = RootClass.newMethod("maxListUpBound")
 val T = maxListUpBound.newTypeParameter("T".toTypeName)
 
 DEF(maxListUpBound.name, T)
-    withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(VAL("elements", listType(T))) :=
+    withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=
   REF("elements") MATCH(
     CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
     CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),

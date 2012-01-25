@@ -196,7 +196,32 @@ trait TreehuggerDSLs { self: Forest =>
       
       final def tpt  = if (_tpt == null) defaultTpt else _tpt
     }
-
+    
+    trait TparamsStart {
+      private var _tparams: List[TypeDef] = Nil
+            
+      def withTypeParams(tparam: TypeDef*): this.type = {
+        _tparams = _tparams ::: tparam.toList
+        this
+      }
+      
+      final def tparams: List[TypeDef] = _tparams
+    }
+    
+    trait VparamssStart {
+      private var _vparamss: List[List[ValDef]] = List(Nil)
+      
+      def withParams(param: ValDef*): this.type = {
+        if (_vparamss == List(Nil))
+          _vparamss = List(param.toList)
+        else 
+          _vparamss = _vparamss ::: List(param.toList)
+        this
+      }
+      
+      def vparamss: List[List[ValDef]] = _vparamss
+    }
+    
     /** VODD, if it is not obvious, means ValOrDefDef.  This is the
      *  common code between a tree based on a pre-existing symbol and
      *  one being built from scratch.
@@ -226,9 +251,8 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(rhs: Tree): DefDef = DefDef(mods, name, tparams, vparamss, tpt, rhs)
     }
 
-    class DefSymStart(val sym: Symbol) extends SymVODDStart[DefDef] with DefCreator {
+    class DefSymStart(val sym: Symbol) extends SymVODDStart[DefDef] with DefCreator with TparamsStart {
       def symType  = sym.tpe.finalResultType
-      def tparams  = Nil // sym.typeParams map TypeDef
       def vparamss = sym.paramss map (xs => xs map ValDef)
     }
     class ValSymStart(val sym: Symbol) extends SymVODDStart[ValDef] with ValCreator {
@@ -250,45 +274,12 @@ trait TreehuggerDSLs { self: Forest =>
 
     class ValTreeStart(val name: Name) extends TreeVODDStart[ValDef] with ValCreator {
     }
+        
+    class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator with TparamsStart with VparamssStart
     
-    trait TparamsStart {
-      private var _tparams: List[TypeDef] = Nil
-            
-      def withTypeParams(tparam: TypeDef*): this.type = {
-        _tparams = _tparams ::: tparam.toList
-        this
-      }
-            
-      final def tparams: List[TypeDef] = _tparams
-    }
-    
-    class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator with TparamsStart {
-      private var _vparamss: List[List[ValDef]] = List(Nil)
-      
-      def withParams(param: ValDef*): this.type = {
-        if (_vparamss == List(Nil))
-          _vparamss = List(param.toList)
-        else 
-          _vparamss = _vparamss ::: List(param.toList)
-        this
-      }
-      
-      def vparamss: List[List[ValDef]] = _vparamss
-    }
-    class AnonFuncStart extends TreeDefStart[AnonFunc] with TptStart {
+    class AnonFuncStart extends TreeDefStart[AnonFunc] with TptStart with VparamssStart {
       def name        = ""
       def defaultTpt  = TypeTree()
-      
-      private var _vparamss: List[List[ValDef]] = List(Nil)
-      def withParams(param: ValDef*): this.type = {
-        if (_vparamss == List(Nil))
-          _vparamss = List(param.toList)
-        else 
-          _vparamss = _vparamss ::: List(param.toList)
-        this
-      }
-      
-      def vparamss: List[List[ValDef]] = _vparamss
       
       def mkTree(rhs: Tree): AnonFunc = AnonFunc(vparamss, tpt, rhs)
       final def ==>(rhs: Tree) = mkTree(rhs)
@@ -443,7 +434,12 @@ trait TreehuggerDSLs { self: Forest =>
     def VAR(name: Name): ValTreeStart               = VAL(name) withFlags Flags.MUTABLE
     def VAR(sym: Symbol, tp: Type): ValTreeStart    = VAL(sym, tp) withFlags Flags.MUTABLE
     def VAR(sym: Symbol): ValSymStart               = VAL(sym) withFlags Flags.MUTABLE
-
+    
+    def PARAM(name: Name, tp: Type): ValTreeStart   = VAL(name, tp) withFlags Flags.PARAM
+    def PARAM(name: Name): ValTreeStart             = VAL(name) withFlags Flags.PARAM
+    def PARAM(sym: Symbol, tp: Type): ValTreeStart  = VAL(sym, tp) withFlags Flags.PARAM
+    def PARAM(sym: Symbol): ValSymStart             = VAL(sym) withFlags Flags.PARAM
+    
     def LAZYVAL(name: Name, tp: Type): ValTreeStart = VAL(name, tp) withFlags Flags.LAZY
     def LAZYVAL(name: Name): ValTreeStart           = VAL(name) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol, tp: Type): ValTreeStart = VAL(sym, tp) withFlags Flags.LAZY
