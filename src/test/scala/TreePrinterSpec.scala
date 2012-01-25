@@ -112,6 +112,11 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
 `DEF(sym|"get", typ) withFlags(Flags.PROTECTED) := rhs` or"""                 ! member2^
       """`DEF(sym|"get", typ) withFlags(PRIVATEWITHIN("this")) := rhs`."""    ! member3^
                                                                               p^
+  "Named terms can be written as"                                             ^
+      """`REF(sym|"x")` to refer to values and methods."""                    ! term1^
+      """Selections are written either as
+`sym1 DOT sym2`, `sym1 DOT "y"`, or `REF("x"") DOT "y"` where `Tree`s are expected.""" ! term2^ 
+                                                                              p^
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -335,6 +340,17 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """  private[this] def get = 0""",
       """}"""
     )
+  
+  def term1 = REF("x") must print_as("x")
+  
+  def term2 = {
+    val sym1 = RootClass.newValue("x")
+    val sym2 = sym.Addressable.newValue("y")
+    
+    ((sym1 DOT sym2: Tree) must print_as("x.y")) and
+    ((sym1 DOT "y": Tree) must print_as("x.y")) and
+    ((REF("x") DOT "y": Tree) must print_as("x.y"))
+  }
   
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
