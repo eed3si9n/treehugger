@@ -12,8 +12,10 @@ class TreePrinterSpec extends Specification { def is = sequential             ^
     """`tree withComment("a", ...)` where `tree` is an arbitrary tree."""     ! comment1^
                                                                               p^
   "Value declarations are written as"                                         ^
-    """`VAL(sym, typ)` or `VAL("bar", typ)` where `sym` is a symbol created
-from `RootClass` or another symbol, and `typ` is a type of the value."""      ! value1^
+    """`VAL(sym, typ).empty` where `sym` is a symbol created from `RootClass` or another symbol,
+and `typ` is a type of the value. This also be written as `VAL(sym, typ)` where `Tree` is expected.
+By implicit conversion `empty` call is automatically injected .
+A value can also be declared without using a symbol like `VAL("bar", typ)`.""" ! value1^
                                                                               end^
   "Value definitions are written as"                                          ^
     """`VAL(sym|"bar", [typ]) := rhs` where `rhs` is a tree such as a literal.
