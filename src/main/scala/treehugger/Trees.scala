@@ -140,16 +140,16 @@ trait Trees extends api.Trees { self: Forest =>
     if (args.isEmpty) New(TypeTree(sym.tpe))
     else New(TypeTree(sym.tpe), List(args.toList))
   
-  def Apply(sym: Symbol, args: Tree*): Tree =
+  def Apply(sym: Symbol, args: Tree*): Apply =
     Apply(Ident(sym), args.toList)
   
-  def Super(sym: Symbol, mix: TypeName): Tree = Super(This(sym), mix)
+  def Super(sym: Symbol, mix: TypeName): Super = Super(This(sym), mix)
   
-  def Super(sym: Symbol): Tree = Super(sym, EmptyTypeName)
+  def Super(sym: Symbol): Super = Super(sym, EmptyTypeName)
   
-  def Super(qual: Tree): Tree = Super(qual, EmptyTypeName)
+  def Super(qual: Tree): Super = Super(qual, EmptyTypeName)
     
-  def This(sym: Symbol): Tree = This(sym.name.toTypeName) setSymbol sym
+  def This(sym: Symbol): This = This(sym.name.toTypeName) setSymbol sym
   
   /** Block factory that flattens directly nested blocks.
    */

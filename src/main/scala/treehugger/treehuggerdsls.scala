@@ -39,8 +39,7 @@ trait TreehuggerDSLs { self: Forest =>
     val FALSE         = LIT(false)
     val ZERO          = LIT(0)
     def NULL          = LIT(null)
-    def UNIT          = LIT(())
-    val SUPER         = Super(EmptyTree)
+    def UNIT          = LIT(())    
     val UNDERSCORE    = Ident(nme.WILDCARD)
 
     object WILD {
@@ -148,6 +147,11 @@ trait TreehuggerDSLs { self: Forest =>
 
     case class SelectStart(tree: Select) {
       def apply(args: Tree*) = Apply(tree, args.toList)
+    }
+    
+    case class SuperStart(tree: Super) {
+      def TYPEAPPLY(typ: Type): Super = Super(tree.qual, typ.toString.toTypeName)
+      def TYPEAPPLY(name: Name): Super = Super(tree.qual, name.toTypeName)
     }
 
     class CaseStart(pat: Tree, guard: Tree) {
@@ -506,6 +510,13 @@ trait TreehuggerDSLs { self: Forest =>
 
     /** Typed trees from symbols. */
     def THIS(sym: Symbol)             = mkAttributedThis(sym)
+    def THIS(name: Name)              = This(name.toTypeName)
+    def THIS                          = This(EmptyTypeName)
+    
+    val SUPER                         = SuperStart(Super(EmptyTree))
+    def SUPER(sym: Symbol)            = SuperStart(Super(THIS(sym)))
+    def SUPER(name: Name)             = SuperStart(Super(THIS(name)))
+    
     def ID(sym: Symbol)               = mkAttributedIdent(sym)
     def ID(name: Name)                = Ident(name)
     def REF(sym: Symbol)              = mkAttributedIdent(sym)
@@ -532,6 +543,7 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkTreeMethods(target: Tree): TreeMethods = new TreeMethods(target)
     implicit def mkTreeMethodsFromSymbol(target: Symbol): TreeMethods = new TreeMethods(Ident(target))
     implicit def mkTreeMethodsFromType(target: Type): TreeMethods = new TreeMethods(TypeTree(target))
+    implicit def mkTreeMethodsFromSuperStart(target: SuperStart): TreeMethods = new TreeMethods(target.tree)
     implicit def mkSymbolMethodsFromSymbol(target: Symbol): SymbolMethods = new SymbolMethods(target)
 
     /** (foo DOT bar) might be simply a Select, but more likely it is to be immediately
@@ -540,6 +552,10 @@ trait TreehuggerDSLs { self: Forest =>
      *  thing called, the implicit from SelectStart -> Tree will provide the tree.
      */
     implicit def mkTreeFromSelectStart(ss: SelectStart): Select = ss.tree
+    
+    /** (SUPER) might be simply a Super.
+     */
+    implicit def mkTreeFromSuperStart(ss: SuperStart): Super = ss.tree
     implicit def mkTreeMethodsFromSelectStart(ss: SelectStart): TreeMethods = mkTreeMethods(ss.tree)
     
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty

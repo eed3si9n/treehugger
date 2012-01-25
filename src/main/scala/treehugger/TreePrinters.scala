@@ -446,7 +446,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             print("[" + mix + "]")
 
         case This(qual) =>
-          // if (!qual.isEmpty) print(symName(tree, qual) + ".")
+          if (!qual.isEmpty) print(symName(tree, qual) + ".")
           print("this")
 
         case Select(qual @ New(tpe), name) => // if (!settings.debug.value) =>

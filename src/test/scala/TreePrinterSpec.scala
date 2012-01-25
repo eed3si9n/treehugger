@@ -94,17 +94,17 @@ where `PARAM(...)` declares a parameter while
       """Other uses of `withFlags(flag)` are abstract classes withFlags(Flags.ABSTRACT)`,
 final classes `withFlags(Flags.FINAL)`,
 sealed classes `withFlags(Flags.SEALED)`."""                                  ! class7^
-                                                                              p^
+                                                                              end^
   "Case class definitions are written as"                                     ^
       """`CASECLASSDEF(sym|"C")`, or with the class body, parameters, and parents as
 `CASECLASSDEF(sym|"C")` withParams(PARAM("x", typ1), ...) withParents(typ, ...) := BLOCK(stat, ...).""" ! caseclass1^
-                                                                              p^
+                                                                              end^
   "Trait definitions are written as"                                          ^
       """`TRAITDEF(sym|"D")`."""                                              ! trait1^
-                                                                              p^
+                                                                              end^
   "Object definitions are written as"                                         ^
       """`MODULEDEF(sym|"E")`."""                                             ! object1^
-                                                                              p^
+                                                                              end^
   "Class members can"                                                         ^
       """be defined by placing value defitions and function definitions within the class body as
 `CLASSDEF(sym|"C"") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`."""            ! member1^
@@ -116,7 +116,17 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`REF(sym|"x")` to refer to values and methods."""                    ! term1^
       """Selections are written either as
 `sym1 DOT sym2`, `sym1 DOT "y"`, or `REF("x"") DOT "y"` where `Tree`s are expected.""" ! term2^ 
-                                                                              p^
+                                                                              end^
+  "References to `this` are written as"                                       ^
+      """`THIS` or"""                                                         ! this1^
+      """with a qualifier as `THIS(sym|"C")`."""                              ! this2^
+                                                                              end^
+  "References to `super` are written as"                                      ^                                                                            
+      """`SUPER`, or"""                                                       ! super1^
+      """with a qualifier as `SUPER(sym|"C")` where `Tree`s are expected."""  ! super2^
+      """Trait qualifier may be added as
+`SUPER TYPEAPPLY "T"`."""                                                     ! super3^      
+                                                                              p^                                                                                                                                                       
   "The tree printer should"                                                   ^
     """print println("Hello, world!")"""                                      ! e1^
     """print def hello"""                                                     ! e2^
@@ -352,6 +362,20 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     ((REF("x") DOT "y": Tree) must print_as("x.y"))
   }
   
+  def this1 = THIS must print_as("this")
+  
+  def this2 =
+    (THIS(sym.T) must print_as("T.this")) and
+    (THIS("T") must print_as("T.this"))
+  
+  def super1 = (SUPER: Tree) must print_as("super")
+  
+  def super2 =
+    ((SUPER(sym.T): Tree) must print_as("T.super")) and
+    ((SUPER("T"): Tree) must print_as("T.super"))
+    
+  def super3 = (SUPER TYPEAPPLY sym.T) must print_as("super[T]")
+  
   def e1 = {  
     val tree: Tree = sym.println APPLY LIT("Hello, world!"); println(tree)
     val s = treeToString(tree); println(s)
@@ -560,7 +584,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
           withTypeParams(TYPE(T) VIEWBOUNDS listType(T))
           withParams(PARAM("name", optionType(T)) := REF(NoneModule)) := BLOCK(
         DEF("stringOnly", Address) withParams(PARAM("ev", tpEqualsType(T, StringClass)) withFlags(IMPLICIT)) :=
-          Address APPLY(THIS(Address) DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
+          Address APPLY(THIS DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
             VAL(list, listType(T)) := REF("nm"),
             (list MAP LAMBDA(VAL("x")) ==>
               (REF("x") INFIX(StringAdd_+, LIT("x")))) DOT "mkString" APPLY LIT(" ")
@@ -568,7 +592,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
         DEF("star") withParams(PARAM("n", STAR(IntClass))) :=
           Address TYPEAPPLY(StringClass) APPLY SOME(LIT("foo")).MAP(UNDERSCORE INFIX(StringAdd_+, LIT("x")))
       ))
-                
+      
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
       """case class Address[T <% List[T]](name: Option[T] = None) {""",
