@@ -158,6 +158,9 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   "Blocks are written as"                                                     ^
       """`BLOCK(stat, ...)`."""                                               ! block1^
                                                                               p^    
+  "Prefix operations are written as"                                          ^
+      """`PLUS(tree)`, MINUS(tree), NOT(tree), and TILDE(tree)."""            ! unary1^
+                                                                              p^
   "The tree printer should"                                                   ^
     """print def hello"""                                                     ! e2^
     """print val greetStrings = new Array[String](3)"""                       ! e3^
@@ -449,14 +452,20 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   
   def block1 =
     BLOCK(
-      REF("x") := LIT(1),
+      VAL("x") := LIT(1),
       LIT(0)
     ) must print_as(
       """{""",
-      """  x = 1""",
+      """  val x = 1""",
       """  0""",
       """}"""
     )
+  
+  def unary1 =
+    (PLUS(LIT(1)) must print_as("+(1)")) and
+    (MINUS(LIT(1)) must print_as("-(1)")) and
+    (NOT(FALSE) must print_as("!(false)")) and
+    (TILDE(LIT(1)) must print_as("~(1)"))
 
   def e2 = {
     val tree = DEF("hello") := BLOCK(

@@ -195,6 +195,9 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case _ => false
       }
 
+    private def unaryop(name: Name): Option[String] =
+      Map(nme.UNARY_! -> "!", nme.UNARY_+ -> "+", nme.UNARY_- -> "-", nme.UNARY_~ -> "~").get(name)
+
     def printTree(tree: Tree) {
       tree match {
         case EmptyTree =>
@@ -453,6 +456,9 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case This(qual) =>
           if (!qual.isEmpty) print(symName(tree, qual) + ".")
           print("this")
+        
+        case Select(qualifier, name) if unaryop(name).isDefined =>
+          print(unaryop(name).get, "(", qualifier, ")")
 
         case Select(qual @ New(tpe), name) => // if (!settings.debug.value) =>
           print(qual)

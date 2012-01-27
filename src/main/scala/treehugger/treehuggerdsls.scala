@@ -502,6 +502,11 @@ trait TreehuggerDSLs { self: Forest =>
     def TRY(tree: Tree)   = new TryStart(tree, Nil, EmptyTree)
     def BLOCK(xs: Tree*)  = Block(xs: _*)
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
+
+    def PLUS(tree: Tree)  = Select(tree, Int_plus)
+    def MINUS(tree: Tree)  = Select(tree, Int_minus)
+    def TILDE(tree: Tree)  = Select(tree, Int_tilde)
+    
     def SOME(xs: Tree*)   = Apply(SomeModule, TUPLE(xs.toList, true))
     def FOR(xs: Enumerator*) = new ForStart(xs.toList)
     def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)

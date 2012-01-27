@@ -49,6 +49,10 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     lazy val ShortClass   = valueCache(tpnme.Short)
     lazy val CharClass    = valueCache(tpnme.Char)
     lazy val IntClass     = valueCache(tpnme.Int)
+      def Int_plus  = newMethod(IntClass, nme.UNARY_+)
+      def Int_minus = newMethod(IntClass, nme.UNARY_-)
+      def Int_tilde = newMethod(IntClass, nme.UNARY_~)
+    
     lazy val LongClass    = valueCache(tpnme.Long)
     lazy val FloatClass   = valueCache(tpnme.Float)
     lazy val DoubleClass  = valueCache(tpnme.Double)
