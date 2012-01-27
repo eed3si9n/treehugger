@@ -33,7 +33,7 @@ Also, `[typ]` denotes that the type is optional"""                            ! 
                                                                               end^
   "Variable definitions are written as"                                       ^
     """`VAR(sym|"bar", [typ]) := rhs`."""                                     ! variable2^
-    """`VAR(sym, typ) := UNDERSCORE` intoduces mutable field initialized to
+    """`VAR(sym, typ) := WILDCARD` intoduces mutable field initialized to
 the default value of the type (for example `0` for Int)."""                   ! variable3^
                                                                               p^
   "Type declarations are written as"                                          ^
@@ -140,8 +140,8 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`sym APPLY (REF(sym1) := arg)"`."""                                  ! namedarg1^
                                                                               end^
   "Method values are written as"                                              ^
-      """`sym APPLY UNDERSCORE"`."""                                          ! methodvalue1^
-                                                                              p^                                                                                                                                                       
+      """`sym APPLY WILDCARD"`."""                                            ! methodvalue1^
+                                                                              p^
   "The tree printer should"                                                   ^
     """print def hello"""                                                     ! e2^
     """print val greetStrings = new Array[String](3)"""                       ! e3^
@@ -159,7 +159,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   import treehugger.Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
       
   def literal1 =
-    LIT("Hello") must print_as(""""Hello"""")
+    LIT("Hello") must print_as("\"Hello\"")
   
   def literal2 =
     (LIT(1)    must print_as("1")) and
@@ -213,7 +213,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     ((VAR("bar") := FALSE) must print_as("var bar = false"))
   
   // _ initializes var to 0 
-  def variable3 = ((VAR(sym.foo, IntClass) := UNDERSCORE) must print_as("var foo: Int = _"))
+  def variable3 = ((VAR(sym.foo, IntClass) := WILDCARD) must print_as("var foo: Int = _"))
   
   def type1 = (TYPE("T") LOWER(IntClass)) must print_as("type T >: Int")
   
@@ -405,7 +405,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   
   def namedarg1 = (REF("put") APPLY (REF("x") := LIT(0))) must print_as("put(x = 0)")
   
-  def methodvalue1 = (REF("put") APPLY UNDERSCORE) must print_as("put(_)")
+  def methodvalue1 = (REF("put") APPLY WILDCARD) must print_as("put(_)")
   
   def e2 = {
     val tree = DEF("hello") := BLOCK(
@@ -436,12 +436,12 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     val s = treesToString(trees); println(s)
     
     s.lines.toList must contain(
-      """val greetStrings = new Array[String](3)""",
-      """greetStrings(0) = "Hello"""",
-      """greetStrings(1) = ", """",
-      """greetStrings(2) = "world!\n"""",
-      """for (i <- 0 to 2)""",
-      """  print(greetStrings(i))"""
+      "val greetStrings = new Array[String](3)",
+      "greetStrings(0) = \"Hello\"",
+      "greetStrings(1) = \", \"",
+      "greetStrings(2) = \"world!\\n\"",
+      "for (i <- 0 to 2)",
+      "  print(greetStrings(i))"
     ).inOrder
   }
   
@@ -614,7 +614,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
               (REF("x") INFIX(StringAdd_+, LIT("x")))) DOT "mkString" APPLY LIT(" ")
           )),
         DEF("star") withParams(PARAM("n", STAR(IntClass))) :=
-          Address TYPEAPPLY(StringClass) APPLY SOME(LIT("foo")).MAP(UNDERSCORE INFIX(StringAdd_+, LIT("x")))
+          Address TYPEAPPLY(StringClass) APPLY SOME(LIT("foo")).MAP(WILDCARD INFIX(StringAdd_+, LIT("x")))
       ))
       
     val out = treeToString(tree); println(out)
@@ -640,9 +640,9 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
-      """new Addressable {""",
-      """  val street = "123 Drive"""",
-      """}"""
+      "new Addressable {",
+      "  val street = \"123 Drive\"",
+      "}"
     ).inOrder
   }
   

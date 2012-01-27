@@ -40,7 +40,7 @@ trait TreehuggerDSLs { self: Forest =>
     val ZERO          = LIT(0)
     def NULL          = LIT(null)
     def UNIT          = LIT(())    
-    val UNDERSCORE    = Ident(nme.WILDCARD)
+    val WILDCARD      = Ident(nme.WILDCARD)
 
     object WILD {
       def empty               = Ident(nme.WILDCARD)
