@@ -417,6 +417,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Throw(expr) =>
           print("throw ", expr)
 
+        case New(classdef: ClassDef)
+        if classdef.name == tpnme.ANON_CLASS_NAME &&
+        classdef.impl.parents.isEmpty  =>
+          print("new", classdef)
+
         case New(tpe) =>
           print("new ", tpe)
 

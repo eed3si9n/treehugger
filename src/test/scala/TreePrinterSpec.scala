@@ -148,6 +148,16 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   "Tuples are written as"                                                     ^
       """`TUPLE(tree1, tree2, ...)`."""                                       ! tuple1^
                                                                               p^
+  "Instance creations are written as"                                         ^
+      """`NEW(typ)`, or"""                                                    ! new1^
+      """with arguments to the constructor as
+`NEW(typ, arg1, arg2, ...)`"""                                                ! new2^
+      """Using `ANONDEF()`, instance creations with a class template are written as
+`NEW(ANONDEF(parent1, ...) := BODY(stat, ...))` where `parent1` is a type.""" ! new3^  
+                                                                              p^
+  "Blocks are written as"                                                     ^
+      """`BLOCK(stat, ...)`."""                                               ! block1^
+                                                                              p^    
   "The tree printer should"                                                   ^
     """print def hello"""                                                     ! e2^
     """print val greetStrings = new Array[String](3)"""                       ! e3^
@@ -416,6 +426,37 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   def typeapply1 = (REF("put") TYPEAPPLY sym.T) must print_as("put[T]")
   
   def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("Tuple2(0, 1)")
+
+  def new1 = NEW(sym.T) must print_as("new T")
+
+  def new2 = NEW(sym.T, LIT(0), LIT(1)) must print_as("new T(0, 1)")
+
+  def new3 =
+    (NEW(ANONDEF() := BLOCK(
+      DEF("get") := LIT(0)
+    )) must print_as(
+      """new {""",
+      """  def get = 0""",
+      """}"""
+    )) and
+    (NEW(ANONDEF(sym.Addressable) := BLOCK(
+      DEF("get") := LIT(0)
+    )) must print_as(
+      """new Addressable {""",
+      """  def get = 0""",
+      """}"""    
+    ))
+  
+  def block1 =
+    BLOCK(
+      REF("x") := LIT(1),
+      LIT(0)
+    ) must print_as(
+      """{""",
+      """  x = 1""",
+      """  0""",
+      """}"""
+    )
 
   def e2 = {
     val tree = DEF("hello") := BLOCK(
