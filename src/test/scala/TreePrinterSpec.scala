@@ -124,7 +124,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   "References to `super` are written as"                                      ^
       """`SUPER`, or"""                                                       ! super1^
       """with a qualifier as `SUPER(sym|"C")` where `Tree`s are expected."""  ! super2^
-      """Trait qualifier may be added as
+      """A trait qualifier may be added as
 `SUPER TYPEAPPLY "T"`."""                                                     ! super3^      
                                                                               p^
   "Function applications are written as"                                      ^
@@ -140,7 +140,13 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`sym APPLY (REF(sym1) := arg)"`."""                                  ! namedarg1^
                                                                               end^
   "Method values are written as"                                              ^
-      """`sym APPLY WILDCARD"`."""                                            ! methodvalue1^
+      """`sym APPLY WILDCARD`."""                                             ! methodvalue1^
+                                                                              p^
+  "Type applications are written as"                                          ^
+      """`sym TYPEAPPLY typ`."""                                              ! typeapply1^
+                                                                              p^
+  "Tuples are written as"                                                     ^
+      """`TUPLE(tree1, tree2, ...)`."""                                       ! tuple1^
                                                                               p^
   "The tree printer should"                                                   ^
     """print def hello"""                                                     ! e2^
@@ -406,7 +412,11 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   def namedarg1 = (REF("put") APPLY (REF("x") := LIT(0))) must print_as("put(x = 0)")
   
   def methodvalue1 = (REF("put") APPLY WILDCARD) must print_as("put(_)")
+
+  def typeapply1 = (REF("put") TYPEAPPLY sym.T) must print_as("put[T]")
   
+  def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("Tuple2(0, 1)")
+
   def e2 = {
     val tree = DEF("hello") := BLOCK(
       sym.println APPLY LIT("Hello, world!"))
@@ -544,7 +554,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       (MODULEDEF(PredefModule) := BLOCK(
         (CLASSDEF(ArrowAssocClass) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) := BLOCK(
           DEF(arrow.name, tuple2AB) withTypeParams(TYPE(B)) withParams(PARAM("y", B)) :=
-            makeTupleTerm(REF("x") :: REF("y") :: Nil)
+            TUPLE(REF("x"), REF("y"))
         )),
         
         DEF("any2ArrowAssoc", ArrowAssocA)

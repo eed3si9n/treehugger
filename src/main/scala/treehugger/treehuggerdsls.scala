@@ -502,7 +502,7 @@ trait TreehuggerDSLs { self: Forest =>
     def TRY(tree: Tree)   = new TryStart(tree, Nil, EmptyTree)
     def BLOCK(xs: Tree*)  = Block(xs: _*)
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
-    def SOME(xs: Tree*)   = Apply(SomeModule, makeTupleTerm(xs.toList, true))
+    def SOME(xs: Tree*)   = Apply(SomeModule, TUPLE(xs.toList, true))
     def FOR(xs: Enumerator*) = new ForStart(xs.toList)
     def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)
     def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
@@ -529,11 +529,14 @@ trait TreehuggerDSLs { self: Forest =>
     
     case class PRIVATEWITHIN(name: Name)
     
-    def makeTupleTerm(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
+    def TUPLE(trees: Tree*): Tree = TUPLE(trees.toList)
+
+    def TUPLE(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
       case Nil                        => UNIT
       case List(tree) if flattenUnary => tree
       case _                          => mkTuple(trees) // Apply(TupleClass(trees.length).companionModule, trees: _*)
     }
+    
     def makeTupleType(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
       case Nil                        => scalaUnitConstr
       case List(tree) if flattenUnary => tree
