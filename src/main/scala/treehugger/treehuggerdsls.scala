@@ -50,7 +50,9 @@ trait TreehuggerDSLs { self: Forest =>
 
     def fn(lhs: Tree, op:   Name, args: Tree*)  = Apply(Select(lhs, op), args.toList)
     def fn(lhs: Tree, op: Symbol, args: Tree*)  = Apply(Select(lhs, op), args.toList)
-
+    def infix(lhs: Tree, op:   Name, args: Tree*): Infix = Infix(lhs, op, args.toList)
+    def infix(lhs: Tree, op: Symbol, args: Tree*): Infix = Infix(lhs, op, args.toList)
+    
     class TreeMethods(target: Tree) {
       /** logical/comparison ops **/
       def OR(other: Tree) =
@@ -72,24 +74,24 @@ trait TreehuggerDSLs { self: Forest =>
       def MEMBER_== (other: Tree)   = {
         val opSym = NoSymbol // if (target.tpe == null) NoSymbol else target.tpe member nme.EQ
         if (opSym == NoSymbol) ANY_==(other)
-        else fn(target, opSym, other)
+        else infix(target, opSym, other)
       }
       def ANY_EQ  (other: Tree)     = OBJ_EQ(other AS ObjectClass.tpe)
-      def ANY_==  (other: Tree)     = fn(target, Any_==, other)
-      def ANY_!=  (other: Tree)     = fn(target, Any_!=, other)
-      def OBJ_==  (other: Tree)     = fn(target, Object_==, other)
-      def OBJ_!=  (other: Tree)     = fn(target, Object_!=, other)
-      def OBJ_EQ  (other: Tree)     = fn(target, Object_eq, other)
-      def OBJ_NE  (other: Tree)     = fn(target, Object_ne, other)
+      def ANY_==  (other: Tree)     = infix(target, Any_==, other)
+      def ANY_!=  (other: Tree)     = infix(target, Any_!=, other)
+      def OBJ_==  (other: Tree)     = infix(target, Object_==, other)
+      def OBJ_!=  (other: Tree)     = infix(target, Object_!=, other)
+      def OBJ_EQ  (other: Tree)     = infix(target, Object_eq, other)
+      def OBJ_NE  (other: Tree)     = infix(target, Object_ne, other)
 
-      def INT_|   (other: Tree)     = fn(target, getMember(IntClass, nme.OR), other)
-      def INT_&   (other: Tree)     = fn(target, getMember(IntClass, nme.AND), other)
-      def INT_>=  (other: Tree)     = fn(target, getMember(IntClass, nme.GE), other)
-      def INT_==  (other: Tree)     = fn(target, getMember(IntClass, nme.EQ), other)
-      def INT_!=  (other: Tree)     = fn(target, getMember(IntClass, nme.NE), other)
+      def INT_|   (other: Tree)     = infix(target, getMember(IntClass, nme.OR), other)
+      def INT_&   (other: Tree)     = infix(target, getMember(IntClass, nme.AND), other)
+      def INT_>=  (other: Tree)     = infix(target, getMember(IntClass, nme.GE), other)
+      def INT_==  (other: Tree)     = infix(target, getMember(IntClass, nme.EQ), other)
+      def INT_!=  (other: Tree)     = infix(target, getMember(IntClass, nme.NE), other)
 
-      def BOOL_&& (other: Tree)     = fn(target, Boolean_and, other)
-      def BOOL_|| (other: Tree)     = fn(target, Boolean_or, other)
+      def BOOL_&& (other: Tree)     = infix(target, Boolean_and, other)
+      def BOOL_|| (other: Tree)     = infix(target, Boolean_or, other)
 
       /** Apply, Select, Match **/
       def APPLY(params: Tree*)      = Apply(target, params.toList)
@@ -103,11 +105,16 @@ trait TreehuggerDSLs { self: Forest =>
       def DOT(member: Name)         = SelectStart(Select(target, member))
       def DOT(sym: Symbol)          = SelectStart(Select(target, sym))
 
-      def INFIX(name: Name, params: Tree*)  = Infix(target, name, params.toList)
-      def INFIX(sym: Symbol, params: Tree*) = Infix(target, sym, params.toList)
+      def INFIX(name: Name, param0: Tree, params: Tree*): Infix =
+        infix(target, name, List(param0) ::: params.toList: _*)
+      def INFIX(sym: Symbol, param0: Tree, params: Tree*): Infix =
+        infix(target, sym, List(param0) ::: params.toList: _*)
       
-      def INFIXUNAPPLY(name: Name, params: Tree*)  = InfixUnApply(target, name, params.toList)
-      def INFIXUNAPPLY(sym: Symbol, params: Tree*) = InfixUnApply(target, sym, params.toList)
+      def INFIX(name: Name): InfixStart = InfixStart(target, name)
+      def INFIX(sym: Symbol): InfixSymStart = InfixSymStart(target, sym)
+            
+      def INFIXUNAPPLY(name: Name, param0: Tree, params: Tree*)  = InfixUnApply(target, name, List(param0) ::: params.toList)
+      def INFIXUNAPPLY(sym: Symbol, param0: Tree, params: Tree*) = InfixUnApply(target, sym, List(param0) ::: params.toList)
       
       /** Assignment */
       def :=(rhs: Tree)            = Assign(target, rhs)
@@ -122,7 +129,7 @@ trait TreehuggerDSLs { self: Forest =>
       val COLLECT: Tree => Tree = APPLYFUNC(Traversable_collect) _
       
       def APPLYFUNC(sym: Symbol)(f: Tree): Tree = f match {
-        case AnonFunc(_, _, rhs: Block) => target INFIX(sym, f)
+        case AnonFunc(_, _, rhs: Block) => target INFIX(sym) APPLY f
         case _ => target DOT sym APPLY f
       }
       
@@ -143,6 +150,17 @@ trait TreehuggerDSLs { self: Forest =>
       def inPackage(name: Name): PackageDef = PACKAGEHEADER(name) := target
       def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
       def withComment(comment: String*): Commented = Commented(comment.toList, target)
+      def withType(tp: Type) = Typed(target, TypeTree(tp))
+    }
+
+    case class InfixStart(target: Tree, name: Name) {
+      def APPLY(args: Tree*)   = Infix(target, name, args.toList)
+      def UNAPPLY(args: Tree*) = InfixUnApply(target, name, args.toList)
+    }
+    
+    case class InfixSymStart(target: Tree, sym: Symbol) {
+      def APPLY(args: Tree*) = Infix(target, sym, args.toList)
+      def UNAPPLY(args: Tree*) = InfixUnApply(target, sym, args.toList)
     }
 
     case class SelectStart(tree: Select) {

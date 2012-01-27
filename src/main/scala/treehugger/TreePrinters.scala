@@ -309,7 +309,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           }
 
         case LabelDef(name, params, rhs) =>
-          print(symName(tree, name)); printRow(params, "(", ",", ")"); printBlock(rhs)
+          print(symName(tree, name)); printRow(params, "(", ", ", ")"); printBlock(rhs)
 
         case Import(expr, selectors) =>
           // Is this selector remapping a name (i.e, {name1 => name2})
@@ -483,7 +483,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           def printAnnot() {
             print("@", tpt)
             if (!args.isEmpty)
-              printRow(args, "(", ",", ")")
+              printRow(args, "(", ", ", ")")
           }
           print(tree, if (tree.isType) " " else ": ")
           printAnnot()
@@ -545,7 +545,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Infix(Literal(x), name, args) =>
           print(x.escapedStringValue, " ", symName(tree, name), " ")
           if (args.size == 1) print(args(0))
-          else printRow(args, "(", ",", ")")
+          else printRow(args, "(", ", ", ")")
         case Infix(qualifier, name, args) =>
           print(qualifier, " ", symName(tree, name), " ")
           if (args.size == 1) 
@@ -553,11 +553,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               case x: Infix => print("(", x, ")") 
               case _        => print(args(0))
             }
-          else printRow(args, "(", ",", ")")
+          else printRow(args, "(", ", ", ")")
         case InfixUnApply(Literal(x), name, args) =>
           print(x.escapedStringValue, " ", symName(tree, name), " ")
           if (args.size == 1) print(args(0))
-          else printRow(args, "(", ",", ")")
+          else printRow(args, "(", ", ", ")")
         case InfixUnApply(qualifier, name, args) =>
           print(qualifier, " ", symName(tree, name), " ")
           if (args.size == 1) 
@@ -565,7 +565,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               case x: Infix => print("(", x, ")") 
               case _        => print(args(0))
             }
-          else printRow(args, "(", ",", ")")
+          else printRow(args, "(", ", ", ")")
           
 // SelectFromArray is no longer visible in reflect.internal.
 // eliminated until we figure out what we will do with both TreePrinters and

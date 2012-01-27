@@ -159,7 +159,21 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`BLOCK(stat, ...)`."""                                               ! block1^
                                                                               p^    
   "Prefix operations are written as"                                          ^
-      """`PLUS(tree)`, MINUS(tree), NOT(tree), and TILDE(tree)."""            ! unary1^
+      """`PLUS(tree)`, `MINUS(tree)`, `NOT(tree)`, and `TILDE(tree)`."""      ! unary1^
+                                                                              p^
+  "Infix operations are written as"                                           ^
+      """`tree INFIX(sym|"op") APPLY arg`, or"""                              ! infix1^
+      """`tree INFIX(sym|"op", arg, ...)`."""                                 ! infix2^
+                                                                              p^
+  "Assignments are written as"                                                ^
+      """`tree := rhs`."""                                                    ! assignment1^
+                                                                              p^
+  "Typed expressions are written as"                                          ^
+      """`tree withType(type)` or `sym withType(typ)`."""                     ! typed1^
+                                                                              p^  
+  "Conditional expressions are written as"                                    ^
+      """`IF (tree1) THEN tree2 ELSE tree3`, or"""                            ! conditional1^
+      """`IF (tree1) THEN tree2 ENDIF`."""                                    ! conditional2^
                                                                               p^
   "The tree printer should"                                                   ^
     """print def hello"""                                                     ! e2^
@@ -466,7 +480,26 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     (MINUS(LIT(1)) must print_as("-(1)")) and
     (NOT(FALSE) must print_as("!(false)")) and
     (TILDE(LIT(1)) must print_as("~(1)"))
+  
+  def infix1 = LIT(1) INFIX("+") APPLY LIT(2) must print_as("1 + 2")
 
+  def infix2 = REF("x") INFIX("slice", LIT(1), LIT(2)) must print_as("x slice (1, 2)")
+  
+  def assignment1 = (REF("x") := LIT(0)) must print_as("x = 0")
+
+  def typed1 =
+    ((LIT(0) withType(LongClass)) must print_as("(0: Long)")) and
+    ((sym.foo withType(LongClass)) must print_as("(foo: Long)"))
+
+  def conditional1 =
+    (IF (REF("x") ANY_== REF("y")) THEN REF("x") ELSE LIT(0)) must print_as(
+      "if (x == y) x",
+      "else 0")
+
+  def conditional2 =
+    (IF (REF("x") ANY_== REF("y")) THEN REF("x") ENDIF) must print_as(
+      "if (x == y) x")    
+  
   def e2 = {
     val tree = DEF("hello") := BLOCK(
       sym.println APPLY LIT("Hello, world!"))
@@ -489,7 +522,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       assignGreetStrings(0, "Hello") ::
       assignGreetStrings(1, ", ") ::
       assignGreetStrings(2, "world!\n") ::
-      (FOR(VALFROM("i") := LIT(0) INFIX (sym.to, LIT(2))) DO
+      (FOR(VALFROM("i") := LIT(0) INFIX(sym.to) APPLY LIT(2)) DO
         (sym.print APPLY (greetStrings APPLY REF("i"))) ) ::
       Nil
     
@@ -520,7 +553,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
             FOR(VALFROM("c") := REF(s)) DO
               (REF("acc") DOT "add" APPLY (REF("c") DOT "toByte")),
             VAL("cs") := REF("acc") DOT "checksum" APPLY (),
-            REF(cache) INFIX ("+=", REF(s) INFIX ("->", REF("cs"))),
+            REF(cache) INFIX ("+=") APPLY REF(s) INFIX ("->") APPLY REF("cs"),
             REF("cs")
           ))
       )) withComment("In file ChecksumAccumulator.scala")
@@ -537,7 +570,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """      for (c <- s)""",
       """        acc.add(c.toByte)""",
       """      val cs = acc.checksum()""",
-      """      cache += (s -> cs)""",
+      """      cache += s -> cs""",
       """      cs""",
       """    }""",
       """}"""
@@ -561,12 +594,12 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
         VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass)),
         DEF("get", IntClass) := (REF(buf) DOT "remove" APPLY()),
         DEF("put") withParams(PARAM("x", IntClass)) := BLOCK(
-          REF(buf) INFIX ("+=", REF("x"))
+          REF(buf) INFIX("+=") APPLY REF("x")
           )
       )) ::
       (TRAITDEF(Doubling) withParents(IntQueue) := BLOCK(
         DEF("put") withFlags(ABSTRACT, OVERRIDE) withParams(PARAM("x", IntClass)) := BLOCK(
-          SUPER DOT "put" APPLY (LIT(2) INFIX("*", REF("x")))
+          SUPER DOT "put" APPLY (LIT(2) INFIX("*") APPLY REF("x"))
           )
       )) ::
       Nil
@@ -635,9 +668,9 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
-          CASE(ID("x") INFIXUNAPPLY("::", ID("rest"))) ==> BLOCK(
+          CASE(ID("x") INFIX("::") UNAPPLY ID("rest")) ==> BLOCK(
             VAL("maxRest") := maxListUpBound APPLY(REF("rest")),
-            IF(REF("x") INFIX (">", REF("maxRest"))) THEN REF("x")
+            IF(REF("x") INFIX(">") APPLY REF("maxRest")) THEN REF("x")
             ELSE REF("maxRest") 
           )
         ))::
@@ -671,10 +704,10 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
           Address APPLY(THIS DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
             VAL(list, listType(T)) := REF("nm"),
             (list MAP LAMBDA(VAL("x")) ==>
-              (REF("x") INFIX(StringAdd_+, LIT("x")))) DOT "mkString" APPLY LIT(" ")
+              (REF("x") INFIX(StringAdd_+) APPLY LIT("x"))) DOT "mkString" APPLY LIT(" ")
           )),
         DEF("star") withParams(PARAM("n", STAR(IntClass))) :=
-          Address TYPEAPPLY(StringClass) APPLY SOME(LIT("foo")).MAP(WILDCARD INFIX(StringAdd_+, LIT("x")))
+          Address TYPEAPPLY(StringClass) APPLY SOME(LIT("foo")).MAP(WILDCARD INFIX(StringAdd_+) APPLY LIT("x"))
       ))
       
     val out = treeToString(tree); println(out)
