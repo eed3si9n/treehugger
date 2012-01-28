@@ -308,8 +308,16 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             }
           }
 
-        case LabelDef(name, params, rhs) =>
-          print(symName(tree, name)); printRow(params, "(", ", ", ")"); printBlock(rhs)
+        case LabelDef(name, param, rhs) =>
+          name match {
+            case x if x == nme.WHILEkw =>
+              print("while")
+            case _ =>
+              print(symName(tree, name))
+          }
+          
+          print(" (", param, ") ")
+          printBlock(rhs)
 
         case Import(expr, selectors) =>
           // Is this selector remapping a name (i.e, {name1 => name2})

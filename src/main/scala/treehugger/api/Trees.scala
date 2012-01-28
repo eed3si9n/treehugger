@@ -355,7 +355,7 @@ trait Trees { self: Universe =>
    *
    *  Forward jumps within a block are allowed.
    */
-  case class LabelDef(name: TermName, params: List[Ident], rhs: Tree)
+  case class LabelDef(name: TermName, param: Tree, rhs: Tree)
        extends DefTree with TermTree
 
   /** Import selector
@@ -714,8 +714,8 @@ trait Trees { self: Universe =>
         atOwner(tree.symbol) {
           traverseTrees(mods.annotations); traverseTrees(tparams); traverse(rhs)
         }
-      case LabelDef(name, params, rhs) =>
-        traverseTrees(params); traverse(rhs)   
+      case LabelDef(name, param, rhs) =>
+        traverse(param); traverse(rhs)   
       case Import(expr, selectors) =>
         traverse(expr)
       case Annotated(annot, arg) =>
@@ -847,7 +847,7 @@ trait Trees { self: Universe =>
     def DefDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree): DefDef
     def AnonFunc(tree: Tree, vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) 
     def TypeDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree): TypeDef
-    def LabelDef(tree: Tree, name: Name, params: List[Ident], rhs: Tree): LabelDef
+    def LabelDef(tree: Tree, name: Name, param: Tree, rhs: Tree): LabelDef
     def Import(tree: Tree, expr: Tree, selectors: List[ImportSelector]): Import
     def Template(tree: Tree, parents: List[Tree], self: ValDef, body: List[Tree]): Template
     def Block(tree: Tree, stats: List[Tree], expr: Tree): Block
@@ -901,8 +901,8 @@ trait Trees { self: Universe =>
       new AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree).copyAttrs(tree)
     def TypeDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree) =
       new TypeDef(mods, name.toTypeName, tparams, rhs).copyAttrs(tree)
-    def LabelDef(tree: Tree, name: Name, params: List[Ident], rhs: Tree) =
-      new LabelDef(name.toTermName, params, rhs).copyAttrs(tree)
+    def LabelDef(tree: Tree, name: Name, param: Tree, rhs: Tree) =
+      new LabelDef(name.toTermName, param, rhs).copyAttrs(tree)
     def Import(tree: Tree, expr: Tree, selectors: List[ImportSelector]) =
       new Import(expr, selectors).copyAttrs(tree)
     def Template(tree: Tree, parents: List[Tree], self: ValDef, body: List[Tree]) =
@@ -1019,10 +1019,10 @@ trait Trees { self: Universe =>
       if (mods0 == mods) && (name0 == name) && (tparams0 == tparams) && (rhs0 == rhs) => t
       case _ => treeCopy.TypeDef(tree, mods, name, tparams, rhs)
     }
-    def LabelDef(tree: Tree, name: Name, params: List[Ident], rhs: Tree) = tree match {
-      case t @ LabelDef(name0, params0, rhs0)
-      if (name0 == name) && (params0 == params) && (rhs0 == rhs) => t
-      case _ => treeCopy.LabelDef(tree, name, params, rhs)
+    def LabelDef(tree: Tree, name: Name, param: Tree, rhs: Tree) = tree match {
+      case t @ LabelDef(name0, param0, rhs0)
+      if (name0 == name) && (param0 == param) && (rhs0 == rhs) => t
+      case _ => treeCopy.LabelDef(tree, name, param, rhs)
     }
     def Import(tree: Tree, expr: Tree, selectors: List[ImportSelector]) = tree match {
       case t @ Import(expr0, selectors0)
@@ -1248,8 +1248,8 @@ trait Trees { self: Universe =>
           treeCopy.TypeDef(tree, transformModifiers(mods), name,
                            transformTypeDefs(tparams), transform(rhs))
         }
-      case LabelDef(name, params, rhs) =>
-        treeCopy.LabelDef(tree, name, transformIdents(params), transform(rhs)) //bq: Martin, once, atOwner(...) works, also change `LamdaLifter.proxy'
+      case LabelDef(name, param, rhs) =>
+        treeCopy.LabelDef(tree, name, transform(param), transform(rhs)) //bq: Martin, once, atOwner(...) works, also change `LamdaLifter.proxy'
       case Import(expr, selectors) =>
         treeCopy.Import(tree, transform(expr), selectors)
       case Template(parents, self, body) =>
@@ -1405,7 +1405,7 @@ trait Trees { self: Universe =>
      // mods type name[tparams] = rhs
      // mods type name[tparams] >: lo <: hi,  where lo, hi are in a TypeBoundsTree,
                                               and DEFERRED is set in mods
-  case LabelDef(name, params, rhs) =>
+  case LabelDef(name, param, rhs) =>
      // used for tailcalls and like
      // while/do are desugared to label defs as follows:
      // while (cond) body ==> LabelDef($L, List(), if (cond) { body; L$() } else ())

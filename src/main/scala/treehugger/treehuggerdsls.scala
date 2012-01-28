@@ -172,7 +172,7 @@ trait TreehuggerDSLs { self: Forest =>
       def TYPEAPPLY(name: Name): Super = Super(tree.qual, name.toTypeName)
     }
 
-    class CaseStart(pat: Tree, guard: Tree) {
+    case class CaseStart(pat: Tree, guard: Tree) {
       def IF(g: Tree): CaseStart    = new CaseStart(pat, g)
       def ==>(body: Tree): CaseDef   = CaseDef(pat, guard, body)
     }
@@ -316,19 +316,22 @@ trait TreehuggerDSLs { self: Forest =>
       final def ==>(rhs: Tree) = mkTree(rhs)
     }
 
-    class IfStart(cond: Tree, thenp: Tree) {
-      def THEN(x: Tree)     = new IfStart(cond, x)
+    case class IfStart(cond: Tree, thenp: Tree) {
+      def THEN(x: Tree)     = IfStart(cond, x)
       def ELSE(elsep: Tree) = If(cond, thenp, elsep)
       def ENDIF             = If(cond, thenp, EmptyTree)
     }
-    class TryStart(body: Tree, catches: List[CaseDef], fin: Tree) {
-      def CATCH(xs: CaseDef*) = new TryStart(body, xs.toList, fin)
+    case class TryStart(body: Tree, catches: List[CaseDef], fin: Tree) {
+      def CATCH(xs: CaseDef*) = TryStart(body, xs.toList, fin)
       def FINALLY(x: Tree)    = Try(body, catches, x)
       def ENDTRY              = Try(body, catches, fin)
     }
-    class ForStart(enums: List[Enumerator]) {
+    case class ForStart(enums: List[Enumerator]) {
       def DO(body: Tree)    = ForTree(enums, body)
       def YEILD(body: Tree) = ForYieldTree(enums, body) 
+    }
+    case class WhileStart(cond: Tree) {
+      def DO(body: Tree)    = LabelDef(nme.WHILEkw, cond, body)
     }
 
     def CASE(pat: Tree): CaseStart  = new CaseStart(pat, EmptyTree)
@@ -518,6 +521,9 @@ trait TreehuggerDSLs { self: Forest =>
 
     def IF(tree: Tree)    = new IfStart(tree, EmptyTree)
     def TRY(tree: Tree)   = new TryStart(tree, Nil, EmptyTree)
+    def FOR(xs: Enumerator*) = new ForStart(xs.toList)
+    def WHILE(tree: Tree) = new WhileStart(tree)
+
     def BLOCK(xs: Tree*)  = Block(xs: _*)
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
 
@@ -526,7 +532,6 @@ trait TreehuggerDSLs { self: Forest =>
     def TILDE(tree: Tree)  = Select(tree, Int_tilde)
     
     def SOME(xs: Tree*)   = Apply(SomeModule, TUPLE(xs.toList, true))
-    def FOR(xs: Enumerator*) = new ForStart(xs.toList)
     def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)
     def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
     def IMPORT(expr: Tree, selectors: ImportSelector*)  = Import(expr, selectors.toList)

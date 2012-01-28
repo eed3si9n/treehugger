@@ -117,8 +117,8 @@ trait Trees extends api.Trees { self: Forest =>
   // def TypeDef(sym: Symbol): TypeDef =
   //   TypeDef(sym, TypeBoundsTree(TypeTree(sym.info.bounds.lo), TypeTree(sym.info.bounds.hi)))
 
-  def LabelDef(sym: Symbol, params: List[Symbol], rhs: Tree): LabelDef =
-    LabelDef(sym.name, params map Ident, rhs) setSymbol sym
+  def LabelDef(sym: Symbol, param: Tree, rhs: Tree): LabelDef =
+    LabelDef(sym.name, param, rhs) setSymbol sym
   
   /** casedef shorthand */
   def CaseDef(pat: Tree, body: Tree): CaseDef = CaseDef(pat, EmptyTree, body)
