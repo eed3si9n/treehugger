@@ -151,6 +151,8 @@ trait TreehuggerDSLs { self: Forest =>
       def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
       def withComment(comment: String*): Commented = Commented(comment.toList, target)
       def withType(tp: Type) = Typed(target, TypeTree(tp))
+
+      def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
     }
 
     case class InfixStart(target: Tree, name: Name) {
@@ -333,7 +335,6 @@ trait TreehuggerDSLs { self: Forest =>
     case class WhileStart(cond: Tree) {
       def DO(body: Tree)    = LabelDef(nme.WHILEkw, cond, body)
     }
-
     def CASE(pat: Tree): CaseStart  = new CaseStart(pat, EmptyTree)
     def DEFAULT: CaseStart          = new CaseStart(WILD.empty, EmptyTree)
 

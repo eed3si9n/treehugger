@@ -67,7 +67,10 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """`IF (tree1) THEN tree2 ENDIF`."""                                    ! conditional2^
                                                                               p^
   "While loop expressions are written as"                                     ^
-      """`WHILE (tree1) DO(stat, ...)`."""                                    ! while1^
+      """`WHILE (tree1) DO tree2`."""                                         ! while1^
+                                                                              p^
+  "Do while loop expressions are written as"                                  ^
+      """`tree1 DO_WHILE(tree2)`."""                                          ! dowhile1^
                                                                               end
   
   import treehugger._
@@ -185,5 +188,12 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """}"""
     )
   
-    
+  def dowhile1 =
+    BLOCK(
+      sym.println APPLY LIT("Hello")
+    ) DO_WHILE(TRUE) must print_as(
+      """do {""",
+      """  println("Hello")""",
+      """} while (true)"""
+    ) 
 }

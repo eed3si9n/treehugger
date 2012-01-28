@@ -311,14 +311,17 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case LabelDef(name, param, rhs) =>
           name match {
             case x if x == nme.WHILEkw =>
-              print("while")
+              print("while (", param, ") ")
+              printBlock(rhs)
+            case x if x == nme.DOkw =>
+              print("do ")
+              printBlock(rhs)
+              print(" while (", param, ")")
             case _ =>
               print(symName(tree, name))
+              print(" (", param, ") ")
+              printBlock(rhs)
           }
-          
-          print(" (", param, ") ")
-          printBlock(rhs)
-
         case Import(expr, selectors) =>
           // Is this selector remapping a name (i.e, {name1 => name2})
           def isNotRemap(s: ImportSelector) : Boolean = (s.name == nme.WILDCARD || s.name == s.rename)
