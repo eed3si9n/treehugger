@@ -336,7 +336,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
     case class ForStart(enums: List[Enumerator]) {
       def DO(body: Tree)    = ForTree(enums, body)
-      def YEILD(body: Tree) = ForYieldTree(enums, body) 
+      def YIELD(body: Tree) = ForYieldTree(enums, body) 
     }
     case class WhileStart(cond: Tree) {
       def DO(body: Tree)    = LabelDef(nme.WHILEkw, cond, body)
@@ -543,7 +543,8 @@ trait TreehuggerDSLs { self: Forest =>
     def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
     def IMPORT(expr: Tree, selectors: ImportSelector*)  = Import(expr, selectors.toList)
     def SEQARG(tree: Tree) = Typed(tree, Ident(tpnme.WILDCARD_STAR))
-    
+    def RETURN(tree: Tree) = Return(tree)
+
     /** Typed trees from symbols. */
     def THIS(sym: Symbol)             = mkAttributedThis(sym)
     def THIS(name: Name)              = This(name.toTypeName)

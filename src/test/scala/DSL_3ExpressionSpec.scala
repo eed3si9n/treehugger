@@ -77,6 +77,12 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 `VALFROM(sym|"x") := tree`,"""                                                ! for1^
       """`IF(tree)`, and"""                                                   ! for2^
       """`VAL(sym|"x") := rhs`."""                                            ! for3^
+                                                                              end^
+  "For comprehensions are written as"                                         ^
+      """`FOR (enum, ...) YIELD tree`."""                                     ! for4^
+                                                                              p^
+  "Return expressions are written as"                                         ^
+      """`RETURN tree`."""                                                    ! return1^
                                                                               p^
                                                                               end
   
@@ -237,4 +243,12 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """  x = i""",
       """} println("Hello")""" 
     )
+
+  def for4 =
+    FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) YIELD REF("i") must print_as(
+      """for (i <- 0 to 2)""",
+      """  yield i"""
+    )
+
+  def return1 = RETURN(LIT(0)) must print_as("return 0")
 }
