@@ -452,9 +452,9 @@ trait TreehuggerDSLs { self: Forest =>
     /** Top level accessible. */
     def MATCHERROR(arg: Tree) = Throw(New(TypeTree(MatchErrorClass.tpe), List(List(arg))))
     /** !!! should generalize null guard from match error here. */
-    def THROW(sym: Symbol): Throw = Throw(New(TypeTree(sym.toType), List(Nil)))
-    def THROW(sym: Symbol, msg: String): Throw = Throw(New(TypeTree(sym.toType), List(List(LIT(msg)))))
-    def THROW(sym: Symbol, msg: Tree): Throw = Throw(New(TypeTree(sym.toType), List(List(msg.TOSTRING()))))
+    def THROW(typ: Type): Throw = Throw(New(TypeTree(typ), List(Nil)))
+    def THROW(typ: Type, msg: String): Throw = Throw(New(TypeTree(typ), List(List(LIT(msg)))))
+    def THROW(typ: Type, msg: Tree): Throw = Throw(New(TypeTree(typ), List(List(msg.TOSTRING()))))
 
     def NEW(tp: Type, args: Tree*): Tree = NEW(TypeTree(tp), args: _*)
     def NEW(tpt: Tree, args: Tree*): Tree   =

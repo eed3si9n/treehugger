@@ -84,6 +84,11 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   "Return expressions are written as"                                         ^
       """`RETURN tree`."""                                                    ! return1^
                                                                               p^
+  "Throw expressions are written as"                                          ^
+      """`THROW(typ)` where `typ` is an exception class."""                   ! throw1^
+      """An error message can be passed in as
+`THROW(typ, "oh no")` or `THROW(typ, tree)`"""                                ! throw2^
+                                                                              p^
                                                                               end
   
   import treehugger._
@@ -251,4 +256,13 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     )
 
   def return1 = RETURN(LIT(0)) must print_as("return 0")
+
+  def throw1 = THROW(IllegalArgumentExceptionClass) must print_as("throw new IllegalArgumentException()")
+  
+  def throw2 =
+    (THROW(IllegalArgumentExceptionClass, "oh no") must print_as(
+      """throw new IllegalArgumentException("oh no")""")) and
+    (THROW(IllegalArgumentExceptionClass, REF("x")) must print_as(
+      """throw new IllegalArgumentException(x.toString())"""))
+  
 }
