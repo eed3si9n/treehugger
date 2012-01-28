@@ -89,6 +89,11 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """An error message can be passed in as
 `THROW(typ, "oh no")` or `THROW(typ, tree)`"""                                ! throw2^
                                                                               p^
+  "Try expressions are written as"                                            ^
+      """`TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) ENDTRY`, or"""        ! try1^
+      """with a finally clause as
+`TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) FINALLY(tree2)`"""             ! try2^
+                                                                              p^
                                                                               end
   
   import treehugger._
@@ -265,4 +270,27 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     (THROW(IllegalArgumentExceptionClass, REF("x")) must print_as(
       """throw new IllegalArgumentException(x.toString())"""))
   
+  def try1 =
+    (TRY(REF("something") APPLY LIT(0))
+    CATCH(
+      CASE(WILDCARD) ==> (sym.println APPLY LIT("error")))
+    ENDTRY) must print_as(
+      """try {""",
+      """  something(0)""",
+      """} catch {""",
+      """  case _ => println("error")""",
+      """}"""
+    )
+
+  def try2 =
+    (TRY(REF("something") APPLY LIT(0))
+    CATCH(
+      CASE(WILDCARD) ==> (sym.println APPLY LIT("error")))
+    FINALLY(sym.println APPLY LIT("finally"))) must print_as(
+      """try {""",
+      """  something(0)""",
+      """} catch {""",
+      """  case _ => println("error")""",
+      """} finally println("finally")"""
+    )
 }

@@ -527,7 +527,11 @@ trait TreehuggerDSLs { self: Forest =>
       else guards reduceLeft mkOr
 
     def IF(tree: Tree)    = new IfStart(tree, EmptyTree)
-    def TRY(tree: Tree)   = new TryStart(tree, Nil, EmptyTree)
+    def TRY(xs: Tree*)    =
+      new TryStart(xs.toList match {
+        case List(b: Block) => b
+        case _ => Block(xs.toList: _*)
+      }, Nil, EmptyTree)
     def FOR(xs: Enumerator*) = new ForStart(xs.toList)
     def WHILE(tree: Tree) = new WhileStart(tree)
 
