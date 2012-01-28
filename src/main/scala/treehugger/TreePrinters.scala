@@ -543,15 +543,15 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             printColumn(enumerators, "{", "", "} ")
             print("yield "); print(body)
           }          
-        case ValFrom(_, name, tp, rhs) =>
+        case ForValFrom(_, name, tp, rhs) =>
           print(symName(tree, name))
           printOpt(": ", tp)
           print(" <- ", rhs)  
-        case ValEq(_, name, tp, rhs) =>
+        case ForValDef(_, name, tp, rhs) =>
           print(symName(tree, name))
           printOpt(": ", tp)
           print(" = ", rhs)  
-        case Filter(_, test: Tree) =>
+        case ForFilter(_, test: Tree) =>
           print("if ", test)
         case Infix(Literal(x), name, args) =>
           print(x.escapedStringValue, " ", symName(tree, name), " ")

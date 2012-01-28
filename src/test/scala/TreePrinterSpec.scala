@@ -41,7 +41,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       assignGreetStrings(0, "Hello") ::
       assignGreetStrings(1, ", ") ::
       assignGreetStrings(2, "world!\n") ::
-      (FOR(VALFROM("i") := LIT(0) INFIX(sym.to) APPLY LIT(2)) DO
+      (FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO
         (sym.print APPLY (greetStrings APPLY REF("i"))) ) ::
       Nil
     

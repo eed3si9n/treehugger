@@ -89,7 +89,11 @@ trait TreehuggerDSLs { self: Forest =>
       def INT_>=  (other: Tree)     = infix(target, getMember(IntClass, nme.GE), other)
       def INT_==  (other: Tree)     = infix(target, getMember(IntClass, nme.EQ), other)
       def INT_!=  (other: Tree)     = infix(target, getMember(IntClass, nme.NE), other)
-
+      def INT_<=  (other: Tree)     = infix(target, getMember(IntClass, nme.LE), other)
+      def INT_<   (other: Tree)    = infix(target, getMember(IntClass, nme.LT), other)
+      def INT_>   (other: Tree)    = infix(target, getMember(IntClass, nme.GT), other)
+      def INT_TO  (other: Tree)    = infix(target, getMember(IntClass, "to"), other)
+      
       def BOOL_&& (other: Tree)     = infix(target, Boolean_and, other)
       def BOOL_|| (other: Tree)     = infix(target, Boolean_or, other)
 
@@ -322,6 +326,8 @@ trait TreehuggerDSLs { self: Forest =>
       def THEN(x: Tree)     = IfStart(cond, x)
       def ELSE(elsep: Tree) = If(cond, thenp, elsep)
       def ENDIF             = If(cond, thenp, EmptyTree)
+
+      def enumerator = ForFilter(cond)
     }
     case class TryStart(body: Tree, catches: List[CaseDef], fin: Tree) {
       def CATCH(xs: CaseDef*) = TryStart(body, xs.toList, fin)
@@ -351,8 +357,8 @@ trait TreehuggerDSLs { self: Forest =>
       // def ARGNAMES = ARGS map Ident
     }
     
-    class ValFromStart(val name: Name) extends TreeVODDStart[ValFrom] {
-      def mkTree(rhs: Tree): ValFrom = ValFrom(name, tpt, rhs)
+    class ForValFromStart(val name: Name) extends TreeVODDStart[ForValFrom] {
+      def mkTree(rhs: Tree): ForValFrom = ForValFrom(name, tpt, rhs)
     }
     
     class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] with TparamsStart {
@@ -480,8 +486,8 @@ trait TreehuggerDSLs { self: Forest =>
     def LAZYVAL(sym: Symbol, tp: Type): ValTreeStart = VAL(sym, tp) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol): ValSymStart           = VAL(sym) withFlags Flags.LAZY
 
-    def VALFROM(name: Name, tp: Type): ValFromStart = VALFROM(name) withType tp
-    def VALFROM(name: Name): ValFromStart           = new ValFromStart(name)
+    def VALFROM(name: Name, tp: Type): ForValFromStart = VALFROM(name) withType tp
+    def VALFROM(name: Name): ForValFromStart           = new ForValFromStart(name)
 
     def CLASSDEF(name: Name): ClassDefStart         = new ClassDefStart(name.toTypeName)
     def CLASSDEF(sym: Symbol): ClassDefStart        = new ClassDefStart(sym.name.toTypeName)
@@ -594,5 +600,8 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
     implicit def mkTypeFromSymbol(sym: Symbol): Type = sym.toType
     implicit def mkImportSelectorFromString(name: String): ImportSelector = ImportSelector(name, -1, name, -1)
+    implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator = ifs.enumerator
+    implicit def mkEnumeratorFromValDef(tree: ValDef): Enumerator =
+      ForValDef(tree.name, tree.tpt, tree.rhs)
   }
 }

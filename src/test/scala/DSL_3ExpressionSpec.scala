@@ -71,6 +71,13 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
                                                                               p^
   "Do while loop expressions are written as"                                  ^
       """`tree1 DO_WHILE(tree2)`."""                                          ! dowhile1^
+                                                                              p^
+  "For loop expressions are written as"                                       ^
+      """`FOR (enum, ...) DO tree` where `enum` is an enumerator such as
+`VALFROM(sym|"x") := tree`,"""                                                ! for1^
+      """`IF(tree)`, and"""                                                   ! for2^
+      """`VAL(sym|"x") := rhs`."""                                            ! for3^
+                                                                              p^
                                                                               end
   
   import treehugger._
@@ -191,9 +198,43 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   def dowhile1 =
     BLOCK(
       sym.println APPLY LIT("Hello")
-    ) DO_WHILE(TRUE) must print_as(
+    ) DO_WHILE(REF("x") INT_< LIT(10)) must print_as(
       """do {""",
       """  println("Hello")""",
-      """} while (true)"""
-    ) 
+      """} while (x < 10)"""
+    )
+    
+  def for1 =
+    FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO(
+      sym.println APPLY LIT("Hello")
+    ) must print_as(
+      """for (i <- 0 to 2)""",
+      """  println("Hello")""" 
+    )
+
+  def for2 =
+    FOR(
+      VALFROM("i") := LIT(0) INT_TO LIT(2),
+      IF(REF("x") INT_< LIT(10))
+    ) DO(
+      sym.println APPLY LIT("Hello")
+    ) must print_as(
+      """for {""",
+      """  i <- 0 to 2""",
+      """  if x < 10""",
+      """} println("Hello")""" 
+    )
+
+  def for3 =
+    FOR(
+      VALFROM("i") := LIT(0) INT_TO LIT(2),
+      VAL("x") := REF("i")
+    ) DO(
+      sym.println APPLY LIT("Hello")
+    ) must print_as(
+      """for {""",
+      """  i <- 0 to 2""",
+      """  x = i""",
+      """} println("Hello")""" 
+    )
 }

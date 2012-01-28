@@ -8,7 +8,6 @@ trait DSLSpec extends Specification {
   object sym {
     val println = ScalaPackageClass.newMethod("println")
     val print = ScalaPackageClass.newMethod("print")
-    val to = ScalaPackageClass.newMethod("to")
     
     val foo = RootClass.newValue("foo")
     val Addressable = RootClass.newClass("Addressable".toTypeName)
