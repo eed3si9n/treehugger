@@ -93,6 +93,11 @@ trait TreehuggerDSLs { self: Forest =>
       def INT_<   (other: Tree)    = infix(target, getMember(IntClass, nme.LT), other)
       def INT_>   (other: Tree)    = infix(target, getMember(IntClass, nme.GT), other)
       def INT_TO  (other: Tree)    = infix(target, getMember(IntClass, "to"), other)
+      def INT_+   (other: Tree)    = infix(target, getMember(IntClass, nme.ADD), other)
+      def INT_-   (other: Tree)    = infix(target, getMember(IntClass, nme.MINUS), other)
+      def INT_*   (other: Tree)    = infix(target, getMember(IntClass, nme.MUL), other)
+      def INT_/   (other: Tree)    = infix(target, getMember(IntClass, nme.DIV), other)
+      
       
       def BOOL_&& (other: Tree)     = infix(target, Boolean_and, other)
       def BOOL_|| (other: Tree)     = infix(target, Boolean_or, other)

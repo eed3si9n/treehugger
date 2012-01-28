@@ -94,6 +94,11 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """with a finally clause as
 `TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) FINALLY(tree2)`"""             ! try2^
                                                                               p^
+  "Anonymous functions are written as"                                        ^
+      """`LAMBDA(VAL(sym|"x"), ...) ==> rhs`, or"""                           ! lambda1^
+      """by using placeholder syntax
+`WILDCARD op tree`."""                                                        ! lambda2^
+                                                                              p^
                                                                               end
   
   import treehugger._
@@ -293,4 +298,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """  case _ => println("error")""",
       """} finally println("finally")"""
     )
+  
+  def lambda1 =
+    (LAMBDA(VAL("x")) ==> REF("x") INT_+ LIT(1)) must print_as("(x) => x + 1")
+
+  def lambda2 = (WILDCARD INT_+ LIT(1)) must print_as("_ + 1")
 }
