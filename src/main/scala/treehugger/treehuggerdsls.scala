@@ -162,6 +162,8 @@ trait TreehuggerDSLs { self: Forest =>
       def withType(tp: Type) = Typed(target, TypeTree(tp))
 
       def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
+      def withBinder(sym: Symbol) = Bind(sym, target)
+      def withBinder(name: Name)  = Bind(name, target)
     }
 
     case class InfixStart(target: Tree, name: Name) {
@@ -350,7 +352,7 @@ trait TreehuggerDSLs { self: Forest =>
     def DEFAULT: CaseStart          = new CaseStart(WILD.empty, EmptyTree)
 
     class SymbolMethods(target: Symbol) {
-      def BIND(body: Tree) = Bind(target, body)
+      // def BIND(body: Tree) = Bind(target, body)
       def IS_NULL()  = REF(target) OBJ_EQ NULL
       def NOT_NULL() = REF(target) OBJ_NE NULL
 
@@ -450,7 +452,7 @@ trait TreehuggerDSLs { self: Forest =>
       def UPPER(hi: Type) = withBounds(UpperTypeBoundsStart(hi))
       def VIEWBOUNDS(target: Type) = withBounds(ViewBoundsStart(target))
       def CONTEXTBOUNDS(typcon: Type) = withBounds(ContextBoundsStart(typcon))
-      
+
       def bounds: Tree =
         if (_bounds.isEmpty) EmptyTree
         else TypeTree(TypeBounds(
@@ -598,6 +600,8 @@ trait TreehuggerDSLs { self: Forest =>
     
     def ID(sym: Symbol)               = mkAttributedIdent(sym)
     def ID(name: Name)                = Ident(name)
+    def BACKQUOTED(sym: Symbol)       = BackQuotedIdent(sym)
+    def BACKQUOTED(name: Name)        = BackQuotedIdent(name)
     def REF(sym: Symbol)              = mkAttributedIdent(sym)
     def REF(pre: Type, sym: Symbol)   = mkAttributedRef(pre, sym)
     def REF(name: Name)               = Ident(name)

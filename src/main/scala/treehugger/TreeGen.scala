@@ -264,6 +264,11 @@ trait TreeGen { self: Forest =>
       TupleClass(elems.length),
       elems: _*)
 
+  def isTupleTree(tree: Tree): Boolean = tree match {
+    case Apply(Ident(_), _) => (tree.symbol != NoSymbol) && (TupleClass contains tree.symbol)
+    case _ => false
+  }
+
   // tree1 AND tree2
   def mkAnd(tree1: Tree, tree2: Tree): Tree =
     Apply(Select(tree1, Boolean_and), List(tree2))

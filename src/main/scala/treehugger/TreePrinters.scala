@@ -444,9 +444,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
         case TypeApply(fun, targs) =>
           print(fun); printRow(targs, "[", ", ", "]")
-
+        
         case Apply(fun, vargs) =>
-          print(fun); printRow(vargs, "(", ", ", ")")
+          if (!isTupleTree(tree)) print(fun)
+          
+          printRow(vargs, "(", ", ", ")")
 
         case ApplyDynamic(qual, vargs) =>
           print("<apply-dynamic>(", qual, "#", tree.symbol.nameString)
@@ -480,10 +482,14 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Select(qualifier, name) =>
           print(qualifier, ".", symName(tree, name))
           // print(backquotedPath(qualifier), ".", symName(tree, name))
-
+                
         case Ident(name) =>
-          print(symName(tree, name))
-
+          tree match {
+            case BackQuotedIdent(name) =>
+              print("`", symName(tree, name), "`")
+            case _ =>
+              print(symName(tree, name))
+          }
         case Literal(x) =>
           print(x.escapedStringValue)
 

@@ -580,7 +580,15 @@ trait Trees { self: Universe =>
   def Ident(sym: Symbol): Ident =
     Ident(sym.name) setSymbol sym
 
-  class BackQuotedIdent(name: Name) extends Ident(name)
+  class BackQuotedIdent(override val name: Name) extends Ident(name)
+
+  object BackQuotedIdent {
+    def apply(name: Name) = new BackQuotedIdent(name)
+    def unapply(id: BackQuotedIdent) = Some(id.name)
+  }
+
+  def BackQuotedIdent(sym: Symbol): BackQuotedIdent =
+    BackQuotedIdent(sym.name) setSymbol sym
 
   /** Literal */
   case class Literal(value: Constant)

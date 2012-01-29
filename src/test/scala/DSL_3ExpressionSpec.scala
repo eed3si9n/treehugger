@@ -149,7 +149,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 
   def typeapply1 = (REF("put") TYPEAPPLY sym.T) must print_as("put[T]")
   
-  def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("Tuple2(0, 1)")
+  def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("(0, 1)")
 
   def new1 = NEW(sym.T) must print_as("new T")
 
