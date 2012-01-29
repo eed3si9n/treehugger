@@ -159,4 +159,6 @@ trait Trees extends api.Trees { self: Forest =>
     case Seq(_, rest @ _*) => Block(stats.init.toList, stats.last)
     case _ => Block(stats.toList, Literal(Constant(())))
   }
+
+  val NoPackage = Ident(NoSymbol)
 }

@@ -162,6 +162,8 @@ trait TreehuggerDSLs { self: Forest =>
       
       def inPackage(name: Name): PackageDef = PACKAGEHEADER(name) := target
       def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
+      def withoutPackage: PackageDef = PACKAGEHEADER(NoSymbol) := target
+      
       def withComment(comment: String*): Commented = Commented(comment.toList, target)
       def withType(tp: Type) = Typed(target, TypeTree(tp))
 
@@ -423,18 +425,31 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(body: List[Tree]): ModuleDef = ModuleDef(mods, name, Template(parents, selfDef, body))
     }
     
-    class PackageDefStart(val name: TermName, val header: Boolean) extends TreeDefStart[PackageDef] {
+    trait PackageCreator extends TreeDefStart[PackageDef] {
+      def header: Boolean
+
       override def defaultMods =
         if (header) NoMods | HEADER
         else NoMods
       
+      def mkTree(body: List[Tree]): PackageDef
+
       def mkTree(rhs: Tree): PackageDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
         case EmptyTree => mkTree(Nil)
         case _ => mkTree(rhs :: Nil)
       }
-      
+    }
+
+    class PackageDefStart(val name: TermName, val header: Boolean) extends PackageCreator {  
       def mkTree(body: List[Tree]): PackageDef = PackageDef(mods, Ident(name), body)
+    }
+
+    class PackageSymStart(val sym: Symbol, val header: Boolean) extends PackageCreator {
+      def name = sym.name
+      def mkTree(body: List[Tree]): PackageDef =
+        if (sym == NoSymbol) PackageDef(mods, NoPackage, body)
+        else PackageDef(mods, Ident(sym), body) setSymbol sym
     }
 
     sealed trait TypeBoundsStart
@@ -552,9 +567,9 @@ trait TreehuggerDSLs { self: Forest =>
     def CASEMODULEDEF(sym: Symbol): ModuleDefStart  = MODULEDEF(sym) withFlags Flags.CASE
     
     def PACKAGEDEF(name: Name): PackageDefStart     = new PackageDefStart(name, false)
-    def PACKAGEDEF(sym: Symbol): PackageDefStart    = new PackageDefStart(sym.name, false)
+    def PACKAGEDEF(sym: Symbol): PackageSymStart    = new PackageSymStart(sym, false)
     def PACKAGEHEADER(name: Name): PackageDefStart  = new PackageDefStart(name, true)
-    def PACKAGEHEADER(sym: Symbol): PackageDefStart = new PackageDefStart(sym.name, true)
+    def PACKAGEHEADER(sym: Symbol): PackageSymStart = new PackageSymStart(sym, true)
     
     def TYPE(name: Name): TypeDefTreeStart          = new TypeDefTreeStart(name)
     def TYPE(sym: Symbol): TypeDefSymStart          = new TypeDefSymStart(sym)

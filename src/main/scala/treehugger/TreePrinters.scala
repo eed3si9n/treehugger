@@ -224,10 +224,14 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
         case PackageDef(mods, packaged, stats) =>
           printAnnotations(tree)
-          print("package ", packaged)
+          
+          if (packaged != NoPackage)
+            print("package ", packaged)
+
           if (mods.isHeader) {
-            println()
-            print(stats: _*)
+            if (packaged != NoPackage) println()
+            
+            printSeq(stats){print(_)}{println(); println()}
           }
           else printColumn(stats, " {", "", "}")
 
@@ -447,7 +451,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         
         case Apply(fun, vargs) =>
           if (!isTupleTree(tree)) print(fun)
-          
+
           printRow(vargs, "(", ", ", ")")
 
         case ApplyDynamic(qual, vargs) =>
