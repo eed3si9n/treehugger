@@ -27,6 +27,12 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
   "Tuple patterns are written as"                                             ^
       """`TUPLE(pattern1, ...)`."""                                           ! pattern10^
                                                                               p^
+  "Pattern sequences are written as"                                          ^
+      """`sym UNAPPLY(SEQ_WILDCARD withBinder(sym2|"xs"))`."""                ! pattern11^
+                                                                              p^
+  "Infix operation patterns are written as"                                   ^
+      """`pattern1 INFIX("op"|sym) UNAPPLY pattern2`."""                      ! pattern12^
+                                                                              p^
                                                                               p^
                                                                               end
   
@@ -53,5 +59,8 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
   def pattern9 = REF("C") UNAPPLY(LIT(0)) must print_as("C(0)")
 
   def pattern10 = TUPLE(LIT(0), LIT(1)) must print_as("(0, 1)")
-   
+  
+  def pattern11 = sym.C UNAPPLY(SEQ_WILDCARD withBinder("xs")) must print_as("C((xs @ _*))")
+
+  def pattern12 = LIT(0) INFIX(ConsClass) UNAPPLY (NIL) must print_as("0 :: Nil")
 }

@@ -41,6 +41,8 @@ trait TreehuggerDSLs { self: Forest =>
     def NULL          = LIT(null)
     def UNIT          = LIT(())    
     val WILDCARD      = Ident(nme.WILDCARD)
+    val SEQ_WILDCARD  = Ident(tpnme.WILDCARD_STAR)
+    val NIL           = REF(NilModule)
 
     object WILD {
       def empty               = Ident(nme.WILDCARD)
@@ -586,7 +588,7 @@ trait TreehuggerDSLs { self: Forest =>
     def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)
     def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
     def IMPORT(expr: Tree, selectors: ImportSelector*)  = Import(expr, selectors.toList)
-    def SEQARG(tree: Tree) = Typed(tree, Ident(tpnme.WILDCARD_STAR))
+    def SEQARG(tree: Tree) = Typed(tree, SEQ_WILDCARD)
     def RETURN(tree: Tree) = Return(tree)
 
     /** Typed trees from symbols. */

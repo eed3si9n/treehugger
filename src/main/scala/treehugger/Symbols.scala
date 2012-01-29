@@ -325,9 +325,13 @@ trait Symbols extends api.Symbols { self: Forest =>
     /** The simple name of this Symbol */
     final def simpleName: Name = name
     
+    /** The name of the symbol before decoding, e.g. `\$eq\$eq` instead of `==`.
+     */
+    def encodedName: String = name.toString
+
     /** The decoded name of the symbol, e.g. `==` instead of `\$eq\$eq`.
      */
-    def decodedName: String = name.name
+    def decodedName: String = stripNameString(NameTransformer.decode(encodedName))
     
     /** String representation of symbol's simple name.
      *  If !settings.debug translates expansions of operators back to operator symbol.
