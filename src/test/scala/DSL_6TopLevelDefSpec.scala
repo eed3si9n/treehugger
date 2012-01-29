@@ -8,6 +8,9 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
       """`BLOCK(stat, ...) inPackage(sym|"p")`, or"""                         ! unit2^
       """`BLOCK(stat, ...) withoutPackage`."""                                ! unit3^
                                                                               p^            
+  "Packaging are written as"                                                  ^
+      """`PACKAGE(sym|"p") := BLOCK(stat, ...)`."""                           ! package1^
+                                                                              p^
                                                                               p^
                                                                               end
   
@@ -20,6 +23,7 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
       MODULEDEF("M")
     )) must print_as(
       "package p",
+      "",
       "object M")
 
   def unit2 =
@@ -27,6 +31,7 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
       MODULEDEF("M")
     ) inPackage("p")) must print_as(
       "package p",
+      "",
       "object M")
 
   def unit3 =
@@ -37,4 +42,12 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
       "object M1",
       "",
       "object M2")
+
+  def package1 =
+    (PACKAGE("p") := BLOCK(
+      MODULEDEF("M")
+    )) must print_as(
+      "package p {",
+      "  object M",
+      "}")    
 }

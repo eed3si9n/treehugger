@@ -229,8 +229,10 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             print("package ", packaged)
 
           if (mods.isHeader) {
-            if (packaged != NoPackage) println()
-            
+            if (packaged != NoPackage) {
+              println(); println()
+            }
+
             printSeq(stats){print(_)}{println(); println()}
           }
           else printColumn(stats, " {", "", "}")
