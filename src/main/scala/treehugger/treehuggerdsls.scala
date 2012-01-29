@@ -104,6 +104,8 @@ trait TreehuggerDSLs { self: Forest =>
       def BOOL_&& (other: Tree)     = infix(target, Boolean_and, other)
       def BOOL_|| (other: Tree)     = infix(target, Boolean_or, other)
 
+      def OR_PATTERN(other: Tree)   = INFIXUNAPPLY("|", other)
+
       /** Apply, Select, Match **/
       def APPLY(params: Tree*)      = Apply(target, params.toList)
       def APPLY(params: List[Tree]) = Apply(target, params)
@@ -188,7 +190,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
 
     case class CaseStart(pat: Tree, guard: Tree) {
-      def IF(g: Tree): CaseStart    = new CaseStart(pat, g)
+      // def IF(g: Tree): CaseStart    = new CaseStart(pat, g)
       def ==>(body: Tree): CaseDef   = CaseDef(pat, guard, body)
     }
     
@@ -351,6 +353,7 @@ trait TreehuggerDSLs { self: Forest =>
       def DO(body: Tree)    = LabelDef(nme.WHILEkw, cond, body)
     }
     def CASE(pat: Tree): CaseStart  = new CaseStart(pat, EmptyTree)
+    def CASE(pat: Tree, ifs: IfStart): CaseStart = CaseStart(pat, ifs.cond)
     def DEFAULT: CaseStart          = new CaseStart(WILD.empty, EmptyTree)
 
     class SymbolMethods(target: Symbol) {
