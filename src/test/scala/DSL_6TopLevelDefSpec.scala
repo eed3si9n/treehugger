@@ -11,7 +11,6 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
   "Packaging are written as"                                                  ^
       """`PACKAGE(sym|"p") := BLOCK(stat, ...)`."""                           ! package1^
                                                                               p^
-                                                                              p^
                                                                               end
   
   import treehugger._

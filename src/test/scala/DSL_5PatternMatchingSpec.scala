@@ -44,6 +44,8 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
   "Pattern matching anonymous functions are written as"                       ^
       """`BLOCK(CASE(pattern1) ==> tree1, ...)`."""                           ! pattern16^
                                                                               p^
+  "Pattern value definitions are written as"                                  ^
+      """`VAL(pattern) := rhs`."""                                            ! patternvalue1^
                                                                               end
   
   import treehugger._
@@ -107,4 +109,6 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
       """  case (a, (b, c)) => a + b * c""",
       """}"""
     )
+  
+  def patternvalue1 = (VAL(SOME(ID("x"))) := SOME(LIT(1))) must print_as("val Some(x) = Some(1)")
 }

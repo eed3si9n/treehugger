@@ -17,10 +17,10 @@ and `typ` is a type of the value. This also be written as `VAL(sym, typ)` where 
 By implicit conversion `empty` call is automatically injected .
 A value can also be declared without using a symbol like `VAL("bar", typ)`.""" ! value1^
                                                                               end^
-  "Value definitions are written as"                                          ^
+  "Constant value definitions are written as"                                 ^
     """`VAL(sym|"bar", [typ]) := rhs` where `rhs` is a tree such as a literal.
 Notation `sym|"bar"` denotes that `VAL` takes either a symbol or a String as the first argument.
-Also, `[typ]` denotes that the type is optional"""                            ! value2^
+Also, `[typ]` denotes that the type is optional."""                           ! value2^
                                                                               end^
   "Lazy value definitions are written as"                                     ^
     """`LAZYVAL(sym|"bar", [typ]) := rhs`."""                                 ! lazyvalue1^

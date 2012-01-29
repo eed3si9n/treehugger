@@ -96,14 +96,20 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
     def printParam(tree: Tree, isclass: Boolean = false) {
       tree match {
-        case ValDef(mods, name, tp, rhs) =>
+        case ValDef(mods, lhs, rhs) =>
           printPosition(tree)
           if (isclass && !mods.hasFlag(Flags.PARAM)) {
             if (mods.hasFlag(Flags.MUTABLE)) print("var ")
             else print("val ")
           } // if
           printAnnotations(tree)
-          print(symName(tree, name)); printOpt(": ", tp); printOpt(" = ", rhs)
+
+          // print(symName(tree, name)); printOpt(": ", tp);
+          lhs match {
+            case Typed(expr, tpt) => print(expr, ": ", tpt)
+            case _ => print(lhs)
+          }
+          printOpt(" = ", rhs)
         case TypeDef(mods, name, tparams, rhs) =>
           printPosition(tree)
           print(symName(tree, name))
@@ -245,11 +251,16 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           else print(" extends ")
           print(impl)
 
-        case ValDef(mods, name, tp, rhs) =>
+        case ValDef(mods, lhs, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
-          print(if (mods.isMutable) "var " else "val ", symName(tree, name))
-          printOpt(": ", tp)
+          print(if (mods.isMutable) "var " else "val ")
+          
+          // , symName(tree, name)
+          lhs match {
+            case Typed(expr, tpt) => print(expr, ": ", tpt)
+            case _ => print(lhs)
+          }
           if (!mods.isDeferred && !rhs.isEmpty)
             print(" = ", rhs)
 

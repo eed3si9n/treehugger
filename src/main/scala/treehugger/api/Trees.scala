@@ -285,7 +285,7 @@ trait Trees { self: Universe =>
       case DefDef(_, _, _, _, _, _)   => "def"
       case ModuleDef(_, _, _)         => "object"
       case PackageDef(_, _, _)        => "package"
-      case ValDef(mods, _, _, _)      => if (mods hasModifier Modifier.mutable) "var" else "val"
+      case ValDef(mods, _, _)         => if (mods hasModifier Modifier.mutable) "var" else "val"
       case _ => ""
     }
     // final def hasFlag(mask: Long): Boolean = mods hasFlag mask
@@ -323,10 +323,33 @@ trait Trees { self: Universe =>
     def rhs: Tree
   }
 
-  /** A value definition (this includes vars as well, which differ from
+  /** A constant value definition (this includes vars as well, which differ from
    *  vals only in having the MUTABLE flag set in their Modifiers.)
    */
-  case class ValDef(mods: Modifiers, name: TermName, tpt: Tree, rhs: Tree) extends ValOrDefDef
+  case class ValDef(mods: Modifiers, lhs: Tree, rhs: Tree) extends ValOrDefDef {
+    def tpt: Tree =
+      lhs match {
+        case Typed(expr0, tpt0) => tpt0
+        case _ => TypeTree()
+      }
+
+    def name: Name =
+      lhs match {
+        case Ident(name0) => name0
+        case Typed(Ident(name0), tpt0) => name0
+        case _ => emptyTermName
+      }
+    
+    val emptyTermName = newTermName("")
+  }
+
+  def ValDef(mods: Modifiers, name: Name, tpt: Tree, rhs: Tree): ValDef =
+    tpt match {
+      case EmptyTree => ValDef(mods, Ident(name), rhs)
+      case tt: TypeTree if tt.isEmpty => ValDef(mods, Ident(name), rhs)
+      case _ =>
+        ValDef(mods, Typed(Ident(name), tpt), rhs) setType tpt.tpe
+    }
 
   /** A method or macro definition.
    *  @param name   The name of the method or macro. Can be a type name in case this is a type macro
@@ -708,9 +731,9 @@ trait Trees { self: Universe =>
         atOwner(tree.symbol.moduleClass) {
           traverseTrees(mods.annotations); traverse(impl)
         }
-      case ValDef(mods, name, tpt, rhs) =>
+      case ValDef(mods, lhs, rhs) =>
         atOwner(tree.symbol) {
-          traverseTrees(mods.annotations); traverse(tpt); traverse(rhs)
+          traverseTrees(mods.annotations); traverse(lhs); traverse(rhs)
         }
       case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
         atOwner(tree.symbol) {
@@ -851,7 +874,7 @@ trait Trees { self: Universe =>
     def ClassDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template): ClassDef
     def PackageDef(tree: Tree, mods: Modifiers, pid: RefTree, stats: List[Tree]): PackageDef
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template): ModuleDef
-    def ValDef(tree: Tree, mods: Modifiers, name: Name, tpt: Tree, rhs: Tree): ValDef
+    def ValDef(tree: Tree, mods: Modifiers, lhs: Tree, rhs: Tree): ValDef
     def DefDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree): DefDef
     def AnonFunc(tree: Tree, vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) 
     def TypeDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree): TypeDef
@@ -901,8 +924,8 @@ trait Trees { self: Universe =>
       new PackageDef(mods, pid, stats).copyAttrs(tree)
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template) =
       new ModuleDef(mods, name.toTermName, impl).copyAttrs(tree)
-    def ValDef(tree: Tree, mods: Modifiers, name: Name, tpt: Tree, rhs: Tree) =
-      new ValDef(mods, name.toTermName, tpt, rhs).copyAttrs(tree)
+    def ValDef(tree: Tree, mods: Modifiers, lhs: Tree, rhs: Tree) =
+      new ValDef(mods, lhs, rhs).copyAttrs(tree)
     def DefDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) =
       new DefDef(mods, name.toTermName, tparams, vparamss, tpt, rhs).copyAttrs(tree)
     def AnonFunc(tree: Tree, vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) =
@@ -1006,10 +1029,10 @@ trait Trees { self: Universe =>
       if (mods0 == mods) && (name0 == name) && (impl0 == impl) => t
       case _ => treeCopy.ModuleDef(tree, mods, name, impl)
     }
-    def ValDef(tree: Tree, mods: Modifiers, name: Name, tpt: Tree, rhs: Tree) = tree match {
-      case t @ ValDef(mods0, name0, tpt0, rhs0)
-      if (mods0 == mods) && (name0 == name) && (tpt0 == tpt) && (rhs0 == rhs) => t
-      case _ => treeCopy.ValDef(tree, mods, name, tpt, rhs)
+    def ValDef(tree: Tree, mods: Modifiers, lhs: Tree, rhs: Tree) = tree match {
+      case t @ ValDef(mods0, lhs0, rhs0)
+      if (mods0 == mods) && (lhs0 == lhs) && (rhs0 == rhs) => t
+      case _ => treeCopy.ValDef(tree, mods, lhs, rhs)
     }
     def DefDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) = tree match {
       case t @ DefDef(mods0, name0, tparams0, vparamss0, tpt0, rhs0)

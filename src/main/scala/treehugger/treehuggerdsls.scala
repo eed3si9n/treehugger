@@ -322,9 +322,14 @@ trait TreehuggerDSLs { self: Forest =>
       def defaultTpt  = TypeTree()
     }
 
-    class ValTreeStart(val name: Name) extends TreeVODDStart[ValDef] with ValCreator {
+    class ValNameStart(val name: Name) extends TreeVODDStart[ValDef] with ValCreator {
     }
-        
+    class ValTreeStart(val tree: Tree) extends TreeVODDStart[ValDef] with ValCreator {
+      val name = newTermName("")
+      
+      override def mkTree(rhs: Tree): ValDef = ValDef(mods, tree, rhs)
+    }
+    
     class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator with TparamsStart with VparamssStart
     
     class AnonFuncStart extends TreeDefStart[AnonFunc] with TptStart with VparamssStart {
@@ -526,24 +531,25 @@ trait TreehuggerDSLs { self: Forest =>
     def DEF(name: Name): DefTreeStart               = new DefTreeStart(name)
     def DEF(sym: Symbol): DefSymStart               = new DefSymStart(sym)
 
-    def VAL(name: Name, tp: Type): ValTreeStart     = VAL(name) withType tp
-    def VAL(name: Name): ValTreeStart               = new ValTreeStart(name)
-    def VAL(sym: Symbol, tp: Type): ValTreeStart    = VAL(sym.name) withType tp
+    def VAL(name: Name, tp: Type): ValNameStart     = VAL(name) withType tp
+    def VAL(name: Name): ValNameStart               = new ValNameStart(name)
+    def VAL(sym: Symbol, tp: Type): ValNameStart    = VAL(sym.name) withType tp
     def VAL(sym: Symbol): ValSymStart               = new ValSymStart(sym)
+    def VAL(tree: Tree): ValTreeStart               = new ValTreeStart(tree)
 
-    def VAR(name: Name, tp: Type): ValTreeStart     = VAL(name, tp) withFlags Flags.MUTABLE
-    def VAR(name: Name): ValTreeStart               = VAL(name) withFlags Flags.MUTABLE
-    def VAR(sym: Symbol, tp: Type): ValTreeStart    = VAL(sym, tp) withFlags Flags.MUTABLE
+    def VAR(name: Name, tp: Type): ValNameStart     = VAL(name, tp) withFlags Flags.MUTABLE
+    def VAR(name: Name): ValNameStart               = VAL(name) withFlags Flags.MUTABLE
+    def VAR(sym: Symbol, tp: Type): ValNameStart    = VAL(sym, tp) withFlags Flags.MUTABLE
     def VAR(sym: Symbol): ValSymStart               = VAL(sym) withFlags Flags.MUTABLE
     
-    def PARAM(name: Name, tp: Type): ValTreeStart   = VAL(name, tp) withFlags Flags.PARAM
-    def PARAM(name: Name): ValTreeStart             = VAL(name) withFlags Flags.PARAM
-    def PARAM(sym: Symbol, tp: Type): ValTreeStart  = VAL(sym, tp) withFlags Flags.PARAM
+    def PARAM(name: Name, tp: Type): ValNameStart   = VAL(name, tp) withFlags Flags.PARAM
+    def PARAM(name: Name): ValNameStart             = VAL(name) withFlags Flags.PARAM
+    def PARAM(sym: Symbol, tp: Type): ValNameStart  = VAL(sym, tp) withFlags Flags.PARAM
     def PARAM(sym: Symbol): ValSymStart             = VAL(sym) withFlags Flags.PARAM
     
-    def LAZYVAL(name: Name, tp: Type): ValTreeStart = VAL(name, tp) withFlags Flags.LAZY
-    def LAZYVAL(name: Name): ValTreeStart           = VAL(name) withFlags Flags.LAZY
-    def LAZYVAL(sym: Symbol, tp: Type): ValTreeStart = VAL(sym, tp) withFlags Flags.LAZY
+    def LAZYVAL(name: Name, tp: Type): ValNameStart = VAL(name, tp) withFlags Flags.LAZY
+    def LAZYVAL(name: Name): ValNameStart           = VAL(name) withFlags Flags.LAZY
+    def LAZYVAL(sym: Symbol, tp: Type): ValNameStart = VAL(sym, tp) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol): ValSymStart           = VAL(sym) withFlags Flags.LAZY
 
     def VALFROM(name: Name, tp: Type): ForValFromStart = VALFROM(name) withType tp
