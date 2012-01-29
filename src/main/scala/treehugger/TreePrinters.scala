@@ -94,6 +94,13 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       print(")")
     }
 
+    def printLambdaParams(ts: List[ValDef]) {
+      if (ts.size == 1 &&
+        !ts.head.mods.hasFlag(IMPLICIT) &&
+        !(ts.head.lhs.isInstanceOf[Typed]) ) printParam(ts.head, false)
+      else printValueParams(ts)
+    }
+
     def printParam(tree: Tree, isclass: Boolean = false) {
       tree match {
         case ValDef(mods, lhs, rhs) =>
@@ -104,7 +111,6 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           } // if
           printAnnotations(tree)
 
-          // print(symName(tree, name)); printOpt(": ", tp);
           lhs match {
             case Typed(expr, tpt) => print(expr, ": ", tpt)
             case _ => print(lhs)
@@ -297,13 +303,15 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         
         case AnonFunc(vparamss, tp: TypeTree, rhs: Block) =>
           print("{ ")
-          vparamss foreach printValueParams
+          if (vparamss.size == 1) printLambdaParams(vparamss.head)
+          else vparamss foreach printValueParams
           print(" =>")
           printColumn(rhs.stats ::: List(rhs.expr), "", "", "")
           print("}")
           
         case AnonFunc(vparamss, tp: TypeTree, rhs) =>
-          vparamss foreach printValueParams
+          if (vparamss.size == 1) printLambdaParams(vparamss.head)
+          else vparamss foreach printValueParams
           printOpt(": ", tp)
           if (!rhs.isEmpty) print(" => ", rhs)
                               

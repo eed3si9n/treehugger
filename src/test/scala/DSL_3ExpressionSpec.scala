@@ -95,9 +95,10 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 `TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) FINALLY(tree2)`"""             ! try2^
                                                                               p^
   "Anonymous functions are written as"                                        ^
-      """`LAMBDA(VAL(sym|"x"), ...) ==> rhs`, or"""                           ! lambda1^
+      """`LAMBDA(VAL(sym|"x"), ...) ==> rhs`,"""                              ! lambda1^
+      """`LAMBDA(VAL(WILDCARD)) ==> rhs`, or"""                               ! lambda2^
       """by using placeholder syntax
-`WILDCARD op tree`."""                                                        ! lambda2^
+`WILDCARD op tree`."""                                                        ! lambda3^
                                                                               p^
                                                                               end
   
@@ -300,7 +301,10 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     )
   
   def lambda1 =
-    (LAMBDA(VAL("x")) ==> REF("x") INT_+ LIT(1)) must print_as("(x) => x + 1")
+    (LAMBDA(VAL("x")) ==> REF("x") INT_+ LIT(1)) must print_as("x => x + 1")
+  
+  def lambda2 =
+    (LAMBDA(VAL(WILDCARD)) ==> REF("x") INT_+ LIT(1)) must print_as("_ => x + 1")
 
-  def lambda2 = (WILDCARD INT_+ LIT(1)) must print_as("_ + 1")
+  def lambda3 = (WILDCARD INT_+ LIT(1)) must print_as("_ + 1")
 }
