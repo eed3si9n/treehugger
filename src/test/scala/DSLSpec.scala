@@ -12,6 +12,7 @@ trait DSLSpec extends Specification {
     val foo = RootClass.newValue("foo")
     val Addressable = RootClass.newClass("Addressable".toTypeName)
     val A = RootClass.newTypeParameter("A".toTypeName)
+    val B = RootClass.newTypeParameter("B".toTypeName)
     val T = RootClass.newTypeParameter("T".toTypeName)
   }
   

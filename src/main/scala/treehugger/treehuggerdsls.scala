@@ -429,25 +429,58 @@ trait TreehuggerDSLs { self: Forest =>
       
       def mkTree(body: List[Tree]): PackageDef = PackageDef(mods, Ident(name), body)
     }
+
+    sealed trait TypeBoundsStart
+    case class LowerTypeBoundsStart(lo: Type) extends TypeBoundsStart
+    case class UpperTypeBoundsStart(hi: Type) extends TypeBoundsStart
+    case class ViewBoundsStart(target: Type) extends TypeBoundsStart
+    case class ContextBoundsStart(typcon: Type) extends TypeBoundsStart
     
     trait TypeDefStart extends TreeDefStart[TypeDef] with TparamsStart {
+      private var _bounds: List[TypeBoundsStart] = Nil
+      
+      private def withBounds(bounds: TypeBoundsStart*): this.type = {
+        _bounds = _bounds ::: bounds.toList
+        this
+      }
+
       def mkTree(typ: Type): TypeDef = mkTree(TypeTree(typ))
       
-      def UPPER(hi: Type): TypeDef = mkTree(TypeBounds.upper(hi))
-      def LOWER(lo: Type): TypeDef = mkTree(TypeBounds.lower(lo))
-      def TYPEBOUNDS(lo: Type, hi: Type): TypeDef = mkTree(TypeBounds(lo, hi))
-      def VIEWBOUNDS(target: Type): TypeDef = mkTree(ViewBounds(target))
-      def CONTEXTBOUNDS(typcon: Type): TypeDef = mkTree(ContextBounds(typcon))
+      def LOWER(lo: Type) = withBounds(LowerTypeBoundsStart(lo))
+      def UPPER(hi: Type) = withBounds(UpperTypeBoundsStart(hi))
+      def VIEWBOUNDS(target: Type) = withBounds(ViewBoundsStart(target))
+      def CONTEXTBOUNDS(typcon: Type) = withBounds(ContextBoundsStart(typcon))
+      
+      def bounds: Tree =
+        if (_bounds.isEmpty) EmptyTree
+        else TypeTree(TypeBounds(
+          (_bounds collect {
+            case LowerTypeBoundsStart(lo) => lo
+          } headOption) getOrElse(NothingClass.tpe),
+          (_bounds collect {
+            case UpperTypeBoundsStart(hi) => hi
+          } headOption) getOrElse(NothingClass.tpe),
+          (_bounds collect {
+            case ViewBoundsStart(trg) => trg
+          } headOption) getOrElse(NothingClass.tpe),
+          (_bounds collect {
+            case ContextBoundsStart(typcon) => typcon
+          } headOption) getOrElse(NothingClass.tpe)
+        ))
     }
     
     class TypeDefTreeStart(val name: Name) extends TypeDefStart {
-      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name.toTypeName, tparams, rhs)
+      def mkTree(rhs: Tree): TypeDef =
+        TypeDef(mods, name.toTypeName, tparams,
+          if (rhs.isEmpty) bounds else rhs)
     }
     
     class TypeDefSymStart(val sym: Symbol) extends TypeDefStart {
       def name        = sym.name.toTypeName
       
-      def mkTree(rhs: Tree): TypeDef = TypeDef(mods, name, tparams, rhs) setSymbol sym
+      def mkTree(rhs: Tree): TypeDef =
+        TypeDef(mods, name, tparams,
+          if (rhs.isEmpty) bounds else rhs) setSymbol sym
     }
     
     class ImportSelectorStart(val name: TermName) {

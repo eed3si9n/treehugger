@@ -286,7 +286,16 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     // arrays and their members
     lazy val ArrayModule  = getModule("scala.Array")
     lazy val ArrayClass   = getClass("scala.Array")
-    
+      def Array_apply      = getMember(ArrayClass, nme.apply)
+      def Array_update     = getMember(ArrayClass, nme.update)
+      def Array_length     = getMember(ArrayClass, nme.length)
+      lazy val Array_clone = getMember(ArrayClass, nme.clone_)
+
+    lazy val PartialManifestClass  = getClass("scala.reflect.ClassManifest")
+    lazy val PartialManifestModule = getModule("scala.reflect.ClassManifest")
+    lazy val FullManifestClass     = getClass("scala.reflect.Manifest")
+    lazy val FullManifestModule    = getModule("scala.reflect.Manifest")
+
     // Option classes
     lazy val OptionClass: Symbol = getClass("scala.Option")
     lazy val SomeClass: Symbol   = getClass("scala.Some")

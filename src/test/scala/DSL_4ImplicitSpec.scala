@@ -8,6 +8,7 @@ class DSL_4ImplicitSpec extends DSLSpec { def is = sequential                 ^
                                                                               p^
   "Implicit parameters are written as"                                        ^
       """`withParams(VAL(sym|"x", typ) withFlags(Flags.IMPLICIT))`"""         ! implicit2^                                                                            
+                                                                              p^
                                                                               end
   
   import treehugger._

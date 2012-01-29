@@ -248,7 +248,7 @@ trait Types extends api.Types { self: Forest =>
   
   /** A class for the bounds of abstract types and type parameters
    */
-  abstract case class TypeBounds(lo: Type, hi: Type) extends SubType {
+  abstract case class TypeBounds(lo: Type, hi: Type, view: Type, context: Type) extends SubType {
     def supertype = hi
     // override val isTrivial: Boolean = lo.isTrivial && hi.isTrivial
     // override def bounds: TypeBounds = this
@@ -258,40 +258,23 @@ trait Types extends api.Types { self: Forest =>
     // }
     // override def isNullable: Boolean = NullClass.tpe <:< lo;
     override def safeToString = 
-      if (lo == NothingClass.tpe) "<: " + hi.toString
-      else if (hi == NothingClass.tpe) ">: " + lo.toString
-      else ">: " + lo + " <: " + hi
+      ((if (lo != NothingClass.tpe) List(">:", lo.toString) else Nil) :::
+      (if (hi != NothingClass.tpe) List("<:", hi.toString) else Nil) :::
+      (if (view != NothingClass.tpe) List("<%", view.toString) else Nil) :::
+      (if (context != NothingClass.tpe) List(":", context.toString) else Nil)).mkString(" ")
   }
     
-  final class UniqueTypeBounds(lo: Type, hi: Type) extends TypeBounds(lo, hi) with UniqueType { }
+  final class UniqueTypeBounds(lo: Type, hi: Type, view: Type, context: Type) extends TypeBounds(lo, hi, view, context) with UniqueType { }
 
   object TypeBounds extends TypeBoundsExtractor {
-    def empty: TypeBounds           = apply(NothingClass.tpe, AnyClass.tpe)
+    def empty: TypeBounds           = apply(NothingClass.tpe, NothingClass.tpe)
     def upper(hi: Type): TypeBounds = apply(NothingClass.tpe, hi)
-    def lower(lo: Type): TypeBounds = apply(lo, AnyClass.tpe)
-    def apply(lo: Type, hi: Type): TypeBounds = {
-      new UniqueTypeBounds(lo, hi).asInstanceOf[TypeBounds]
-    }
-  }
-  
-  abstract case class ViewBounds(target: Type) extends Type {
-    override def safeToString = "<% " + target.toString
-  }
-  
-  final class UniqueViewBounds(target: Type) extends ViewBounds(target) with UniqueType { }
-    
-  object ViewBounds extends ViewBoundsExtractor {
-    def apply(target: Type): ViewBounds = new UniqueViewBounds(target).asInstanceOf[ViewBounds]
-  }
-  
-  abstract case class ContextBounds(typcon: Type) extends Type {
-    override def safeToString = ": " + typcon.toString
-  }
-  
-  final class UniqueContextBounds(typcon: Type) extends ContextBounds(typcon) with UniqueType { }
-    
-  object ContextBounds extends ContextBoundsExtractor {
-    def apply(typcon: Type): ContextBounds = new UniqueContextBounds(typcon).asInstanceOf[ContextBounds]
+    def lower(lo: Type): TypeBounds = apply(lo, NothingClass.tpe)
+    def apply(lo: Type, hi: Type): TypeBounds =
+      apply(lo, hi, NothingClass.tpe, NothingClass.tpe)
+    def apply(lo: Type, hi: Type, view: Type, context: Type): TypeBounds = {
+      new UniqueTypeBounds(lo, hi, view, context).asInstanceOf[TypeBounds]
+    }    
   }
   
   /** A common base class for intersection types and class types
@@ -685,7 +668,7 @@ trait Types extends api.Types { self: Forest =>
       case ExistentialType(tparams, restpe)               => ExistentialType(tparams, appliedType(restpe, args))
       case st: SingletonType                              => appliedType(st.widen, args) // @M TODO: what to do? see bug1
       case RefinedType(parents, decls)                    => RefinedType(parents map (appliedType(_, args)), decls) // MO to AM: please check
-      case TypeBounds(lo, hi)                             => TypeBounds(appliedType(lo, args), appliedType(hi, args))
+      case TypeBounds(lo, hi, view, context)              => TypeBounds(appliedType(lo, args), appliedType(hi, args), appliedType(view, args), appliedType(context, args))
       case tv@TypeVar(_, _)                               => tv.applyArgs(args)
       case AnnotatedType(annots, underlying, self)        => AnnotatedType(annots, appliedType(underlying, args), self)
       case ErrorType                                      => tycon
@@ -741,7 +724,8 @@ trait Types extends api.Types { self: Forest =>
     "java.lang.Comparable",
     "java.lang.String",
     "java.lang.IllegalArgumentException",
-    "scala.collection.immutable.List")
+    "scala.collection.immutable.List",
+    "scala.reflect.Manifest")
 
   val shorthands = Set(
     "scala.collection.immutable.List",

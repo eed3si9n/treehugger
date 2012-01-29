@@ -266,26 +266,8 @@ trait Types { self: Universe =>
    *  the upper bound.
    */
   abstract class TypeBoundsExtractor {
-    def apply(lo: Type, hi: Type): TypeBounds
-    def unapply(tpe: TypeBounds): Option[(Type, Type)]
-  }
-  
-  type ViewBounds <: Type
-  
-  val ViewBounds: ViewBoundsExtractor
-  
-  abstract class ViewBoundsExtractor {
-    def apply(target: Type): ViewBounds
-    def unapply(tpe: ViewBounds): Option[Type]
-  }
-  
-  type ContextBounds <: Type
-  
-  val ContextBounds: ContextBoundsExtractor
-  
-  abstract class ContextBoundsExtractor {
-    def apply(typcon: Type): ContextBounds
-    def unapply(tpe: ContextBounds): Option[Type]
+    def apply(lo: Type, hi: Type, view: Type, context: Type): TypeBounds
+    def unapply(tpe: TypeBounds): Option[(Type, Type, Type, Type)]
   }
   
   /** The `ClassInfo` type signature is used to define parents and declarations
