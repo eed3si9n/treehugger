@@ -278,7 +278,8 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       lazy val Traversable_map       = getMember(TraversableClass, nme.map)
       lazy val Traversable_reduce    = getMember(TraversableClass, "reduce")
       lazy val Traversable_take      = getMember(TraversableClass, "take")
-    
+      lazy val Traversable_find      = getMember(TraversableClass, "find")
+      
     lazy val ArrayBufferClass   = getClass("scala.collection.mutable.ArrayBuffer")
     lazy val MutableMapClass    = getClass("scala.collection.mutable.Map")
      

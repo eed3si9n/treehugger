@@ -77,11 +77,13 @@ trait TreehuggerDSLs { self: Forest =>
       // def ANY_EQ  (other: Tree)     = OBJ_EQ(other AS ObjectClass.tpe)
       def ANY_==  (other: Tree)     = infix(target, Any_==, other)
       def ANY_!=  (other: Tree)     = infix(target, Any_!=, other)
+      def ANY_->  (other: Tree)     =
+        infix(target, getMember(ArrowAssocClass, "->"), other)
       // def OBJ_==  (other: Tree)     = infix(target, Object_==, other)
       // def OBJ_!=  (other: Tree)     = infix(target, Object_!=, other)
       def OBJ_EQ  (other: Tree)     = infix(target, Object_eq, other)
       def OBJ_NE  (other: Tree)     = infix(target, Object_ne, other)
-      
+
       def INT_|   (other: Tree)     = infix(target, getMember(IntClass, nme.OR), other)
       def INT_&   (other: Tree)     = infix(target, getMember(IntClass, nme.AND), other)
       def INT_>=  (other: Tree)     = infix(target, getMember(IntClass, nme.GE), other)
@@ -127,16 +129,25 @@ trait TreehuggerDSLs { self: Forest =>
       /** Assignment */
       def :=(rhs: Tree)            = Assign(target, rhs)
 
-      /** Methods for sequences **/
-      def DROP(count: Int): Tree =
-        if (count == 0) target
-        else (target DOT nme.drop)(LIT(count))
+      def LIST_::(lhs: Tree) = lhs INFIX("::", target)
+      def LIST_:::(lhs: Tree) = lhs INFIX(":::", target)
+
+      val FOREACH: Tree => Tree = APPLYFUNC(Traversable_foreach) _
       val MAP: Tree => Tree = APPLYFUNC(Traversable_map) _
       val FILTER: Tree => Tree = APPLYFUNC(Traversable_filter) _
       val FLATMAP: Tree => Tree = APPLYFUNC(Traversable_flatMap) _
       val COLLECT: Tree => Tree = APPLYFUNC(Traversable_collect) _
-      
+      val FIND: Tree => Tree = APPLYFUNC(Traversable_find) _
+
+      /** Methods for sequences **/
+      def DROP(count: Int): Tree =
+        if (count == 0) target
+        else (target DOT nme.drop)(LIT(count))
+            
       def APPLYFUNC(sym: Symbol)(f: Tree): Tree = f match {
+        case Block(stats, expr)
+        if (stats ::: List(expr)) forall {_.isInstanceOf[CaseDef]} =>
+          target INFIX(sym) APPLY f
         case AnonFunc(_, _, rhs: Block) => target INFIX(sym) APPLY f
         case _ => target DOT sym APPLY f
       }
