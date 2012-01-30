@@ -54,18 +54,14 @@ trait TreehuggerDSLs { self: Forest =>
     def fn(lhs: Tree, op: Symbol, args: Tree*)  = Apply(Select(lhs, op), args.toList)
     def infix(lhs: Tree, op:   Name, args: Tree*): Infix = Infix(lhs, op, args.toList)
     def infix(lhs: Tree, op: Symbol, args: Tree*): Infix = Infix(lhs, op, args.toList)
+
+    def mkInfixOr(lhs: Tree, rhs: Tree) = infix(PAREN(lhs), Boolean_or, PAREN(rhs))
+    def mkInfixAnd(lhs: Tree, rhs: Tree) = infix(PAREN(lhs), Boolean_and, PAREN(rhs))
     
     class TreeMethods(target: Tree) {
       /** logical/comparison ops **/
-      def OR(other: Tree) =
-        if (target == EmptyTree) other
-        else if (other == EmptyTree) target
-        else mkOr(target, other)
-
-      def AND(other: Tree) =
-        if (target == EmptyTree) other
-        else if (other == EmptyTree) target
-        else mkAnd(target, other)
+      def OR(other: Tree)  = mkInfixOr(target, other)
+      def AND(other: Tree) = mkInfixAnd(target, other)
 
       /** Note - calling ANY_== in the matcher caused primitives to get boxed
        *  for the comparison, whereas looking up nme.EQ does not.  See #3570 for
@@ -78,14 +74,14 @@ trait TreehuggerDSLs { self: Forest =>
         if (opSym == NoSymbol) ANY_==(other)
         else infix(target, opSym, other)
       }
-      def ANY_EQ  (other: Tree)     = OBJ_EQ(other AS ObjectClass.tpe)
+      // def ANY_EQ  (other: Tree)     = OBJ_EQ(other AS ObjectClass.tpe)
       def ANY_==  (other: Tree)     = infix(target, Any_==, other)
       def ANY_!=  (other: Tree)     = infix(target, Any_!=, other)
-      def OBJ_==  (other: Tree)     = infix(target, Object_==, other)
-      def OBJ_!=  (other: Tree)     = infix(target, Object_!=, other)
+      // def OBJ_==  (other: Tree)     = infix(target, Object_==, other)
+      // def OBJ_!=  (other: Tree)     = infix(target, Object_!=, other)
       def OBJ_EQ  (other: Tree)     = infix(target, Object_eq, other)
       def OBJ_NE  (other: Tree)     = infix(target, Object_ne, other)
-
+      
       def INT_|   (other: Tree)     = infix(target, getMember(IntClass, nme.OR), other)
       def INT_&   (other: Tree)     = infix(target, getMember(IntClass, nme.AND), other)
       def INT_>=  (other: Tree)     = infix(target, getMember(IntClass, nme.GE), other)
@@ -100,9 +96,8 @@ trait TreehuggerDSLs { self: Forest =>
       def INT_*   (other: Tree)    = infix(target, getMember(IntClass, nme.MUL), other)
       def INT_/   (other: Tree)    = infix(target, getMember(IntClass, nme.DIV), other)
       
-      
-      def BOOL_&& (other: Tree)     = infix(target, Boolean_and, other)
-      def BOOL_|| (other: Tree)     = infix(target, Boolean_or, other)
+      // def BOOL_&& (other: Tree)     = infix(target, Boolean_and, other)
+      // def BOOL_|| (other: Tree)     = infix(target, Boolean_or, other)
 
       def OR_PATTERN(other: Tree)   = INFIXUNAPPLY("|", other)
 
@@ -607,11 +602,11 @@ trait TreehuggerDSLs { self: Forest =>
     
     def AND(guards: Tree*) =
       if (guards.isEmpty) EmptyTree
-      else guards reduceLeft mkAnd
+      else guards reduceLeft mkInfixAnd
 
     def OR(guards: Tree*) =
       if (guards.isEmpty) EmptyTree
-      else guards reduceLeft mkOr
+      else guards reduceLeft mkInfixOr
 
     def IF(tree: Tree)    = new IfStart(tree, EmptyTree)
     def TRY(xs: Tree*)    =
