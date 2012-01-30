@@ -306,7 +306,11 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     )
   
   def lambda1 =
-    (LAMBDA(VAL("x")) ==> REF("x") INT_+ LIT(1)) must print_as("x => x + 1")
+    ((LAMBDA(VAL("x")) ==> REF("x") INT_+ LIT(1)) must print_as("x => x + 1")) and
+    ((LAMBDA(VAL("x")) ==> BLOCK(REF("x") INT_+ LIT(1))) must print_as(
+      "{ x =>",
+      "  x + 1",
+      "}"))
   
   def lambda2 =
     (LAMBDA(VAL(WILDCARD)) ==> REF("x") INT_+ LIT(1)) must print_as("_ => x + 1")
