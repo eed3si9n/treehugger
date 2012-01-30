@@ -17,7 +17,7 @@ trait Trees extends api.Trees { self: Forest =>
    */
   case class Modifiers(flags: Long,
                        privateWithin: Name,
-                       annotations: List[Tree]) extends AbsModifiers with HasFlags {
+                       annotations: List[AnnotationInfo]) extends AbsModifiers with HasFlags {
     var positions: Map[Long, Position] = Map()
 
     def setPositions(poss: Map[Long, Position]): this.type = {
@@ -27,7 +27,7 @@ trait Trees extends api.Trees { self: Forest =>
     /* Abstract types from HasFlags. */
     type FlagsType          = Long
     type AccessBoundaryType = Name
-    type AnnotationType     = Tree
+    type AnnotationType     = AnnotationInfo
     
     def hasAccessBoundary = privateWithin != tpnme.EMPTY
     def hasAllFlags(mask: Long): Boolean = (flags & mask) == mask
@@ -57,7 +57,7 @@ trait Trees extends api.Trees { self: Forest =>
       hasFlag(flagOfModifier(mod))
     override def allModifiers: Set[Modifier.Value] =
       Modifier.values filter hasModifier
-    override def mapAnnotations(f: List[Tree] => List[Tree]): Modifiers =
+    override def mapAnnotations(f: List[AnnotationInfo] => List[AnnotationInfo]): Modifiers =
       Modifiers(flags, privateWithin, f(annotations)) setPositions positions
 
     override def toString = "Modifiers(%s, %s, %s)".format(defaultFlagString, annotations mkString ", ", positions)
@@ -68,7 +68,7 @@ trait Trees extends api.Trees { self: Forest =>
 
   def Modifiers(mods: Set[Modifier.Value],
                 privateWithin: Name,
-                annotations: List[Tree]): Modifiers = {
+                annotations: List[AnnotationInfo]): Modifiers = {
     val flagSet = mods map flagOfModifier
     Modifiers((0L /: flagSet)(_ | _), privateWithin, annotations)
   }

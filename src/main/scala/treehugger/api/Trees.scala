@@ -15,18 +15,19 @@ trait Trees { self: Universe =>
   private[treehugger] var nodeCount = 0
 
   type Modifiers <: AbsModifiers
+  type AnnotationType
 
   abstract class AbsModifiers {
     def hasModifier(mod: Modifier.Value): Boolean
     def allModifiers: Set[Modifier.Value]
     def privateWithin: Name  // default: EmptyTypeName
-    def annotations: List[Tree] // default: List()
-    def mapAnnotations(f: List[Tree] => List[Tree]): Modifiers
+    def annotations: List[AnnotationInfo] // default: List()
+    def mapAnnotations(f: List[AnnotationInfo] => List[AnnotationInfo]): Modifiers
   }
 
   def Modifiers(mods: Set[Modifier.Value] = Set(),
                 privateWithin: Name = EmptyTypeName,
-                annotations: List[Tree] = List()): Modifiers
+                annotations: List[AnnotationInfo] = List()): Modifiers
 
   /** Tree is the basis for scala's abstract syntax. The nodes are
    *  implemented as case classes, and the parameters which initialize
@@ -725,25 +726,25 @@ trait Trees { self: Universe =>
         }
       case ClassDef(mods, name, tparams, vparams, impl) =>
         atOwner(tree.symbol) {
-          traverseTrees(mods.annotations); traverseTrees(tparams); traverseTrees(vparams); traverse(impl)
+          traverseAnnotations(mods.annotations); traverseTrees(tparams); traverseTrees(vparams); traverse(impl)
         }
       case ModuleDef(mods, name, impl) =>
         atOwner(tree.symbol.moduleClass) {
-          traverseTrees(mods.annotations); traverse(impl)
+          traverseAnnotations(mods.annotations); traverse(impl)
         }
       case ValDef(mods, lhs, rhs) =>
         atOwner(tree.symbol) {
-          traverseTrees(mods.annotations); traverse(lhs); traverse(rhs)
+          traverseAnnotations(mods.annotations); traverse(lhs); traverse(rhs)
         }
       case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
         atOwner(tree.symbol) {
-          traverseTrees(mods.annotations); traverseTrees(tparams); traverseTreess(vparamss); traverse(tpt); traverse(rhs)
+          traverseAnnotations(mods.annotations); traverseTrees(tparams); traverseTreess(vparamss); traverse(tpt); traverse(rhs)
         }
       case AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) =>
         traverseTreess(vparamss); traverse(tpt); traverse(rhs)
       case TypeDef(mods, name, tparams, rhs) =>
         atOwner(tree.symbol) {
-          traverseTrees(mods.annotations); traverseTrees(tparams); traverse(rhs)
+          traverseAnnotations(mods.annotations); traverseTrees(tparams); traverse(rhs)
         }
       case LabelDef(name, param, rhs) =>
         traverse(param); traverse(rhs)   
@@ -850,7 +851,10 @@ trait Trees { self: Universe =>
         else traverse(stat)
       )
     }
-    
+    def traverseAnnotations(annotations: List[AnnotationInfo]) {
+      annotations foreach { x => traverseTrees(x.args) } 
+    }
+
     def atOwner(owner: Symbol)(traverse: => Unit) {
       val prevOwner = currentOwner
       currentOwner = owner

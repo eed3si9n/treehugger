@@ -728,8 +728,7 @@ trait Types extends api.Types { self: Forest =>
     "java.lang.IllegalArgumentException",
     "scala.collection.immutable.List",
     "scala.reflect.Manifest",
-    "scala.unchecked",
-    "scala.serializable")
+    "scala.unchecked")
 
   val shorthands = Set(
     "scala.collection.immutable.List",

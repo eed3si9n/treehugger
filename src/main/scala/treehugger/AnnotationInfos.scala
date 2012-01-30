@@ -52,7 +52,7 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
    *
    *  `assocs` stores arguments to classfile annotations as name-value pairs.
    */
-  sealed abstract class AnnotationInfo extends Product3[Type, List[Tree], List[(Name, ClassfileAnnotArg)]] {
+  sealed abstract class AnnotationInfo extends AbsAnnotationInfo with Product3[Type, List[Tree], List[(Name, ClassfileAnnotArg)]] {
     def atp: Type
     def args: List[Tree]
     def assocs: List[(Name, ClassfileAnnotArg)]

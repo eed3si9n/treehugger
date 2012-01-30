@@ -210,6 +210,7 @@ trait TreehuggerDSLs { self: Forest =>
 
       private var _mods: Modifiers = null
       private var _pos: Position = null
+      private var _annotations: List[AnnotationInfo] = Nil
 
       def withFlags(flags: Long*): this.type = {
         if (_mods == null)
@@ -223,9 +224,15 @@ trait TreehuggerDSLs { self: Forest =>
           _mods = defaultMods
 
         _mods = _mods | Flags.PRIVATE
-        _mods = Modifiers(_mods.flags, pin.name)
+        _mods = Modifiers(_mods.flags, pin.name, _mods.annotations)
         this
       }
+      def withAnnotation(annot: AnnotationInfo*): this.type = {
+        if (_mods == null)
+          _mods = defaultMods
+        _mods = Modifiers(_mods.flags, _mods.privateWithin, _mods.annotations ::: annot.toList)
+        this
+      } 
       
       def withPos(pos: Position): this.type = {
         _pos = pos
@@ -514,6 +521,10 @@ trait TreehuggerDSLs { self: Forest =>
     
     class ImportSelectorStart(val name: TermName) {
       def ==>(rename: String): ImportSelector = ImportSelector(name, -1, rename, -1)
+    }
+
+    class AnnotationInfoStart(val typ: Type, val args: List[Tree]) {
+      def annotation: AnnotationInfo = AnnotationInfo(typ, args, Nil)
     }
     
     /** Top level accessible. */

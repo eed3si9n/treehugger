@@ -3,8 +3,14 @@ package api
 
 trait AnnotationInfos { self: Universe =>
 
-  type AnnotationInfo <: AnyRef
+  type AnnotationInfo <: AbsAnnotationInfo
   val AnnotationInfo: AnnotationInfoExtractor
+
+  abstract class AbsAnnotationInfo {
+    def atp: Type
+    def args: List[Tree]
+    def assocs: List[(Name, ClassfileAnnotArg)]
+  }
 
   abstract class AnnotationInfoExtractor {
     def apply(atp: Type, args: List[Tree], assocs: List[(Name, ClassfileAnnotArg)]): AnnotationInfo
