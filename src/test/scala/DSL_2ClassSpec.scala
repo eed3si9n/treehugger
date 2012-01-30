@@ -31,10 +31,13 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
                                                                               end^
   "Class members can"                                                         ^
       """be defined by placing value defitions and function definitions within the class body as
-`CLASSDEF(sym|"C"") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`."""            ! member1^
+`CLASSDEF(sym|"C") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`."""             ! member1^
       """Class members with access modifier can be written as
 `DEF(sym|"get", typ) withFlags(Flags.PROTECTED) := rhs` or"""                 ! member2^
       """`DEF(sym|"get", typ) withFlags(PRIVATEWITHIN("this")) := rhs`."""    ! member3^
+                                                                              p^
+  "Early definitions can be written as"                                       ^
+      """`CLASSDEF(sym|"C") withEarlyDefs(stat, ...) withParents(typ, ...) := BLOCK(stat, ...)`.""" ! early1^
                                                                               end
   
   import treehugger._
@@ -108,5 +111,18 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """class C {""",
       """  private[this] def get = 0""",
       """}"""
-    )    
+    )
+    
+  def early1 =
+    (CLASSDEF("C") withEarlyDefs(
+      VAL("name") := LIT("Bob")
+    ) withParents(sym.Addressable) := BLOCK(
+      sym.print APPLY REF("msg")
+    )) must print_as(
+    "class C extends {",
+    "  val name = \"Bob\"",
+    "} with Addressable {",
+    "  print(msg)",
+    "}"
+  )
 }

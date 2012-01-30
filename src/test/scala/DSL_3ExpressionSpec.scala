@@ -39,6 +39,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   "Tuples are written as"                                                     ^
       """`TUPLE(tree1, tree2, ...)`."""                                       ! tuple1^
                                                                               p^
+  "Parentheses are written as"                                                ^
+      """`PAREN(tree)`."""                                                    ! paren1^
+                                                                              p^ 
   "Instance creations are written as"                                         ^
       """`NEW(typ)`, or"""                                                    ! new1^
       """with arguments to the constructor as
@@ -151,6 +154,8 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   def typeapply1 = (REF("put") TYPEAPPLY sym.T) must print_as("put[T]")
   
   def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("(0, 1)")
+
+  def paren1 = PAREN(LIT(0)) must print_as("(0)")
 
   def new1 = NEW(sym.T) must print_as("new T")
 

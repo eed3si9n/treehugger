@@ -392,10 +392,18 @@ trait TreehuggerDSLs { self: Forest =>
     class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] with TparamsStart {
       private var _parents: List[Tree] = Nil
       private var _vparams: List[ValDef] = Nil
+      private var _earlydefs: Option[Block] = None
 
       def withParents(parent: Type*): this.type = {
         _parents = _parents ::: (parent.toList map {TypeTree(_)})
         this
+      }
+      def withEarlyDefs(trees: Tree*): this.type = {
+        trees.toList match {
+          case List(b: Block) => _earlydefs = Some(b)
+          case _ => _earlydefs = Some(Block(trees.toList: _*))
+        }
+        this        
       }
             
       // def withParents(parent: Tree*): this.type = {
@@ -409,7 +417,7 @@ trait TreehuggerDSLs { self: Forest =>
       }
       
       def vparams: List[ValDef] = _vparams
-      def parents: List[Tree] = _parents
+      def parents: List[Tree] = _earlydefs.toList ::: _parents
       val selfDef: ValDef = emptyValDef
       
       def mkTree(rhs: Tree): ClassDef = rhs match {
