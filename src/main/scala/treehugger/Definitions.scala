@@ -262,6 +262,7 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     lazy val IteratorClass      = getClass("scala.collection.Iterator")
     lazy val ListClass          = getClass("scala.collection.immutable.List")
     lazy val SeqClass           = getClass("scala.collection.Seq")
+    lazy val VectorClass        = getClass("scala.collection.immutable.Vector")
     lazy val MapClass           = getClass("scala.collection.Map")
     lazy val StringBuilderClass = getClass("scala.collection.mutable.StringBuilder")
     lazy val TraversableClass   = getClass("scala.collection.Traversable")
@@ -287,7 +288,9 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     //  lazy val List_apply = getMember(ListModule, nme.apply)
     lazy val NilModule        = getModule("scala.collection.immutable.Nil")
     lazy val SeqModule        = getModule("scala.collection.Seq")
-    
+    lazy val MapModule        = getModule("scala.collection.Map")
+    lazy val VectorModule     = getModule("scala.collection.immutable.Vector")
+
     // arrays and their members
     lazy val ArrayModule  = getModule("scala.Array")
     lazy val ArrayClass   = getClass("scala.Array")

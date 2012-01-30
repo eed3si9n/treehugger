@@ -30,8 +30,17 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       """`tree MAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)` for collection map method,"""  ! traversable2^
       """`tree FILTER LAMBDA(VAL("x")) ===> BLOCK(stat, ...)` for collection filter method,"""  ! traversable3^
       """`tree FLATMAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)` for collection flatMap method,"""  ! traversable4^
-      """`tree COLLECT BLOCK(CASE(pattern) ===> tree, ...)` for collection collect method,"""  ! traversable5^
+      """`tree COLLECT BLOCK(CASE(pattern) ===> tree, ...)` for collection collect method."""  ! traversable5^
                                                                               p^
+  "Built-in constructors are written as"                                      ^
+      """`LIST(tree, ...)` for List,"""                                       ! listctor1^
+      """`NIL` for Nil,"""                                                    ! listctor2^
+      """`SOME(tree, ...)` for Some,"""                                       ! optionctor1^
+      """`NONE` for None,"""                                                  ! optionctor2^
+      """`ARRAY(tree, ...)` for Array"""                                      ! arrayctor1^
+      """`SEQ(tree, ...)` for Seq"""                                          ! seqctor1^
+      """`VECTOR(tree, ...)` for Vector"""                                    ! vectorctor1^
+      """`MAKE_MAP(key ANY_-> value, ...)` for MAP"""                         ! mapctor1^
                                                                               end
   
   import treehugger._
@@ -121,4 +130,20 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       "  case 0 => 0",
       "}"
     )
+  
+  def listctor1 = LIST(LIT(0)) must print_as("List(0)")
+
+  def listctor2 = NIL must print_as("Nil")
+
+  def optionctor1 = SOME(LIT(0)) must print_as("Some(0)")
+
+  def optionctor2 = NONE must print_as("None")
+
+  def arrayctor1 = ARRAY(LIT(0)) must print_as("Array(0)")
+
+  def seqctor1 = SEQ(LIT(0)) must print_as("Seq(0)")
+
+  def vectorctor1 = VECTOR(LIT(0)) must print_as("Vector(0)")
+
+  def mapctor1 = MAKE_MAP(LIT(0) ANY_-> LIT(1)) must print_as("Map(0 -> 1)")
 }

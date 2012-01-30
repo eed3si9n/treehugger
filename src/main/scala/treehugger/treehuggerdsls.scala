@@ -43,6 +43,7 @@ trait TreehuggerDSLs { self: Forest =>
     val WILDCARD      = Ident(nme.WILDCARD)
     val SEQ_WILDCARD  = Ident(tpnme.WILDCARD_STAR)
     val NIL           = REF(NilModule)
+    val NONE          = REF(NoneModule)
 
     object WILD {
       def empty               = Ident(nme.WILDCARD)
@@ -126,6 +127,19 @@ trait TreehuggerDSLs { self: Forest =>
       def INFIXUNAPPLY(name: Name, param0: Tree, params: Tree*)  = InfixUnApply(target, name, List(param0) ::: params.toList)
       def INFIXUNAPPLY(sym: Symbol, param0: Tree, params: Tree*) = InfixUnApply(target, sym, List(param0) ::: params.toList)
       
+      def inPackage(name: Name): PackageDef = PACKAGEHEADER(name) := target
+      def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
+      def withoutPackage: PackageDef = PACKAGEHEADER(NoSymbol) := target
+      
+      def withComment(comment: String*): Commented = Commented(comment.toList, target)
+      def withType(tp: Type) = Typed(target, TypeTree(tp))
+
+      def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
+      def withBinder(sym: Symbol) = Bind(sym, target)
+      def withBinder(name: Name)  = Bind(name, target)
+      def withAnnotation(anno: AnnotationInfo*) =
+        withType(annotatedType(anno.toList, NoType))
+      
       /** Assignment */
       def :=(rhs: Tree)            = Assign(target, rhs)
 
@@ -165,19 +179,6 @@ trait TreehuggerDSLs { self: Forest =>
       // def TOSTRING()          = nullSafe(fn(_: Tree, nme.toString_), LIT("null"))(target)
       def TOSTRING()          = fn(target, nme.toString_)
       def GETCLASS()          = fn(target, Object_getClass)
-      
-      def inPackage(name: Name): PackageDef = PACKAGEHEADER(name) := target
-      def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
-      def withoutPackage: PackageDef = PACKAGEHEADER(NoSymbol) := target
-      
-      def withComment(comment: String*): Commented = Commented(comment.toList, target)
-      def withType(tp: Type) = Typed(target, TypeTree(tp))
-
-      def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
-      def withBinder(sym: Symbol) = Bind(sym, target)
-      def withBinder(name: Name)  = Bind(name, target)
-      def withAnnotation(anno: AnnotationInfo*) =
-        withType(annotatedType(anno.toList, NoType))
     }
 
     case class InfixStart(target: Tree, name: Name) {
@@ -635,7 +636,6 @@ trait TreehuggerDSLs { self: Forest =>
     def MINUS(tree: Tree)  = Select(tree, Int_minus)
     def TILDE(tree: Tree)  = Select(tree, Int_tilde)
     
-    def SOME(xs: Tree*)   = Apply(SomeModule, TUPLE(xs.toList, true))
     def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)
     def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
     def IMPORT(expr: Tree, selectors: ImportSelector*)  = Import(expr, selectors.toList)
@@ -681,6 +681,13 @@ trait TreehuggerDSLs { self: Forest =>
     }
 
     def ANNOT(typ: Type)              = AnnotationInfo(typ, Nil, Nil)
+
+    def LIST(xs: Tree*): Tree    = ID("List") APPLY(xs.toList: _*)
+    def SOME(xs: Tree*): Tree    = Apply(SomeModule, TUPLE(xs.toList, true))
+    def ARRAY(xs: Tree*): Tree   = ID("Array") APPLY(xs.toList: _*)
+    def SEQ(xs: Tree*): Tree     = ID("Seq") APPLY(xs.toList: _*)
+    def VECTOR(xs: Tree*): Tree  = ID("Vector") APPLY(xs.toList: _*)
+    def MAKE_MAP(xs: Tree*): Tree = ID("Map") APPLY(xs.toList: _*)
 
     /** Implicits - some of these should probably disappear **/
     implicit def mkTreeMethods(target: Tree): TreeMethods = new TreeMethods(target)

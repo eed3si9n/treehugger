@@ -118,7 +118,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       )) ::
       (TRAITDEF(Doubling) withParents(IntQueue) := BLOCK(
         DEF("put") withFlags(ABSTRACT, OVERRIDE) withParams(PARAM("x", IntClass)) := BLOCK(
-          SUPER DOT "put" APPLY (LIT(2) INFIX("*") APPLY REF("x"))
+          SUPER DOT "put" APPLY (LIT(2) INT_* REF("x"))
           )
       )) ::
       Nil
@@ -187,9 +187,9 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
-          CASE(ID("x") INFIX("::") UNAPPLY ID("rest")) ==> BLOCK(
+          CASE(ID("x") LIST_:: ID("rest")) ==> BLOCK(
             VAL("maxRest") := maxListUpBound APPLY(REF("rest")),
-            IF(REF("x") INFIX(">") APPLY REF("maxRest")) THEN REF("x")
+            IF(REF("x") INT_> REF("maxRest")) THEN REF("x")
             ELSE REF("maxRest") 
           )
         ))::
