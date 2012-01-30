@@ -234,7 +234,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       """case class Address[T <% List[T]](name: Option[T] = None) {""",
       """  def stringOnly(implicit ev: =:=[T,String]): Address = Address(this.name map { (nm: String) =>""",
       """    val list: List[T] = nm""",
-      """    list.map((x) => x + "x").mkString(" ")""",
+      """    list.map(x => x + "x").mkString(" ")""",
       """  })""",
       """  def star(n: Int*) = Address[String](Some("foo").map(_ + "x"))""",
       """}"""

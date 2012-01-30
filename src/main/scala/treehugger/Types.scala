@@ -617,7 +617,9 @@ trait Types extends api.Types { self: Forest =>
   case class AnnotatedType(val annotations: List[AnnotationInfo],
                            override val underlying: Type,
                            val selfsym: Symbol) extends Type {
-    override def safeToString = annotations.mkString(underlying + " @", " @", "")
+    override def safeToString =
+      if (underlying == NoType) annotations.mkString("@", " @", "") 
+      else annotations.mkString(underlying + " @", " @", "")
   }
 
   /** Creator for AnnotatedTypes.  It returns the underlying type if annotations.isEmpty
@@ -725,7 +727,9 @@ trait Types extends api.Types { self: Forest =>
     "java.lang.String",
     "java.lang.IllegalArgumentException",
     "scala.collection.immutable.List",
-    "scala.reflect.Manifest")
+    "scala.reflect.Manifest",
+    "scala.unchecked",
+    "scala.serializable")
 
   val shorthands = Set(
     "scala.collection.immutable.List",

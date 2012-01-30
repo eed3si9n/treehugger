@@ -170,6 +170,8 @@ trait TreehuggerDSLs { self: Forest =>
       def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
       def withBinder(sym: Symbol) = Bind(sym, target)
       def withBinder(name: Name)  = Bind(name, target)
+      def withAnnotation(anno: AnnotationInfo*) =
+        withType(annotatedType(anno.toList, NoType))
     }
 
     case class InfixStart(target: Tree, name: Name) {
@@ -637,6 +639,8 @@ trait TreehuggerDSLs { self: Forest =>
     
     case class PRIVATEWITHIN(name: Name)
     
+    def PAREN(tree: Tree): Tree = mkTuple(tree :: Nil)
+
     def TUPLE(trees: Tree*): Tree = TUPLE(trees.toList)
 
     def TUPLE(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
@@ -650,6 +654,8 @@ trait TreehuggerDSLs { self: Forest =>
       case List(tree) if flattenUnary => tree
       case _                          => AppliedTypeTree(REF(TupleClass(trees.length)), trees)
     }
+
+    def ANNOT(typ: Type)              = AnnotationInfo(typ, Nil, Nil)
 
     /** Implicits - some of these should probably disappear **/
     implicit def mkTreeMethods(target: Tree): TreeMethods = new TreeMethods(target)
