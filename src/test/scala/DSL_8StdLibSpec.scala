@@ -43,7 +43,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       """`MAKE_MAP(key ANY_-> value, ...)` for MAP"""                         ! mapctor1^
                                                                               end
   
-  import treehugger._
+  import treehugger.forest._
   import definitions._
   import treehuggerDSL._
                                                                              

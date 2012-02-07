@@ -689,12 +689,17 @@ trait TreehuggerDSLs { self: Forest =>
     def VECTOR(xs: Tree*): Tree  = ID("Vector") APPLY(xs.toList: _*)
     def MAKE_MAP(xs: Tree*): Tree = ID("Map") APPLY(xs.toList: _*)
 
+    implicit def stringToTermName(s: String): TermName = newTermName(s)
+
+
     /** Implicits - some of these should probably disappear **/
     implicit def mkTreeMethods(target: Tree): TreeMethods = new TreeMethods(target)
     implicit def mkTreeMethodsFromSymbol(target: Symbol): TreeMethods = new TreeMethods(Ident(target))
     implicit def mkTreeMethodsFromType(target: Type): TreeMethods = new TreeMethods(TypeTree(target))
     implicit def mkTreeMethodsFromSuperStart(target: SuperStart): TreeMethods = new TreeMethods(target.tree)
     implicit def mkSymbolMethodsFromSymbol(target: Symbol): SymbolMethods = new SymbolMethods(target)
+
+    implicit def mkTreeFromType(typ: Type): TypeTree =TypeTree(typ)
 
     /** (foo DOT bar) might be simply a Select, but more likely it is to be immediately
      *  followed by an Apply.  We don't want to add an actual apply method to arbitrary

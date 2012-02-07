@@ -23,4 +23,5 @@ class Forest extends api.Universe
   def newLazyTreeCopier: TreeCopier = new LazyTreeCopier
   
   definitions.init()
+  val Flags = treehugger.Flags
 }

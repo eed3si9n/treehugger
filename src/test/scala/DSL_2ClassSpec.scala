@@ -40,7 +40,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`CLASSDEF(sym|"C") withEarlyDefs(stat, ...) withParents(typ, ...) := BLOCK(stat, ...)`.""" ! early1^
                                                                               end
   
-  import treehugger._
+  import treehugger.forest._
   import definitions._
   import treehuggerDSL._
                                                                              

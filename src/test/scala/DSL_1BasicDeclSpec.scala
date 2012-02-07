@@ -88,7 +88,7 @@ limit them to some members."""                                                ! 
 `IMPORT(sym, RENAME("Map") ==> "MutableMap")` or be suppressed."""            ! import3^
                                                                               end
   
-  import treehugger._
+  import treehugger.forest._
   import definitions._
   import treehuggerDSL._
         

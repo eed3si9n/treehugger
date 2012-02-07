@@ -13,7 +13,7 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
                                                                               p^
                                                                               end
   
-  import treehugger._
+  import treehugger.forest._
   import definitions._
   import treehuggerDSL._
                                                                              

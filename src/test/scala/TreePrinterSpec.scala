@@ -14,7 +14,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     """print new Addressable {}"""                                            ! e9^
                                                                               end
   
-  import treehugger._
+  import treehugger.forest._
   import definitions._
   import treehuggerDSL._
   

@@ -1,7 +1,7 @@
 import org.specs2._
 
 trait DSLSpec extends Specification { 
-  import treehugger._
+  import treehugger.forest._
   import definitions._
   import treehuggerDSL._
   

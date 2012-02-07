@@ -25,7 +25,7 @@ treehugger DSL is an expanded version of `TreeDSL` in scalac. Let's see the actu
 ### Hello world
 
 ```scala
-import treehugger._
+import treehugger.forest._
 import definitions._
 import treehuggerDSL._
 

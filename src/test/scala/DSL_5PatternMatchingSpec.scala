@@ -48,7 +48,7 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
       """`VAL(pattern) := rhs`."""                                            ! patternvalue1^
                                                                               end
   
-  import treehugger._
+  import treehugger.forest._
   import definitions._
   import treehuggerDSL._
                                                                              
