@@ -17,7 +17,6 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   import treehugger._
   import definitions._
   import treehuggerDSL._
-  import treehugger.Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
   
   def e2 = {
     val tree = DEF("hello") := BLOCK(
@@ -64,7 +63,8 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val s = RootClass.newValue("s")
     
     val tree = (MODULEDEF(ChecksumAccumulator) := BLOCK(
-        VAL(cache) withFlags(PRIVATE) := mutableMapType(StringClass, IntClass) APPLY (),
+        VAL(cache) withFlags(Flags.PRIVATE) :=
+          mutableMapType(StringClass, IntClass) APPLY (),
         DEF("calculate", IntClass) withParams(PARAM(s, StringClass)) :=
           (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
           ELSE BLOCK(
@@ -105,19 +105,19 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     def arrayBufferType(arg: Type)  = appliedType(ArrayBufferClass.typeConstructor, List(arg))
     
     val trees =
-      (CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
+      (CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
         DEF("get", IntClass),
         DEF("put") withParams(PARAM("x", IntClass))
       )) ::
       (CLASSDEF(BasicIntQueue) withParents(IntQueue) := BLOCK(
-        VAL(buf) withFlags(PRIVATE) := NEW(arrayBufferType(IntClass)),
+        VAL(buf) withFlags(Flags.PRIVATE) := NEW(arrayBufferType(IntClass)),
         DEF("get", IntClass) := (REF(buf) DOT "remove" APPLY()),
         DEF("put") withParams(PARAM("x", IntClass)) := BLOCK(
           REF(buf) INFIX("+=") APPLY REF("x")
           )
       )) ::
       (TRAITDEF(Doubling) withParents(IntQueue) := BLOCK(
-        DEF("put") withFlags(ABSTRACT, OVERRIDE) withParams(PARAM("x", IntClass)) := BLOCK(
+        DEF("put") withFlags(Flags.ABSTRACT, Flags.OVERRIDE) withParams(PARAM("x", IntClass)) := BLOCK(
           SUPER DOT "put" APPLY (LIT(2) INT_* REF("x"))
           )
       )) ::
@@ -160,7 +160,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
         )),
         
         DEF("any2ArrowAssoc", ArrowAssocA)
-            withFlags(IMPLICIT) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) :=
+            withFlags(Flags.IMPLICIT) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) :=
           NEW(ArrowAssocA, REF("x"))
       )) inPackage(ScalaPackageClass)
     
@@ -219,7 +219,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       (CASECLASSDEF(Address)
           withTypeParams(TYPE(T) VIEWBOUNDS listType(T))
           withParams(PARAM("name", optionType(T)) := REF(NoneModule)) := BLOCK(
-        DEF("stringOnly", Address) withParams(PARAM("ev", tpEqualsType(T, StringClass)) withFlags(IMPLICIT)) :=
+        DEF("stringOnly", Address) withParams(PARAM("ev", tpEqualsType(T, StringClass)) withFlags(Flags.IMPLICIT)) :=
           Address APPLY(THIS DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
             VAL(list, listType(T)) := REF("nm"),
             (list MAP LAMBDA(VAL("x")) ==>
