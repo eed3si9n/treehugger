@@ -25,11 +25,9 @@ treehugger DSL is an expanded version of `TreeDSL` in scalac. Let's see the actu
 ### Hello world
 
 ```scala
-lazy val universe = new treehugger.Universe
-import universe._
+import treehugger._
 import definitions._
-import CODE._
-import Flags.{PRIVATE, ABSTRACT, IMPLICIT}
+import treehuggerDSL._
 
 object sym {
   val println = ScalaPackageClass.newMethod("println")
@@ -99,7 +97,7 @@ class, object, and package declarations are something new to treehugger DSL:
 ```scala
 val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")
 
-CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
+CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
   DEF("get", IntClass),
   DEF("put", UnitClass) withParams(PARAM("x", IntClass))
 )
