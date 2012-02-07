@@ -2,7 +2,7 @@ package treehugger
 
 trait Names {
   implicit def promoteTermNamesAsNecessary(name: Name): TermName = name.toTermName
-    
+  
   trait Name {
     def name: String
     def isTermName: Boolean = false

@@ -59,7 +59,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   
   // p. 66
   def e4 = {
-    val ChecksumAccumulator = RootClass.newClass("ChecksumAccumulator".toTypeName)
+    val ChecksumAccumulator = RootClass.newClass("ChecksumAccumulator")
     val cache = ChecksumAccumulator.newValue("cache")
     val s = RootClass.newValue("s")
     
@@ -98,9 +98,9 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   
   // p. 227
   def e5 = {
-    val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
-    val BasicIntQueue: ClassSymbol = RootClass.newClass("BasicIntQueue".toTypeName)
-    val Doubling: ClassSymbol = RootClass.newClass("Doubling".toTypeName)
+    val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")
+    val BasicIntQueue: ClassSymbol = RootClass.newClass("BasicIntQueue")
+    val Doubling: ClassSymbol = RootClass.newClass("Doubling")
     val buf: TermSymbol = BasicIntQueue.newValue("buf")
     def arrayBufferType(arg: Type)  = appliedType(ArrayBufferClass.typeConstructor, List(arg))
     
@@ -146,9 +146,9 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   
   // p. 453
   def e6 = {
-    val A = ArrowAssocClass.newTypeParameter("A".toTypeName)
+    val A = ArrowAssocClass.newTypeParameter("A")
     val arrow = ArrowAssocClass.newMethod("->")
-    val B = arrow.newTypeParameter("B".toTypeName)
+    val B = arrow.newTypeParameter("B")
     val tuple2AB = tupleType(A.toType :: B.toType :: Nil)
     val ArrowAssocA = appliedType(ArrowAssocClass, A.toType :: Nil)
     
@@ -179,7 +179,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   // p. 457
   def e7 = {
     val maxListUpBound = RootClass.newMethod("maxListUpBound")
-    val T = maxListUpBound.newTypeParameter("T".toTypeName)
+    val T = maxListUpBound.newTypeParameter("T")
     
     val trees =
       (DEF(maxListUpBound.name, T)
@@ -211,8 +211,8 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   }
   
   def e8 = {
-    val Address = RootClass.newClass("Address".toTypeName)
-    val T = Address.newTypeParameter("T".toTypeName)
+    val Address = RootClass.newClass("Address")
+    val T = Address.newTypeParameter("T")
     val list = Address.newValue("list")
     
     val tree: Tree =
@@ -242,7 +242,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   }
   
   def e9 = {
-    val Addressable = RootClass.newClass("Addressable".toTypeName)
+    val Addressable = RootClass.newClass("Addressable")
     val street = Addressable.newMethod("street")
     
     val tree: Tree =

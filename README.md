@@ -97,7 +97,7 @@ for (i <- 0 to 2)
 class, object, and package declarations are something new to treehugger DSL:
 
 ```scala
-val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
+val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")
 
 CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
   DEF("get", IntClass),
@@ -120,7 +120,7 @@ pattern matching was mostly in the original DSL (except `UNAPPLY` and `INFIXUNAP
 
 ```scala
 val maxListUpBound = RootClass.newMethod("maxListUpBound")
-val T = maxListUpBound.newTypeParameter("T".toTypeName)
+val T = maxListUpBound.newTypeParameter("T")
 
 DEF(maxListUpBound.name, T)
     withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=

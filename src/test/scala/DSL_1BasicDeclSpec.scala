@@ -153,8 +153,8 @@ limit them to some members."""                                                ! 
   
   def type2 = {
     val ComparableTClass = appliedType(ComparableClass.typeConstructor, List(sym.T)) 
-    val X = RootClass.newTypeParameter("X".toTypeName)
-    val CovX = RootClass.newTypeParameter("X".toTypeName) setFlag(Flags.COVARIANT)
+    val X = RootClass.newTypeParameter("X")
+    val CovX = RootClass.newTypeParameter("X") setFlag(Flags.COVARIANT)
     
     ((TYPE("T") UPPER(ComparableTClass): Tree) must print_as("type T <: Comparable[T]")) and
     ((TYPE("MyCollection") withTypeParams(TYPE(CovX)) UPPER(iterableType(X)): Tree) must print_as("type MyCollection[X] <: Iterable[X]"))

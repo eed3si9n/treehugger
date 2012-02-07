@@ -91,22 +91,22 @@ trait Symbols extends api.Symbols { self: Forest =>
     }
     final def newPackage(name: TermName, pos: Position = NoPosition): ModuleSymbol =
       newPackage(pos, name)
-    final def newModuleClass(pos: Position, name: TypeName) =
-      new ModuleClassSymbol(this, pos, name)
-    final def newModuleClass(name: TypeName, pos: Position = NoPosition) =
-      new ModuleClassSymbol(this, pos, name)
+    final def newModuleClass(pos: Position, name: Name) =
+      new ModuleClassSymbol(this, pos, name.toTypeName)
+    final def newModuleClass(name: Name, pos: Position = NoPosition) =
+      new ModuleClassSymbol(this, pos, name.toTypeName)
       
-    final def newClass(pos: Position, name: TypeName) =
-      new ClassSymbol(this, pos, name)
-    final def newClass(name: TypeName, pos: Position = NoPosition) =
-      new ClassSymbol(this, pos, name)
+    final def newClass(pos: Position, name: Name) =
+      new ClassSymbol(this, pos, name.toTypeName)
+    final def newClass(name: Name, pos: Position = NoPosition) =
+      new ClassSymbol(this, pos, name.toTypeName)
     
     /** Symbol of a type definition  type T = ...
      */
-    final def newAliasType(pos: Position, name: TypeName) =
-      new TypeSymbol(this, pos, name)
-    final def newAliasType(name: TypeName, pos: Position = NoPosition) =
-      new TypeSymbol(this, pos, name)
+    final def newAliasType(pos: Position, name: Name) =
+      new TypeSymbol(this, pos, name.toTypeName)
+    final def newAliasType(name: Name, pos: Position = NoPosition) =
+      new TypeSymbol(this, pos, name.toTypeName)
     
     /** Synthetic value parameters when parameter symbols are not available.
      *  Calling this method multiple times will re-use the same parameter names.
@@ -122,17 +122,17 @@ trait Symbols extends api.Symbols { self: Forest =>
     
     /** Symbol of an abstract type  type T >: ... <: ...
      */
-    final def newAbstractType(pos: Position, name: TypeName) =
-      new TypeSymbol(this, pos, name).setFlag(DEFERRED)
-    final def newAbstractType(name: TypeName, pos: Position = NoPosition) =
-      new TypeSymbol(this, pos, name).setFlag(DEFERRED)
+    final def newAbstractType(pos: Position, name: Name) =
+      new TypeSymbol(this, pos, name.toTypeName).setFlag(DEFERRED)
+    final def newAbstractType(name: Name, pos: Position = NoPosition) =
+      new TypeSymbol(this, pos, name.toTypeName).setFlag(DEFERRED)
 
     /** Symbol of a type parameter
      */
-    final def newTypeParameter(pos: Position, name: TypeName) =
-      newAbstractType(pos, name).setFlag(PARAM)
-    final def newTypeParameter(name: TypeName, pos: Position = NoPosition) =
-      newAbstractType(pos, name).setFlag(PARAM)
+    final def newTypeParameter(pos: Position, name: Name) =
+      newAbstractType(pos, name.toTypeName).setFlag(PARAM)
+    final def newTypeParameter(name: Name, pos: Position = NoPosition) =
+      newAbstractType(pos, name.toTypeName).setFlag(PARAM)
         
     /** Synthetic value parameters when parameter symbols are not available
      */
@@ -144,8 +144,8 @@ trait Symbols extends api.Symbols { self: Forest =>
       argtypess map (_.map(param))
     }
 
-    final def newExistential(pos: Position, name: TypeName): Symbol =
-      newAbstractType(pos, name).setFlag(EXISTENTIAL)
+    final def newExistential(pos: Position, name: Name): Symbol =
+      newAbstractType(pos, name.toTypeName).setFlag(EXISTENTIAL)
     
     /** Get type. The type of a symbol is:
      *  for a type symbol, the type corresponding to the symbol itself,
