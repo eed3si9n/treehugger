@@ -44,7 +44,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
         (sym.print APPLY (greetStrings APPLY REF("i"))) ) ::
       Nil
     
-    val s = treesToString(trees); println(s)
+    val s = treeToString(trees: _*); println(s)
     
     s.lines.toList must contain(
       "val greetStrings = new Array[String](3)",
@@ -123,7 +123,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       )) ::
       Nil
     
-    val out = treesToString(trees); println(out)
+    val out = treeToString(trees: _*); println(out)
     out.lines.toList must contain(
       """abstract class IntQueue {""",
       """  def get: Int""",
@@ -195,7 +195,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
         ))::
       Nil
     
-    val out = treesToString(trees); println(out)
+    val out = treeToString(trees: _*); println(out)
     out.lines.toList must contain(
       """def maxListUpBound[T <: Ordered[T]](elements: List[T]): T =""",
       """  elements match {""",

@@ -641,21 +641,22 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
   def newTreePrinter(writer: PrintWriter): TreePrinter = new TreePrinter(writer)
   def newTreePrinter(stream: OutputStream): TreePrinter = newTreePrinter(new PrintWriter(stream))
   def newTreePrinter(): TreePrinter = newTreePrinter(new PrintWriter(ConsoleWriter))
-  
-  def treesToString(trees: List[Tree]): String = {
-    val NL = "\n"
-    val withNL = trees match {
-      case Nil | (_ :: Nil) => trees
-      case _ => (trees flatMap { _ :: NL :: Nil }).init
-    }
-    treeToString(withNL: _*)
-  }
-  
+    
   def treeToString(args: Any*): String = {
     val sw = new StringWriter
     val writer = new PrintWriter(sw)
     val printer = newTreePrinter(writer)  
-    printer.print(args: _*)
+    args.toList match {
+      case Nil => //
+      case List(x) => printer.print(x)
+      case x :: xs =>
+        printer.print(x)
+        xs foreach { arg =>
+          printer.println()
+          printer.print(arg) 
+        }
+    }
+
     sw.toString
   }
   
