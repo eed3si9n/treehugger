@@ -4,7 +4,7 @@ class DSL_1BasicDeclSpec extends DSLSpec { def is = sequential                ^
   "This is a specification to check Treehugger DSL"                           ^
                                                                               p^
   "Literals are written as"                                                   ^
-    """`LIT("Hello")` for Strings,"""                                         ! literal1^
+    """`LIT("Hello")` for Strings, `LIT('H')` for Char"""                     ! literal1^
     """`LIT(1)` for Ints, `LIT(1L)` for Longs, `LIT(1.23)` for Doubles,
 `LIT(1.23F)` for Floats,"""                                                   ! literal2^
     """and LIT('Symbol) for symbols."""                                       ! literal3^
@@ -95,7 +95,8 @@ limit them to some members."""                                                ! 
   import treehuggerDSL._
         
   def literal1 =
-    LIT("Hello") must print_as("\"Hello\"")
+    (LIT("Hello") must print_as("\"Hello\"")) and
+    (LIT('H') must print_as("'H'"))
   
   def literal2 =
     (LIT(1)    must print_as("1")) and
