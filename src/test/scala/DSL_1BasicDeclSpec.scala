@@ -5,8 +5,10 @@ class DSL_1BasicDeclSpec extends DSLSpec { def is = sequential                ^
                                                                               p^
   "Literals are written as"                                                   ^
     """`LIT("Hello")` for Strings,"""                                         ! literal1^
-    """`LIT(1)` for Ints, `LIT(1.23)` for Doubles."""                         ! literal2^
-    """The predefined constants are `TRUE`, `FALSE`, `NULL`, and `UNIT`"""    ! literal3^
+    """`LIT(1)` for Ints, `LIT(1L)` for Longs, `LIT(1.23)` for Doubles,
+`LIT(1.23F)` for Floats,"""                                                   ! literal2^
+    """and LIT('Symbol) for symbols."""                                       ! literal3^
+    """The predefined constants are `TRUE`, `FALSE`, `NULL`, and `UNIT`"""    ! literal4^
                                                                               p^
   "Comments are written as"                                                   ^
     """`tree withComment("a", ...)` where `tree` is an arbitrary tree."""     ! comment1^
@@ -97,9 +99,14 @@ limit them to some members."""                                                ! 
   
   def literal2 =
     (LIT(1)    must print_as("1")) and
-    (LIT(1.23) must print_as("1.23"))
+    (LIT(1.23) must print_as("1.23")) and
+    (LIT(1L)   must print_as("1L")) and
+    (LIT(1.23F) must print_as("1.23F"))
   
   def literal3 =
+    LIT('Symbol) must print_as("'Symbol")
+
+  def literal4 =
     (TRUE  must print_as("true")) and
     (FALSE must print_as("false")) and
     (NULL  must print_as("null")) and

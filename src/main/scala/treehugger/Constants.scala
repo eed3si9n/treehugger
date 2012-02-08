@@ -28,8 +28,11 @@ trait Constants extends api.Constants { self: Forest =>
   // For supporting java enumerations inside java annotations (see ClassfileParser)
   final val EnumTag    = 13
 
+  // For scala.Symbol
+  final val SymbolTag  = 14
+
   case class Constant(value: Any) extends AbsConstant {
-    val tag: Int = value match {
+    lazy val tag: Int = value match {
       case null         => NullTag
       case x: Unit      => UnitTag
       case x: Boolean   => BooleanTag
@@ -43,6 +46,7 @@ trait Constants extends api.Constants { self: Forest =>
       case x: Char      => CharTag
       case x: Type      => ClassTag
       case x: Symbol    => EnumTag
+      case x: scala.Symbol => SymbolTag
       case _            => throw new Error("bad constant value: " + value)
     }
 
@@ -222,6 +226,7 @@ trait Constants extends api.Constants { self: Forest =>
         case ClassTag  => "classOf[" + signature(typeValue) + "]"
         case CharTag   => "'" + escapedChar(charValue) + "'"
         case LongTag   => longValue.toString() + "L"
+        case FloatTag  => floatValue.toString() + "F"
         case _         => String.valueOf(value)
       }
     }
