@@ -1,0 +1,14 @@
+Basic Declarations and Definitions
+----------------------------------
+
+A _definition_, such as a function defnition, introduces names that are bound to some expression, block, or a type.
+
+```scala
+def foo: Int = 1
+```
+
+On the other hand, an abstract _declaration_ introduces only the names and their types. It can be a part of an abstract class definition.
+
+```scala
+def foo: Int
+```

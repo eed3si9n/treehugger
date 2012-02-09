@@ -1,0 +1,84 @@
+Values
+------
+
+### Abstract value declarations
+
+Abstract value declarations are written by wrapping the name and the type with `VAL(...)`:
+
+```scala
+(VAL("foo", IntClass): Tree)
+```
+
+or in general:
+
+```scala
+VAL(sym|"x", typ).empty
+```
+
+where `sym` is a symbol and `typ` is a type of the value. In the above code, `sym|"x"` denotes that either a symbol or `String` is accepted as the name of the value.
+
+Calling `empty` method creates a `Tree` without a right-hand side (rhs) expression. Because there's an implicit conversion, forcing `VAL(...)` as a `Tree` automatically calls `empty` method.
+
+### Value definitions
+
+Value definitions are written by appending rhs tree with `:=` as follows:
+
+```scala
+VAL("foo", IntClass) := LIT(0)
+```
+
+This prints as:
+
+```scala
+val foo: Int = 0
+```
+
+Like Scala, the type annotation can be omitted when rhs is provided:
+
+```scala
+VAL("foo") := LIT(0)
+```
+
+In addition, a symbol could be used to define a value instead of using `String` names.
+
+```scala
+object sym {
+  val foo = RootClass.newValue("foo")
+}
+
+VAL(sym.foo) := LIT(0)
+```
+
+For a larger code base, using symbols makes the code more readable.
+
+The general form of constant value definitions are:
+
+```scala
+VAL(sym|"x", [typ]) := rhs
+```
+
+### Lazy values
+
+Lazy value declarations are written using `LAZYVAL(...)`:
+
+```scala
+(LAZYVAL("foo", IntClass): Tree)
+```
+
+and lazy value definitions are written as:
+
+```scala
+LAZYVAL("foo", IntClass) := LIT(0)
+```
+
+### Final values
+
+Final value definitions are written by appending `withFlags(...)` after `VAL(...)`:
+
+```scala
+VAL("foo", IntClass) withFlags(Flags.FINAL) := LIT(0)
+```
+
+### Pattern values
+
+There is another form of value definitions called pattern values, but it will be discussed later.

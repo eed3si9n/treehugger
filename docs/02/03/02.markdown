@@ -1,0 +1,36 @@
+Variables
+---------
+
+### Abstract variable declarations
+
+Abstract variable declarations are written using `VAR(...)`:
+
+```scala
+(VAR("foo", IntClass): Tree)
+```
+
+or in general:
+
+```scala
+VAR(sym|"x", typ).empty
+```
+
+### Variable definitions
+
+Value definitions are written as:
+
+```scala
+VAR("foo", IntClass) := LIT(0)
+```
+
+as a special form of initializing the variable with the default value of the type, `WILDCARD` can be used as follows:
+
+```scala
+VAR("foo", IntClass) := WILDCARD
+```
+
+This prints as:
+
+```scala
+var foo: Int = _
+```

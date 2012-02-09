@@ -1,0 +1,37 @@
+Type members
+------------
+
+### Abstract type declarations
+
+Abstract type declarations are written using `TYPE(...)`. Optionally, lower bounds and higher bounds can be specified:
+
+```scala
+(TYPE("T"): Tree)
+(TYPE("T") LOWER(IntClass): Tree)
+
+val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T) 
+(TYPE(sym.T) UPPER(ComparableTClass): Tree)
+```
+
+or in general:
+
+```scala
+(TYPE(sym|"T") [LOWER(lo)] [UPPER(hi)]).empty
+```
+
+where `lo` denotes an optional lower bound type and `hi` upper bound type.
+
+### Type alias definitions
+
+Type alias definitions are written by appending `:=` and right-hand side `Type`. The alias may accompany type parameters given by `withTypeParams(TYPE(...))`:
+
+```scala
+TYPE("IntList") := listType(IntClass)
+TYPE("Two") withTypeParams(TYPE(sym.A)) := tupleType(sym.A, sym.A)
+```
+
+or in general:
+
+```scala
+TYPE(sym|"T") [withTypeParams(TYPE(typ1), ...)] := typ2
+```
