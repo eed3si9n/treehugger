@@ -660,6 +660,8 @@ trait Types extends api.Types { self: Forest =>
       typeRef(pre, sym, args)
   }
 
+  def appliedType(tycon: Type, args: Type*): Type = appliedType(tycon, args.toList)
+  
   /** A creator for type applications */
   def appliedType(tycon: Type, args: List[Type]): Type =
     if (args.isEmpty) tycon //@M! `if (args.isEmpty) tycon' is crucial (otherwise we create new types in phases after typer and then they don't get adapted (??))

@@ -157,10 +157,12 @@ limit them to some members."""                                                ! 
   // _ initializes var to 0 
   def variable3 = ((VAR(sym.foo, IntClass) := WILDCARD) must print_as("var foo: Int = _"))
   
-  def type1 = (TYPE("T") LOWER(IntClass): Tree) must print_as("type T >: Int")
+  def type1 =
+    ((TYPE("T"): Tree) must print_as("type T")) and
+    ((TYPE("T") LOWER(IntClass): Tree) must print_as("type T >: Int"))
   
   def type2 = {
-    val ComparableTClass = appliedType(ComparableClass.typeConstructor, List(sym.T)) 
+    val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T) 
     val X = RootClass.newTypeParameter("X")
     val CovX = RootClass.newTypeParameter("X") setFlag(Flags.COVARIANT)
     

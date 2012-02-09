@@ -102,7 +102,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val BasicIntQueue: ClassSymbol = RootClass.newClass("BasicIntQueue")
     val Doubling: ClassSymbol = RootClass.newClass("Doubling")
     val buf: TermSymbol = BasicIntQueue.newValue("buf")
-    def arrayBufferType(arg: Type)  = appliedType(ArrayBufferClass.typeConstructor, List(arg))
+    def arrayBufferType(arg: Type)  = appliedType(ArrayBufferClass.typeConstructor, arg)
     
     val trees =
       (CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
@@ -150,7 +150,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val arrow = ArrowAssocClass.newMethod("->")
     val B = arrow.newTypeParameter("B")
     val tuple2AB = tupleType(A.toType :: B.toType :: Nil)
-    val ArrowAssocA = appliedType(ArrowAssocClass, A.toType :: Nil)
+    val ArrowAssocA = appliedType(ArrowAssocClass, A.toType)
     
     val tree =
       (MODULEDEF(PredefModule) := BLOCK(
