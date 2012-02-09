@@ -55,7 +55,7 @@ the default value of the type (for example `0` for Int)."""                   ! 
      """`DEF(sym|"get", typ)` where `sym` is the name of the function
 and `typ` is the result type."""                                              ! function1^
      """Parameter lists may be added to the declaration as
-`DEF(sym|"put", typ) withParams(PARAM("x", typ1)), ...`."""                   ! function2^
+`DEF(sym|"put", typ) withParams(PARAM("x", typ1)[ := tree]), ...`."""         ! function2^
      """Type parameter lists may be added as
 `DEF(sym|"get", typ) withTypeParams(TYPE(typ1)), ...`."""                     ! function3^
                                                                               end^
@@ -185,23 +185,19 @@ limit them to some members."""                                                ! 
     ((TYPE("M") withTypeParams(TYPE(CONTRAVARIANT(A))): Tree) must print_as("type M[-A]")) 
   }
 
-  def function1 = {
-    // This converts to a tree implicitly
-    val tree: Tree = DEF("get", IntClass)
-    tree must print_as("def get: Int")
-  }
-  
-  def function2 = {
-    // This converts to a tree implicitly
-    val tree: Tree = DEF("put", UnitClass) withParams(PARAM("x", IntClass))
-    tree must print_as("def put(x: Int): Unit")
-  }
-  
-  def function3 = {
-    // This converts to a tree implicitly
-    val tree: Tree = DEF("put", UnitClass) withTypeParams(TYPE(sym.T)) withParams(PARAM("x", sym.T))
-    tree must print_as("def put[T](x: T): Unit")
-  }
+  def function1 =
+    (DEF("get", IntClass): Tree) must print_as("def get: Int")
+    
+  def function2 =
+    ((DEF("put", UnitClass) withParams(PARAM("x", IntClass)): Tree) must print_as("def put(x: Int): Unit")) and
+    ((DEF("put", UnitClass) withParams(PARAM("x", IntClass) := LIT(0)): Tree) must print_as("def put(x: Int = 0): Unit"))
+
+  def function3 =
+    (DEF("compare", BooleanClass)
+      withTypeParams(TYPE(sym.T))
+      withParams(PARAM("a", sym.T) := LIT(0))
+      withParams(PARAM("b", sym.T) := LIT(0)): Tree) must print_as(
+        "def compare[T](a: T = 0)(b: T = 0): Boolean")
 
   def bounds1 = {
     val tree: Tree = DEF("put", UnitClass).

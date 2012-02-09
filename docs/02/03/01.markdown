@@ -21,7 +21,7 @@ Calling `empty` method creates a `Tree` without a right-hand side (rhs) expressi
 
 ### Value definitions
 
-Value definitions are written by appending rhs tree with `:=` as follows:
+Value definitions are written by appending right-hand side tree after `:=` as follows:
 
 ```scala
 VAL("foo", IntClass) := LIT(0)

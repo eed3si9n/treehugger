@@ -1,0 +1,73 @@
+Functions
+---------
+
+### Abstract function declarations
+
+Abstract function declarations are written using `DEF(...)`. Optionally, parameter lists can be specified using `withParams(PARAM(...), ...)` and type parameters can be specified using `withTypeParams(TYPE(...), ...)`:
+
+```scala
+(DEF("get", IntClass): Tree)
+(DEF("put") withParams(PARAM("x", IntClass)): Tree)
+(DEF("compare", BooleanClass)
+  withTypeParams(TYPE(sym.T))
+  withParams(PARAM("a", sym.T) := LIT(0))
+  withParams(PARAM("b", sym.T) := LIT(0)): Tree)
+```
+
+The above examples print as:
+
+```scala
+def get: Int
+def put(x: Int)
+def compare[T](a: T = 0)(b: T = 0): Boolean
+```
+
+In genral:
+
+```scala
+(DEF("get"|sym, [typ])
+  [withParams(PARAM("x"|sym, typ)[ := tree], ...)]*
+  [withTypeParams(TYPE(...), ...)]*).empty
+```
+
+Note `withParams(...)` clause may be appended multiple times, each forming a parameter list. Similar to `VAL(...)`, `PARAM(...)` can be followed by `:=` and rhs to specify the default argument.
+
+### Function definition
+
+Function definitions are written by appending right-hand side tree after `:=` as follows:
+
+```scala
+DEF("get", IntClass) := LIT(0)
+```
+
+This prints as:
+
+```scala
+def get: Int = 0
+```
+
+Like Scala, the result type can be omitted as follows:
+
+```scala
+DEF("get") := LIT(0)
+```
+
+### Procedures
+
+Procedure definitions are written by omitting the result type and using `BLOCK(tree, ...)` for the rhs:
+
+```scala
+DEF("write") withParams(PARAM("str", StringClass)) := BLOCK(
+  LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+def write(str: String) {
+  0
+}
+```
+
+
