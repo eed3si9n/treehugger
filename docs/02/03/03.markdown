@@ -35,3 +35,20 @@ or in general:
 ```scala
 TYPE(sym|"T") [withTypeParams(TYPE(typ1), ...)] := typ2
 ```
+
+### Variance annotations
+
+Variance annotations for the type parameters are set using `COVARIANT(...)` and `CONTRAVARIANT(...)`:
+
+```scala
+val A = RootClass.newTypeParameter("A")
+(TYPE("M") withTypeParams(TYPE(COVARIANT(A))): Tree)
+(TYPE("M") withTypeParams(TYPE(CONTRAVARIANT(A))): Tree)
+```
+
+The above examples print as:
+
+```scala
+type M[+A]
+type M[-A]
+```

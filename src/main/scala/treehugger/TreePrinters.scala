@@ -141,7 +141,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
     private def symNameInternal(tree: Tree, name: Name, decoded: Boolean): String = {
       def nameFn(sym: Symbol) = {
-        val prefix = if (sym.isMixinConstructor) "/*%s*/".format(quotedName(sym.owner.name, decoded)) else ""
+        val prefix =
+          if (sym.isCovariant) "+"
+          else if (sym.isContravariant) "-"
+          // if (sym.isMixinConstructor) "/*%s*/".format(quotedName(sym.owner.name, decoded))
+          else ""
         val suffix = if (uniqueIds) "#"+sym.id else ""
         prefix + tree.symbol.decodedName + suffix
       }

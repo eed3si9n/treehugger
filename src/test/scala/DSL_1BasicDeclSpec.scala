@@ -47,6 +47,10 @@ the default value of the type (for example `0` for Int)."""                   ! 
     """`TYPE(sym|"T") := typ` or"""                                           ! type4^
     """`TYPE(sym|"T") withTypeParams(TYPE(typ1)) := typ2`."""                 ! type5^    
                                                                               p^
+  "Variance annotions are written as"                                         ^
+    """`withTypeParams(TYPE(COVARIANT(sym|"T")))` or
+`withTypeParams(TYPE(CONTRAVARIANT(sym|"T")))`."""                            ! variance1^    
+                                                                              p^
   "Function declarations are written as"                                      ^
      """`DEF(sym|"get", typ)` where `sym` is the name of the function
 and `typ` is the result type."""                                              ! function1^
@@ -163,11 +167,10 @@ limit them to some members."""                                                ! 
   
   def type2 = {
     val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T) 
-    val X = RootClass.newTypeParameter("X")
-    val CovX = RootClass.newTypeParameter("X") setFlag(Flags.COVARIANT)
-    
+    val X = RootClass.newAliasType("X")
+
     ((TYPE("T") UPPER(ComparableTClass): Tree) must print_as("type T <: Comparable[T]")) and
-    ((TYPE("MyCollection") withTypeParams(TYPE(CovX)) UPPER(iterableType(X)): Tree) must print_as("type MyCollection[X] <: Iterable[X]"))
+    ((TYPE("MyCollection") withTypeParams(TYPE(COVARIANT(X))) UPPER(iterableType(X)): Tree) must print_as("type MyCollection[+X] <: Iterable[X]"))
   }
   
   def type3 = (TYPE("T") LOWER(IntClass) UPPER(sym.Addressable): Tree) must print_as("type T >: Int <: Addressable")
@@ -176,6 +179,12 @@ limit them to some members."""                                                ! 
   
   def type5 = (TYPE("Two") withTypeParams(TYPE(sym.A)) := tupleType(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
   
+  def variance1 = {
+    val A = RootClass.newTypeParameter("A")
+    ((TYPE("M") withTypeParams(TYPE(COVARIANT(A))): Tree) must print_as("type M[+A]")) and
+    ((TYPE("M") withTypeParams(TYPE(CONTRAVARIANT(A))): Tree) must print_as("type M[-A]")) 
+  }
+
   def function1 = {
     // This converts to a tree implicitly
     val tree: Tree = DEF("get", IntClass)

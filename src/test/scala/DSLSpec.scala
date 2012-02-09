@@ -11,10 +11,10 @@ trait DSLSpec extends Specification {
     
     val foo = RootClass.newValue("foo")
     val Addressable = RootClass.newClass("Addressable")
-    val A = RootClass.newTypeParameter("A")
-    val B = RootClass.newTypeParameter("B")
+    val A = RootClass.newAliasType("A")
+    val B = RootClass.newAliasType("B")
     val C = RootClass.newClass("C")
-    val T = RootClass.newTypeParameter("T")
+    val T = RootClass.newAliasType("T")
   }
   
   def print_as(expected: String*): matcher.Matcher[Tree] =

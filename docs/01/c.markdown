@@ -29,7 +29,8 @@ object sym {
   val buf = BasicIntQueue.newValue("buf")  
   val A = ArrowAssocClass.newTypeParameter("A")
   val arrow = ArrowAssocClass.newMethod("->")
-  val B = arrow.newTypeParameter("B")  
+  val B = arrow.newTypeParameter("B")
+  val T = BasicIntQueue.newAliasType("T")
 }
 ```
 

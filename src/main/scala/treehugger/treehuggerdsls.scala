@@ -527,7 +527,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
     
     class TypeDefSymStart(val sym: Symbol) extends TypeDefStart {
-      def name        = sym.name.toTypeName
+      def name = sym.name.toTypeName
       
       def mkTree(rhs: Tree): TypeDef =
         TypeDef(mods, name, tparams,
@@ -661,7 +661,14 @@ trait TreehuggerDSLs { self: Forest =>
 
     def STAR(typ: Type): Type         = repeatedParamType(typ)
     def BYNAME(typ: Type): Type       = byNameParamType(typ)
+    def COVARIANT(name: Name): Name   = newTypeName("+" + name.name)
+    def COVARIANT(symbol: Symbol): Symbol =
+      symbol.owner.newAliasType(symbol.name).setFlag(Flags.COVARIANT)
+    def CONTRAVARIANT(name: Name): Name   = newTypeName("-" + name.name)
+    def CONTRAVARIANT(symbol: Symbol): Symbol =
+      symbol.owner.newAliasType(symbol.name).setFlag(Flags.CONTRAVARIANT)
     
+
     case class PRIVATEWITHIN(name: Name)
     
     def PAREN(tree: Tree): Tree = mkTuple(tree :: Nil)
