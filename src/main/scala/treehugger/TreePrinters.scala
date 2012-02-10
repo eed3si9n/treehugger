@@ -222,7 +222,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case classdef: ClassDef if classdef.name == tpnme.ANON_CLASS_NAME =>
            print(classdef.impl)
         
-        case ClassDef(mods, name, tparams, vparams, impl) =>
+        case ClassDef(mods, ctormods, name, tparams, vparams, impl) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           val word =
@@ -232,6 +232,10 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
           print(word, " ", symName(tree, name))
           printTypeParams(tparams)
+          if (ctormods != NoMods) {
+            print(" ")
+            printModifiers(tree, ctormods)
+          }
           if (vparams != Nil) printValueParams(vparams, true)
           
           print(if (mods.isDeferred) " <: "

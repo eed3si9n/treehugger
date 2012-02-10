@@ -18,6 +18,8 @@ where `PARAM(...)` declares a parameter while
       """Other uses of `withFlags(flag)` are abstract classes withFlags(Flags.ABSTRACT)`,
 final classes `withFlags(Flags.FINAL)`,
 sealed classes `withFlags(Flags.SEALED)`."""                                  ! class7^
+      """Private constructors are written as
+`CLASSDEF(sym|"C") withCtorFlags(Flags.PRIVATE)`"""                           ! class8^
                                                                               end^
   "Case class definitions are written as"                                     ^
       """`CASECLASSDEF(sym|"C")`, or with the class body, parameters, and parents as
@@ -71,7 +73,11 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     ((CLASSDEF("C") withFlags(Flags.ABSTRACT): Tree) must print_as("abstract class C")) and
     ((CLASSDEF("C") withFlags(Flags.FINAL): Tree) must print_as("final class C")) and
     ((CLASSDEF("C") withFlags(Flags.SEALED): Tree) must print_as("sealed class C"))
-      
+  
+  def class8 =
+    (CLASSDEF("C") withCtorFlags(Flags.PRIVATE)
+      withParams(PARAM("x", IntClass)): Tree) must print_as("class C private (x: Int)")
+
   def caseclass1 =
     ((CASECLASSDEF("C"): Tree) must print_as("case class C")) and
     ((CASECLASSDEF("C") withParams(PARAM("x", IntClass)) withParents(sym.Addressable) := BLOCK(
@@ -107,10 +113,10 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   
   def member3 =
     (CLASSDEF("C") := BLOCK(
-      DEF("get") withFlags(Flags.OVERRIDE) := LIT(0)
+      DEF("get") withFlags(Flags.OVERRIDE, Flags.FINAL) := LIT(0)
     )) must print_as(
       """class C {""",
-      """  override def get = 0""",
+      """  final override def get = 0""",
       """}"""
     )
   

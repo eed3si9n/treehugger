@@ -282,7 +282,7 @@ trait Trees { self: Universe =>
     def mods: Modifiers
     def keyword: String = this match {
       case TypeDef(_, _, _, _)        => "type"
-      case ClassDef(mods, _, _, _, _) => if (mods hasModifier Modifier.`trait`) "trait" else "class"
+      case ClassDef(mods, _, _, _, _, _) => if (mods hasModifier Modifier.`trait`) "trait" else "class"
       case DefDef(_, _, _, _, _, _)   => "def"
       case ModuleDef(_, _, _)         => "object"
       case PackageDef(_, _, _)        => "package"
@@ -307,7 +307,7 @@ trait Trees { self: Universe =>
 
   /** A class definition.
    */
-  case class ClassDef(mods: Modifiers, name: TypeName, tparams: List[TypeDef], vparams: List[ValDef], impl: Template)
+  case class ClassDef(mods: Modifiers, ctormods: Modifiers, name: TypeName, tparams: List[TypeDef], vparams: List[ValDef], impl: Template)
        extends ImplDef
 
   /** An object definition, e.g. `object Foo`.  Internally, objects are
@@ -724,7 +724,7 @@ trait Trees { self: Universe =>
         atOwner(tree.symbol.moduleClass) {
           traverseTrees(stats)
         }
-      case ClassDef(mods, name, tparams, vparams, impl) =>
+      case ClassDef(mods, ctormods, name, tparams, vparams, impl) =>
         atOwner(tree.symbol) {
           traverseAnnotations(mods.annotations); traverseTrees(tparams); traverseTrees(vparams); traverse(impl)
         }
@@ -875,7 +875,7 @@ trait Trees { self: Universe =>
   def newLazyTreeCopier: TreeCopier
 
   trait TreeCopierOps {
-    def ClassDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template): ClassDef
+    def ClassDef(tree: Tree, mods: Modifiers, ctormods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template): ClassDef
     def PackageDef(tree: Tree, mods: Modifiers, pid: RefTree, stats: List[Tree]): PackageDef
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template): ModuleDef
     def ValDef(tree: Tree, mods: Modifiers, lhs: Tree, rhs: Tree): ValDef
@@ -922,8 +922,8 @@ trait Trees { self: Universe =>
   }
 
   class StrictTreeCopier extends TreeCopierOps {
-    def ClassDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template) =
-      new ClassDef(mods, name.toTypeName, tparams, vparams, impl).copyAttrs(tree)
+    def ClassDef(tree: Tree, mods: Modifiers, ctormods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template) =
+      new ClassDef(mods, ctormods, name.toTypeName, tparams, vparams, impl).copyAttrs(tree)
     def PackageDef(tree: Tree, mods: Modifiers, pid: RefTree, stats: List[Tree]) =
       new PackageDef(mods, pid, stats).copyAttrs(tree)
     def ModuleDef(tree: Tree, mods: Modifiers, name: Name, impl: Template) =
@@ -1018,10 +1018,10 @@ trait Trees { self: Universe =>
 
   class LazyTreeCopier extends TreeCopierOps {
     val treeCopy: TreeCopier = newStrictTreeCopier
-    def ClassDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template) = tree match {
-      case t @ ClassDef(mods0, name0, tparams0, vparams0, impl0)
-      if (mods0 == mods) && (name0 == name) && (tparams0 == tparams) && (vparams0 == vparams) && (impl0 == impl) => t
-      case _ => treeCopy.ClassDef(tree, mods, name, tparams, vparams, impl)
+    def ClassDef(tree: Tree, mods: Modifiers, ctormods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template) = tree match {
+      case t @ ClassDef(mods0, ctormods0, name0, tparams0, vparams0, impl0)
+      if (mods0 == mods) && (ctormods0 == ctormods) && (name0 == name) && (tparams0 == tparams) && (vparams0 == vparams) && (impl0 == impl) => t
+      case _ => treeCopy.ClassDef(tree, mods, ctormods, name, tparams, vparams, impl)
     }
     def PackageDef(tree: Tree, mods: Modifiers, pid: RefTree, stats: List[Tree]) = tree match {
       case t @ PackageDef(mods0, pid0, stats0)
@@ -1257,9 +1257,9 @@ trait Trees { self: Universe =>
             transformStats(stats, currentOwner)
           }
         )
-      case ClassDef(mods, name, tparams, impl) =>
+      case ClassDef(mods, ctormods, name, tparams, impl) =>
         atOwner(tree.symbol) {
-          treeCopy.ClassDef(tree, transformModifiers(mods), name,
+          treeCopy.ClassDef(tree, transformModifiers(mods), transformModifiers(ctormods), name,
                             transformTypeDefs(tparams), transformTemplate(impl))
         }
       case ModuleDef(mods, name, impl) =>
@@ -1426,7 +1426,7 @@ trait Trees { self: Universe =>
   case EmptyTree =>
   case PackageDef(pid, stats) =>
      // package pid { stats }
-  case ClassDef(mods, name, tparams, impl) =>
+  case ClassDef(mods, ctormods, name, tparams, impl) =>
      // mods class name [tparams] impl   where impl = extends parents { defs }
   case ModuleDef(mods, name, impl) =>                             (eliminated by refcheck)
      // mods object name impl  where impl = extends parents { defs }
