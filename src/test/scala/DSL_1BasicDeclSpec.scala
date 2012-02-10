@@ -55,7 +55,7 @@ the default value of the type (for example `0` for Int)."""                   ! 
      """`DEF(sym|"get", typ)` where `sym` is the name of the function
 and `typ` is the result type."""                                              ! function1^
      """Parameter lists may be added to the declaration as
-`DEF(sym|"put", typ) withParams(PARAM("x", typ1)[ := tree]), ...`."""         ! function2^
+`DEF(sym|"put", typ) withParams(PARAM("x", typ1)), ...`."""                   ! function2^
      """Type parameter lists may be added as
 `DEF(sym|"get", typ) withTypeParams(TYPE(typ1)), ...`."""                     ! function3^
                                                                               end^

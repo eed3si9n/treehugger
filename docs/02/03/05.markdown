@@ -1,0 +1,30 @@
+Import Clauses
+--------------
+
+Import clauses are written using `IMPORT(...)`. Optionally, import selectors may be specified:
+
+```scala
+IMPORT(MutablePackage)
+IMPORT("scala.collection.mutable")
+IMPORT(MutablePackage, "_")
+IMPORT(MutablePackage, "Map", "Set")
+IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap")
+```
+
+The above examples print as:
+
+```scala
+import scala.collection.mutable
+import scala.collection.mutable
+import scala.collection.mutable._
+import scala.collection.mutable.{Map, Set}
+import scala.collection.mutable.{Map => MutableMap}
+```
+
+In general:
+
+```scala
+IMPORT(sym|"x.y.z", ["X" | RENAME("X") ==> "Y"]*)
+```
+
+The only odd thing is `==>` operator used for `RENAME(...)`. Because `=>` is already taken by Scala, treehugger DSL uses `==>` instead.

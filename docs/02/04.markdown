@@ -1,0 +1,72 @@
+Classes and Objects
+-------------------
+
+### Class definitions
+
+Class definitions are written using `CLASSDEF(...)`:
+
+```scala
+(CLASSDEF("C"): Tree)
+CLASSDEF("C") := BLOCK(
+  VAL("x") := LIT(0)
+)
+```
+
+The above examples print as:
+
+```scala
+class C
+class C {
+  val x = 0
+}
+```
+
+The general form of the first example is:
+
+```scala
+CLASSDEF(sym|"C").empty
+```
+
+The second example uses `:=` and `BLOCK(...)`.
+
+### Class members
+
+treehugger DSL uses `BLOCK(...)` wherever curly braces (`{}`) are used in Scala. `BLOCK(...)` accepts vararg of trees, such as class member definitions and expressions. A template body of a class can be specified by placing `BLOCK(...)` after `:=`.
+
+To define class members with access modifiers use `withFlags(...)`:
+
+```scala
+CLASSDEF("C") := BLOCK(
+  DEF("x") withFlags(Flags.PRIVATE) := LIT(0)
+  DEF("y") withFlags(Flags.PROTECTED) := LIT(0)
+  DEF("z") withFlags(PRIVATEWITHIN("this")) := LIT(0) 
+)
+```
+
+This prints as:
+
+```scala
+class C {
+  private def x = 0
+  protected def y = 0
+  private[this] def z = 0
+}
+```
+
+### Inheritance
+
+To define classes with base classes use `withParents(...)`:
+
+```scala
+CLASSDEF("C") withParents("B") := BLOCK(
+  DEF("x") withFlags(Flags.OVERRIDE) := LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+class C extends B {
+  override def x = 0
+}
+```

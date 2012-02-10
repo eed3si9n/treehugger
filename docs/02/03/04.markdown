@@ -26,11 +26,9 @@ In genral:
 
 ```scala
 (DEF("get"|sym, [typ])
-  [withParams(PARAM("x"|sym, typ)[ := tree], ...)]*
-  [withTypeParams(TYPE(...), ...)]*).empty
+  [withParams(PARAM("x"|sym, typ)[ := arg], ...)]*
+  [withTypeParams(TYPE(...), ...)]).empty
 ```
-
-Note `withParams(...)` clause may be appended multiple times, each forming a parameter list. Similar to `VAL(...)`, `PARAM(...)` can be followed by `:=` and rhs to specify the default argument.
 
 ### Function definition
 
@@ -70,4 +68,54 @@ def write(str: String) {
 }
 ```
 
+### Currying
 
+Note `withParams(...)` clause may be added multiple times, each forming a parameter list:
+
+```scala
+(DEF("compare")
+  withTypeParams(TYPE(sym.T))
+  withParams(PARAM("a", sym.T))
+  withParams(PARAM("b", sym.T))) := FALSE
+```
+
+### Default parameters
+
+Similar to `VAL(...)`, `PARAM(...)` can be followed by `:=` and rhs to specify the default argument:
+
+```scala
+(DEF("compare")
+  withTypeParams(TYPE(sym.T))
+  withParams(PARAM("a", sym.T) := LIT(0))
+  withParams(PARAM("b", sym.T) := LIT(0))) := FALSE
+```
+
+### By-name parameters
+
+By-name parameters are written using `BYNAME(typ)` as follows:
+
+```scala
+(DEF("whileLoop")
+  withParams(PARAM("cond", BYNAME(BooleanClass)))
+  withParams(PARAM("stat", BYNAME(UnitClass))): Tree)
+```
+
+This prints as:
+
+```scala
+def whileLoop(cond: => Boolean)(stat: => Unit)
+```
+
+### Repeated parameters
+
+Repeated parameters are written using `STAR(typ)` as follows:
+
+```scala
+(DEF("sum", IntClass) withParams(PARAM("args", STAR(IntClass))): Tree)
+```
+
+This prints as:
+
+```scala
+def sum(args: Int*): Int
+```

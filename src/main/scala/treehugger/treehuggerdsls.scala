@@ -405,6 +405,9 @@ trait TreehuggerDSLs { self: Forest =>
         _parents = _parents ::: (parent.toList map {TypeTree(_)})
         this
       }
+      def withParents(parent: String, parents: String*): this.type =
+        withParents((parent :: parents.toList) map { s => RootClass.newClass(s).toType }: _*)
+
       def withEarlyDefs(trees: Tree*): this.type = {
         trees.toList match {
           case List(b: Block) => _earlydefs = Some(b)
@@ -412,12 +415,6 @@ trait TreehuggerDSLs { self: Forest =>
         }
         this        
       }
-            
-      // def withParents(parent: Tree*): this.type = {
-      //   _parents = parent.toList
-      //   this
-      // }
-      
       def withParams(param: ValDef*): this.type = {
         _vparams = param.toList
         this

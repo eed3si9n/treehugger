@@ -12,7 +12,7 @@ where `PARAM(...)` declares a parameter while
       """Polymorphic classes are written as
 `CLASSDEF(sym|"C") withTypeParams(TYPE(typ))`."""                             ! class4^
       """Classes with base classes are written as
-`CLASSDEF(sym|"C") withParents(typ, ...)`."""                                 ! class5^
+`CLASSDEF(sym|"C") withParents(typ|"B", ...)`."""                             ! class5^
       """Using `withFlags(flag, ...)`, classes with access modifier can be written as
 `CLASSDEF(sym|"C") withFlags(Flags.PRIVATE)`."""                              ! class6^
       """Other uses of `withFlags(flag)` are abstract classes withFlags(Flags.ABSTRACT)`,
@@ -33,8 +33,9 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """be defined by placing value defitions and function definitions within the class body as
 `CLASSDEF(sym|"C") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`."""             ! member1^
       """Class members with access modifier can be written as
-`DEF(sym|"get", typ) withFlags(Flags.PROTECTED) := rhs` or"""                 ! member2^
-      """`DEF(sym|"get", typ) withFlags(PRIVATEWITHIN("this")) := rhs`."""    ! member3^
+`DEF(sym|"get", typ) withFlags(Flags.PROTECTED) := rhs`,"""                   ! member2^
+      """`DEF(sym|"get", typ) withFlags(Flags.OVERRIDE) := rhs`,"""           ! member3^
+      """`DEF(sym|"get", typ) withFlags(PRIVATEWITHIN("this")) := rhs`."""    ! member4^
                                                                               p^
   "Early definitions can be written as"                                       ^
       """`CLASSDEF(sym|"C") withEarlyDefs(stat, ...) withParents(typ, ...) := BLOCK(stat, ...)`.""" ! early1^
@@ -106,6 +107,15 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   
   def member3 =
     (CLASSDEF("C") := BLOCK(
+      DEF("get") withFlags(Flags.OVERRIDE) := LIT(0)
+    )) must print_as(
+      """class C {""",
+      """  override def get = 0""",
+      """}"""
+    )
+  
+  def member4 =
+    (CLASSDEF("C") := BLOCK(
       DEF("get") withFlags(PRIVATEWITHIN("this")) := LIT(0)
     )) must print_as(
       """class C {""",
@@ -116,12 +126,12 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   def early1 =
     (CLASSDEF("C") withEarlyDefs(
       VAL("name") := LIT("Bob")
-    ) withParents(sym.Addressable) := BLOCK(
+    ) withParents("B") := BLOCK(
       sym.print APPLY REF("msg")
     )) must print_as(
     "class C extends {",
     "  val name = \"Bob\"",
-    "} with Addressable {",
+    "} with B {",
     "  print(msg)",
     "}"
   )
