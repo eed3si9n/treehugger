@@ -1,0 +1,27 @@
+Classes and Objects
+-------------------
+
+### Templates
+
+Classes and objects are both defined in terms of _templates_, whose body is represented using `BLOCK(...)` in treehugger DSL.
+
+In general, treehugger DSL uses `BLOCK(...)` wherever curly braces (`{}`) appear in Scala. `BLOCK(...)` accepts vararg of trees, such as class member definitions and expressions:
+
+
+```scala
+val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")
+ 
+CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
+  DEF("get", IntClass),
+  DEF("put") withParams(PARAM("x", IntClass))
+)
+```
+
+This example prints as:
+
+```scala
+abstract class IntQueue {
+  def get: Int
+  def put(x: Int)
+}
+```

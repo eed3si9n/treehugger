@@ -1,0 +1,69 @@
+Classes
+-------
+
+### Class definitions
+
+Class definitions are written using `CLASSDEF(...)`:
+
+```scala
+(CLASSDEF("C"): Tree)
+CLASSDEF("C") := BLOCK(
+  VAL("x") := LIT(0)
+)
+```
+
+The above examples print as:
+
+```scala
+class C
+class C {
+  val x = 0
+}
+```
+
+The general form of the first example is:
+
+```scala
+CLASSDEF(sym|"C").empty
+```
+
+As with value and function names, `CLASSDEF` can accept either a symbol or a `String`.
+
+### Constructor parameters
+
+Primary constructor parameters are written using `withParams(...)` similar to function definitions. Except, it could use `VAL(...)` and `VAR(...)` in addition to `PARAM(...)`:
+
+```scala
+CLASSDEF("C")
+  withParams(PARAM("x", IntClass),
+    VAL("y", StringClass),
+    VAR("z", listType(StringClass))) := BLOCK(
+  DEF("hi") := LIT("hi") 
+)
+```
+
+This prints as:
+
+```scala
+class C(x: Int, val y: String, var z: List[String]) {
+  def hi = "hi"
+}
+```
+
+### Extending classes
+
+To define classes by extending super classes use `withParents(...)`:
+
+```scala
+CLASSDEF("C") withParents("B") := BLOCK(
+  DEF("x") := LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+class C extends B {
+  def x = 0
+}
+```

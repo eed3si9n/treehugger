@@ -1,0 +1,112 @@
+Modifiers
+---------
+
+Many of the `Tree` objects has `Modifier` field, which adds extra attribute about the tree such as access level and mutability. For both classes and their members modifier flags can be given using `withFlags(...)`, which takes a `PRIVATEWITHIN` or vararg of `Long`.
+
+### Access modifiers
+
+To define class members with access modifiers use `Flags.PRIVATE`, `Flags.PROTECTED`, and `PRIVATEWITHIN("scope")`:
+
+```scala
+CLASSDEF("C") := BLOCK(
+  DEF("x") withFlags(Flags.PRIVATE) := LIT(0)
+  DEF("y") withFlags(Flags.PROTECTED) := LIT(0)
+  DEF("z") withFlags(PRIVATEWITHIN("this")) := LIT(0) 
+)
+```
+
+This prints as:
+
+```scala
+class C {
+  private def x = 0
+  protected def y = 0
+  private[this] def z = 0
+}
+```
+
+### Overriding
+
+To override class members use `Flags.OVERRIDE`:
+
+```scala
+CLASSDEF("C") withParents("B") := BLOCK(
+  DEF("x") withFlags(Flags.OVERRIDE) := LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+class C extends B {
+  override def x = 0
+}
+```
+
+### Final members
+
+To prohibit overriding by subclasses class members are marked `final` using `Flags.FINAL`:
+
+```scala
+CLASSDEF("C") := BLOCK(
+  DEF("x") withFlags(Flags.FINAL) := LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+class C {
+  final def x = 0
+}
+```
+
+### Abstract classes
+
+To define abstract classes use `Flags.ABSTRACT` on `CLASSDEF(...)`:
+
+```scala
+val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")
+ 
+CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
+  DEF("get", IntClass)
+  DEF("put") withParams(PARAM("x", IntClass))
+)
+```
+
+This prints as:
+
+```scala
+abstract class IntQueue {
+  def get: Int
+  def put(x: Int)
+}
+```
+
+### Final classes
+
+To define final classes, which prohibits extension, use `Flags.FINAL` on `CLASSDEF(...)`:
+
+```scala
+(CLASSDEF("C") withFlags(Flags.FINAL): Tree)
+```
+
+This prints as:
+
+```scala
+final class C
+```
+
+### Sealed classes
+
+To define sealed classes use `Flags.SEALED` on `CLASSDEF(...)`:
+
+```scala
+CLASSDEF("Animal") withFlags(Flags.ABSTRACT, Flags.SEALED)
+```
+
+This prints as:
+
+```scala
+sealed abstract class Animal
+```
