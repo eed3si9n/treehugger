@@ -44,7 +44,11 @@ A _Type_ represents a Scala type. Unlike symbols, type information cannot be sup
 VAL("foo", IntClass)
 ```
 
-In the above code, `IntClass` is a symbol, but it is automatically promoted to a `Type`.
+In the above code, `IntClass` is a symbol, but it is automatically promoted to a `Type`. Similarly, a string can also be promoted to a `Type`.
+
+```scala
+VAL("foo", "Int")
+```
 
 Another way of creating a `Type` is to call one of the built-in functions to create an applied type:
 

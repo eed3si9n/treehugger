@@ -16,7 +16,7 @@ val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T)
 or in general:
 
 ```scala
-(TYPE(sym|"T") [LOWER(lo)] [UPPER(hi)]).empty
+(TYPE(sym|"T") [LOWER(lo|"C")] [UPPER(hi|"D")]).empty
 ```
 
 where `lo` denotes an optional lower bound type and `hi` upper bound type.

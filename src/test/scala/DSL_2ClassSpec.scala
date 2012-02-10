@@ -33,9 +33,9 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """be defined by placing value defitions and function definitions within the class body as
 `CLASSDEF(sym|"C") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`."""             ! member1^
       """Class members with access modifier can be written as
-`DEF(sym|"get", typ) withFlags(Flags.PROTECTED) := rhs`,"""                   ! member2^
-      """`DEF(sym|"get", typ) withFlags(Flags.OVERRIDE) := rhs`,"""           ! member3^
-      """`DEF(sym|"get", typ) withFlags(PRIVATEWITHIN("this")) := rhs`."""    ! member4^
+`DEF(sym|"get", typ|"Int") withFlags(Flags.PROTECTED) := rhs`,"""             ! member2^
+      """`DEF(sym|"get", typ|"Int") withFlags(Flags.OVERRIDE) := rhs`,"""     ! member3^
+      """`DEF(sym|"get", typ|"Int") withFlags(PRIVATEWITHIN("this")) := rhs`.""" ! member4^
                                                                               p^
   "Early definitions can be written as"                                       ^
       """`CLASSDEF(sym|"C") withEarlyDefs(stat, ...) withParents(typ, ...) := BLOCK(stat, ...)`.""" ! early1^

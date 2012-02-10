@@ -12,7 +12,7 @@ Abstract variable declarations are written using `VAR(...)`:
 or in general:
 
 ```scala
-VAR(sym|"x", typ).empty
+VAR(sym|"x", typ|"C").empty
 ```
 
 ### Variable definitions

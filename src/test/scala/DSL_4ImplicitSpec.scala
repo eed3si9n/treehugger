@@ -4,10 +4,10 @@ class DSL_4ImplicitSpec extends DSLSpec { def is = sequential                 ^
   "This is a specification to check Treehugger DSL"                           ^
                                                                               p^
   "Implicit members are written as"                                           ^
-      """`VAL(sym|"x", typ)` withFlags(Flags.IMPLICIT)"""                     ! implicit1^
+      """`VAL(sym|"x", typ|"Int")` withFlags(Flags.IMPLICIT)"""               ! implicit1^
                                                                               p^
   "Implicit parameters are written as"                                        ^
-      """`withParams(VAL(sym|"x", typ) withFlags(Flags.IMPLICIT))`"""         ! implicit2^                                                                            
+      """`withParams(VAL(sym|"x", typ|"Int") withFlags(Flags.IMPLICIT))`"""   ! implicit2^                                                                            
                                                                               p^
                                                                               end
   

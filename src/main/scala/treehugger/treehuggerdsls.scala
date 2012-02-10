@@ -405,8 +405,6 @@ trait TreehuggerDSLs { self: Forest =>
         _parents = _parents ::: (parent.toList map {TypeTree(_)})
         this
       }
-      def withParents(parent: String, parents: String*): this.type =
-        withParents((parent :: parents.toList) map { s => RootClass.newClass(s).toType }: _*)
 
       def withEarlyDefs(trees: Tree*): this.type = {
         trees.toList match {
@@ -719,6 +717,7 @@ trait TreehuggerDSLs { self: Forest =>
     
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
     implicit def mkTypeFromSymbol(sym: Symbol): Type = sym.toType
+    implicit def myTypeFromString(str: String): Type = RootClass.newClass(str).toType
     implicit def mkImportSelectorFromString(name: String): ImportSelector = ImportSelector(name, -1, name, -1)
     implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator = ifs.enumerator
     implicit def mkEnumeratorFromValDef(tree: ValDef): Enumerator =

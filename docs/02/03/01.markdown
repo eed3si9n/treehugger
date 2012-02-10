@@ -12,10 +12,10 @@ Abstract value declarations are written by wrapping the name and the type with `
 or in general:
 
 ```scala
-VAL(sym|"x", typ).empty
+VAL(sym|"x", typ|"C").empty
 ```
 
-where `sym` is a symbol and `typ` is a type of the value. In the above code, `sym|"x"` denotes that either a symbol or `String` is accepted as the name of the value.
+where `sym` is a symbol and `typ` is a type of the value. In the above code, `sym|"x"` denotes that either a symbol or `String` is accepted as the name of the value, and `type|"C"` denotes that either a type or `String` is accepted as the type of the value.
 
 Calling `empty` method creates a `Tree` without a right-hand side (rhs) expression. Because there's an implicit conversion, forcing `VAL(...)` as a `Tree` automatically calls `empty` method.
 

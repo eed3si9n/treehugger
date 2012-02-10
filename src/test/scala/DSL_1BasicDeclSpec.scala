@@ -20,22 +20,22 @@ By implicit conversion `empty` call is automatically injected .
 A value can also be declared without using a symbol like `VAL("bar", typ)`.""" ! value1^
                                                                               end^
   "Constant value definitions are written as"                                 ^
-    """`VAL(sym|"bar", [typ]) := rhs` where `rhs` is a tree such as a literal.
+    """`VAL(sym|"bar", [typ|"Int"]) := rhs` where `rhs` is a tree such as a literal.
 Notation `sym|"bar"` denotes that `VAL` takes either a symbol or a String as the first argument.
-Also, `[typ]` denotes that the type is optional."""                           ! value2^
+Also, `[typ|"Int"]` denotes that the type is optional."""                     ! value2^
                                                                               end^
   "Lazy value definitions are written as"                                     ^
-    """`LAZYVAL(sym|"bar", [typ]) := rhs`."""                                 ! lazyvalue1^
+    """`LAZYVAL(sym|"bar", [typ|"Int"]) := rhs`."""                           ! lazyvalue1^
                                                                               end^
   "Constant value definitions are written as"                                 ^
-    """`VAL(sym|"bar", [typ]) withFlags(Flags.FINAL) := rhs`."""              ! constantvalue1^
+    """`VAL(sym|"bar", [typ|"Int"]) withFlags(Flags.FINAL) := rhs`."""        ! constantvalue1^
                                                                               end^
   "Variable declarations are written as"                                      ^
-    """`VAR(sym, typ)` or `VAR("bar", typ)`."""                               ! variable1^
+    """`VAR(sym|"bar", typ|"Int")`."""                                        ! variable1^
                                                                               end^
   "Variable definitions are written as"                                       ^
-    """`VAR(sym|"bar", [typ]) := rhs`."""                                     ! variable2^
-    """`VAR(sym, typ) := WILDCARD` intoduces mutable field initialized to
+    """`VAR(sym|"bar", [typ|"Int"]) := rhs`."""                               ! variable2^
+    """`VAR(sym, typ|"Int") := WILDCARD` intoduces mutable field initialized to
 the default value of the type (for example `0` for Int)."""                   ! variable3^
                                                                               p^
   "Type declarations are written as"                                          ^
@@ -52,29 +52,29 @@ the default value of the type (for example `0` for Int)."""                   ! 
 `withTypeParams(TYPE(CONTRAVARIANT(sym|"T")))`."""                            ! variance1^    
                                                                               p^
   "Function declarations are written as"                                      ^
-     """`DEF(sym|"get", typ)` where `sym` is the name of the function
+     """`DEF(sym|"get", typ|"Int")` where `sym` is the name of the function
 and `typ` is the result type."""                                              ! function1^
      """Parameter lists may be added to the declaration as
-`DEF(sym|"put", typ) withParams(PARAM("x", typ1)), ...`."""                   ! function2^
+`DEF(sym|"put", typ|"Int") withParams(PARAM("x", typ1)), ...`."""             ! function2^
      """Type parameter lists may be added as
-`DEF(sym|"get", typ) withTypeParams(TYPE(typ1)), ...`."""                     ! function3^
+`DEF(sym|"get", typ|"Int") withTypeParams(TYPE(typ1)), ...`."""               ! function3^
                                                                               end^
   "View bound type parameters are written as"                                 ^
-    """`DEF(sym|"get", typ) withTypeParams(TYPE(typ) VIEWBOUNDS(trg))`
+    """`DEF(sym|"get", typ|"Int") withTypeParams(TYPE(typ) VIEWBOUNDS(trg))`
 where `trg` is a target Type,"""                                              ! bounds1^
                                                                               end^
   "Context bound type parameters are written as"                                 ^                                                                            
-    """`DEF(sym|"get", typ) withTypeParams(TYPE(typ) CONTEXTBOUNDS(tycon))`
+    """`DEF(sym|"get", typ|"Int") withTypeParams(TYPE(typ) CONTEXTBOUNDS(tycon))`
 where `tycon` is the type constructor Type."""                                ! bounds2^
                                                                               end^
   "Function definitions are written as"                                       ^
-     """`DEF(sym|"get", typ) := rhs`."""                                      ! function4^
+     """`DEF(sym|"get", typ|"") := rhs`."""                                   ! function4^
      """The result type `typ` may be omitted as
 `DEF(sym|"get") := rhs`."""                                                   ! function5^
                                                                               end^
   "Parameter lists"                                                           ^
      """with default arguments are written as
-`withParams(PARAM(sym|"x", typ) := arg)`."""                                  ! param1^
+`withParams(PARAM(sym|"x", typ|"Int") := arg)`."""                            ! param1^
      """By-name parameters are written as
 `withParams(PARAM(sym|"x", BYNAME(typ)))`"""                                  ! param2^
      """Repeated parameters are written as
@@ -134,7 +134,7 @@ limit them to some members."""                                                ! 
   }
   
   def value2 =
-    ((VAL(sym.foo, IntClass) := LIT(3)) must print_as("val foo: Int = 3")) and
+    ((VAL(sym.foo, "Int") := LIT(3)) must print_as("val foo: Int = 3")) and
     ((VAL("bar") := FALSE) must print_as("val bar = false"))
   
   def lazyvalue1 =
