@@ -34,7 +34,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """`sym APPLY PARTIALLY`."""                                            ! methodvalue1^
                                                                               p^
   "Type applications are written as"                                          ^
-      """`sym TYPEAPPLY typ`."""                                              ! typeapply1^
+      """`sym TYPEAPPLY (typ|"T", ...)`."""                                   ! typeapply1^
                                                                               p^
   "Tuples are written as"                                                     ^
       """`TUPLE(tree1, tree2, ...)`."""                                       ! tuple1^
@@ -151,7 +151,8 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   
   def methodvalue1 = (REF("put") APPLY PARTIALLY) must print_as("put _")
 
-  def typeapply1 = (REF("put") TYPEAPPLY sym.T) must print_as("put[T]")
+  def typeapply1 =
+    (REF("put") TYPEAPPLY(IntClass) APPLY(LIT(0))) must print_as("put[Int](0)")
   
   def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("(0, 1)")
 

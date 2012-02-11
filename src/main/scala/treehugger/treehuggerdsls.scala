@@ -681,7 +681,7 @@ trait TreehuggerDSLs { self: Forest =>
 
     case class PRIVATEWITHIN(name: Name)
     
-    def PAREN(tree: Tree): Tree = mkTuple(tree :: Nil)
+    def PAREN(trees: Tree*): Tree = TUPLE(trees.toList)
 
     def TUPLE(trees: Tree*): Tree = TUPLE(trees.toList)
 

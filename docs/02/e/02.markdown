@@ -1,7 +1,7 @@
 Function Applications
 ---------------------
 
-There are two ways to write function applications. The first way is calling `APPLY(arg, ...)` on a symbol or a tree:
+There are two ways to write function applications. The first way is calling `APPLY(arg, ...)` on a symbol or a tree. Here, `arg` denotes a `Tree`:
 
 ```scala
 sym.println APPLY (LIT("Hello, world!"))
@@ -70,3 +70,5 @@ This prints as:
 ```scala
 put _
 ```
+
+Note this is different from `APPLY`ing `WILDCARD` since `PARTIALLY` applies to the entire parameter list.
