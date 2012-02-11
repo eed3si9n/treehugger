@@ -1,0 +1,25 @@
+Comments
+--------
+
+Single line comments are added to an arbitrary tree as follows:
+
+```scala
+tree withComment("comments here", ...)
+```
+
+In the above, `...` indicates that the method takes a vararg.
+
+For example,
+
+```scala
+LIT(2) withComment("comments are useful",
+  "only if they provide more info than the code")
+```
+
+print as
+
+```scala
+// comments are useful
+// only if they provide more info than the code
+2
+```

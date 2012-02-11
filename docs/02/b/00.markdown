@@ -1,0 +1,4 @@
+Literals and Comments
+---------------------
+
+We will begin looking into treehugger DSL from the literals and comments since they are the simplest forms of `Tree`. Also having these allows us to gradually intoroduce more complex forms off of others.
