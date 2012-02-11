@@ -27,7 +27,7 @@ In genral:
 ```scala
 (DEF("get"|sym, [typ])
   [withParams(PARAM("x"|sym, typ|"C")[ := arg], ...)]*
-  [withTypeParams(TYPE(...), ...)]).empty
+  [withTypeParams(TYPE(...), ...)]).tree
 ```
 
 ### Function definition

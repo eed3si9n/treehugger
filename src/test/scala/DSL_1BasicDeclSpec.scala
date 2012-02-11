@@ -14,9 +14,9 @@ class DSL_1BasicDeclSpec extends DSLSpec { def is = sequential                ^
     """`tree withComment("a", ...)` where `tree` is an arbitrary tree."""     ! comment1^
                                                                               p^
   "Value declarations are written as"                                         ^
-    """`VAL(sym, typ).empty` where `sym` is a symbol created from `RootClass` or another symbol,
+    """`VAL(sym, typ).tree` where `sym` is a symbol created from `RootClass` or another symbol,
 and `typ` is a type of the value. This also be written as `VAL(sym, typ)` where `Tree` is expected.
-By implicit conversion `empty` call is automatically injected .
+By implicit conversion `tree` call is automatically injected .
 A value can also be declared without using a symbol like `VAL("bar", typ)`.""" ! value1^
                                                                               end^
   "Constant value definitions are written as"                                 ^

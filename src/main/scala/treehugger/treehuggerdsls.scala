@@ -216,6 +216,7 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(rhs: Tree): ResultTreeType
       def :=(rhs: Tree): ResultTreeType
       final def empty: ResultTreeType = mkTree(EmptyTree)
+      final def tree: ResultTreeType = empty
 
       private var _mods: Modifiers = null
       private var _pos: Position = null
@@ -342,10 +343,10 @@ trait TreehuggerDSLs { self: Forest =>
 
     class ValNameStart(val name: Name) extends TreeVODDStart[ValDef] with ValCreator {
     }
-    class ValTreeStart(val tree: Tree) extends TreeVODDStart[ValDef] with ValCreator {
+    class ValTreeStart(val lhs: Tree) extends TreeVODDStart[ValDef] with ValCreator {
       val name = newTermName("")
       
-      override def mkTree(rhs: Tree): ValDef = ValDef(mods, tree, rhs)
+      override def mkTree(rhs: Tree): ValDef = ValDef(mods, lhs, rhs)
     }
     
     class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator with TparamsStart with VparamssStart
