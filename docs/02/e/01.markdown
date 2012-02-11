@@ -6,17 +6,17 @@ Basic Expressions
 As we've seen earlier, literals are written as follows:
 
 ```scala
-LIT(1)     // Int
-LIT(1L)    // Long
-LIT(1.23)  // Double
-LIT(1.23F) // Float
-LIT('H')   // Char
-LIT("H")   // String
-LIT('Sym)  // scala.Symbol
-TRUE       // true
-FALSE      // false
-NULL       // null
-UNIT       // ()
+LIT(1)                       // 1
+LIT(1L)                      // 1L
+LIT(1.23)                    // 1.23
+LIT(1.23F)                   // 1.23F
+LIT('H')                     // 'H'
+LIT("H")                     // "H"
+LIT('Sym)                    // 'Sym
+TRUE                         // true
+FALSE                        // false
+NULL                         // null
+UNIT                         // ()
 ```
 
 ### Simple Names
@@ -29,15 +29,8 @@ object sym {
   val y = RootClass.newValue("y") 
 }
 
-REF("x")
-REF(sym.x)
-```
-
-These print as:
-
-```scala
-x
-x
+REF("x")                     // x
+REF(sym.x)                   // x
 ```
 
 ### Selection
@@ -45,15 +38,9 @@ x
 To refer to other values and methods, selections are written by calling `DOT(sym|"y")` either on a symbol or on a `REF(sym|"x")`. This returns an intermediate structure that can turn into a `Tree` by calling `tree` method or by implicit conversion:
 
 ```scala
-(sym.x DOT sym.y).tree
-(sym.x DOT "y": Tree)
-(REF("x") DOT "y": Tree)
-```
-
-All of the above print as:
-
-```scala
-x.y
+(sym.x DOT sym.y).Tree       // x.y
+(sym.x DOT "y": Tree)        // x.y
+(REF("x") DOT "y": Tree)     // x.y
 ```
 
 ### This
@@ -61,15 +48,8 @@ x.y
 References to `this` are written using `THIS` or `THIS(sym|"C")`:
 
 ```scala
-THIS
-THIS(sym.Address)
-```
-
-These print as:
-
-```scala
-this
-Address.this
+THIS                         // this
+THIS(sym.Address)            // Address.this
 ```
 
 ### Super
@@ -77,25 +57,12 @@ Address.this
 References to `super` are written using `SUPER` or `SUPER(sym|"C")`. This also returns an intermediate structure that can turn into a `Tree` by calling `tree` method or via implicit conversion:
 
 ```scala
-(SUPER: Tree)
-(SUPER("C"): Tree)
-```
-
-These print as:
-
-```scala
-super
-C.super
+(SUPER: Tree)                // super
+(SUPER("C"): Tree)           // C.super
 ```
 
 To add type parameter to `super`, call `TYPEAPPLY(sym|"T")`:
 
 ```scala
-SUPER TYPEAPPLY "T"
-```
-
-This prints as:
-
-```scala
-super[T]
+SUPER TYPEAPPLY "T"          // super[T]
 ```
