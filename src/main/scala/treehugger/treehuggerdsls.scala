@@ -193,11 +193,13 @@ trait TreehuggerDSLs { self: Forest =>
 
     case class SelectStart(tree: Select) {
       def apply(args: Tree*) = Apply(tree, args.toList)
+      def empty = tree
     }
     
     case class SuperStart(tree: Super) {
       def TYPEAPPLY(typ: Type): Super = Super(tree.qual, typ.toString.toTypeName)
       def TYPEAPPLY(name: Name): Super = Super(tree.qual, name.toTypeName)
+      def empty = tree
     }
 
     case class CaseStart(pat: Tree, guard: Tree) {
@@ -427,7 +429,7 @@ trait TreehuggerDSLs { self: Forest =>
         _ctormods = Modifiers(_ctormods.flags, pin.name, _ctormods.annotations)
         this
       }
-      
+
       def vparams: List[ValDef] = _vparams
       def parents: List[Tree] = _earlydefs.toList ::: _parents
       val selfDef: ValDef = emptyValDef

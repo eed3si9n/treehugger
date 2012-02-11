@@ -115,7 +115,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     val sym1 = RootClass.newValue("x")
     val sym2 = sym.Addressable.newValue("y")
     
-    ((sym1 DOT sym2: Tree) must print_as("x.y")) and
+    ((sym1 DOT sym2).empty must print_as("x.y")) and
     ((sym1 DOT "y": Tree) must print_as("x.y")) and
     ((REF("x") DOT "y": Tree) must print_as("x.y"))
   }
