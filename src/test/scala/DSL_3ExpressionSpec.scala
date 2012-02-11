@@ -55,6 +55,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   "Prefix operations are written as"                                          ^
       """`PLUS(tree)`, `MINUS(tree)`, `NOT(tree)`, and `TILDE(tree)`."""      ! unary1^
                                                                               p^
+  "Postfix operations are written as"                                         ^
+      """`tree POSTFIX(sym|"op")`."""                                         ! postfix1^
+                                                                              p^
   "Infix operations are written as"                                           ^
       """`tree INFIX(sym|"op") APPLY arg`, or"""                              ! infix1^
       """`tree INFIX(sym|"op", arg, ...)`."""                                 ! infix2^
@@ -205,6 +208,8 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     (NOT(FALSE) must print_as("!(false)")) and
     (TILDE(LIT(1)) must print_as("~(1)"))
   
+  def postfix1 = LIT(1) POSTFIX(Any_toString) must print_as("1 toString")
+
   def infix1 = LIT(1) INFIX("+") APPLY LIT(2) must print_as("1 + 2")
 
   def infix2 = REF("x") INFIX("slice", LIT(1), LIT(2)) must print_as("x slice (1, 2)")

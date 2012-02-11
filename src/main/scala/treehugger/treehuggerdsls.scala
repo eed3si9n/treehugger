@@ -117,6 +117,9 @@ trait TreehuggerDSLs { self: Forest =>
       def DOT(member: Name)         = SelectStart(Select(target, member))
       def DOT(sym: Symbol)          = SelectStart(Select(target, sym))
 
+      def POSTFIX(name: Name): Infix  = infix(target, name, List[Tree](): _*)
+      def POSTFIX(sym: Symbol): Infix = infix(target, sym, List[Tree](): _*)
+
       def INFIX(name: Name, param0: Tree, params: Tree*): Infix =
         infix(target, name, List(param0) ::: params.toList: _*)
       def INFIX(sym: Symbol, param0: Tree, params: Tree*): Infix =

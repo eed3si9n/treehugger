@@ -1,0 +1,23 @@
+Prefix, Infix, and Postfix Operations
+-------------------------------------
+
+Expressions can be constructed from operands and operators.
+
+### Prefix operations
+
+Prefix operations are written using one of `PLUS(tree)`, `MINUS(tree)`, `NOT(tree)`, or `TILDE(tree)`:
+
+```scala
+PLUS(LIT(1))                 // +(1)
+MINUS(LIT(1))                // -(1)
+NOT(FALSE)                   // !(false)
+TILDE(LIT(1))                // ~(1)
+```
+
+### Postfix operations
+
+Postfix operations are written by calling `POSFIX(sym|"x")` on a tree or a symbol:
+
+```scala
+LIT(1) POSTFIX(Any_toString) // 1 toString
+```

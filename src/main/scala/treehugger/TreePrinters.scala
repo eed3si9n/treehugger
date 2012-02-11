@@ -594,17 +594,27 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case ForFilter(_, test: Tree) =>
           print("if ", test)
         case Infix(Literal(x), name, args) =>
-          print(x.escapedStringValue, " ", symName(tree, name), " ")
-          if (args.size == 1) print(args(0))
-          else printRow(args, "(", ", ", ")")
+          print(x.escapedStringValue, " ", symName(tree, name))
+          if (!args.isEmpty) {
+            print(" ")
+            if (args.size == 1) 
+             args(0) match {
+                case x: Infix => print("(", x, ")") 
+                case _        => print(args(0))
+             }
+            else printRow(args, "(", ", ", ")")
+          }
         case Infix(qualifier, name, args) =>
-          print(qualifier, " ", symName(tree, name), " ")
-          if (args.size == 1) 
-            args(0) match {
-              case x: Infix => print("(", x, ")") 
-              case _        => print(args(0))
-            }
-          else printRow(args, "(", ", ", ")")
+          print(qualifier, " ", symName(tree, name))
+          if (!args.isEmpty) {
+            print(" ")
+            if (args.size == 1) 
+             args(0) match {
+                case x: Infix => print("(", x, ")") 
+                case _        => print(args(0))
+             }
+            else printRow(args, "(", ", ", ")")
+          }
         case InfixUnApply(Literal(x), name, args) =>
           print(x.escapedStringValue, " ", symName(tree, name), " ")
           if (args.size == 1) print(args(0))

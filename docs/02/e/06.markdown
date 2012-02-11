@@ -1,0 +1,20 @@
+Blocks
+------
+
+Blocks are written using `BLOCK(tree, ...)`:
+
+```scala
+BLOCK(
+  VAL("x") := LIT(0),
+  REF("x")
+)
+```
+
+This prints as:
+
+```scala
+{
+  val x = 1
+  x
+}
+```
