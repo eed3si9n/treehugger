@@ -43,7 +43,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """`PAREN(tree)`."""                                                    ! paren1^
                                                                               p^ 
   "Instance creations are written as"                                         ^
-      """`NEW(typ)`, or"""                                                    ! new1^
+      """`NEW(typ|"C")`, or"""                                                ! new1^
       """with arguments to the constructor as
 `NEW(typ, arg1, arg2, ...)`"""                                                ! new2^
       """Using `ANONDEF()`, instance creations with a class template are written as
@@ -158,24 +158,34 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 
   def paren1 = PAREN(LIT(0)) must print_as("(0)")
 
-  def new1 = NEW(sym.T) must print_as("new T")
+  def new1 =
+    (NEW(sym.T) must print_as("new T")) and
+    (NEW("C") must print_as("new C")) and
+    (NEW(REF("B") DOT "C") must print_as("new B.C"))
 
   def new2 = NEW(sym.T, LIT(0), LIT(1)) must print_as("new T(0, 1)")
 
   def new3 =
     (NEW(ANONDEF() := BLOCK(
-      DEF("get") := LIT(0)
+      DEF("name") := LIT("Robert")
     )) must print_as(
-      """new {""",
-      """  def get = 0""",
-      """}"""
+      "new {",
+      "  def name = \"Robert\"",
+      "}"
     )) and
-    (NEW(ANONDEF(sym.Addressable) := BLOCK(
-      DEF("get") := LIT(0)
+    (NEW(ANONDEF("C") := BLOCK(
+      DEF("name") := LIT("Robert")
     )) must print_as(
-      """new Addressable {""",
-      """  def get = 0""",
-      """}"""    
+      "new C {",
+      "  def name = \"Robert\"",
+      "}"    
+    )) and
+    (NEW(ANONDEF("C") withEarlyDefs(
+      VAL("name") := LIT("Robert")
+    )) must print_as(
+      "new {",
+      "  val name = \"Robert\"",
+      "} with C"
     ))
   
   def block1 =

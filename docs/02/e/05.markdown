@@ -1,0 +1,48 @@
+Instance Creation Expressions
+-----------------------------
+
+### Constructor invocations
+
+Instance creations are written using `NEW(path|typ|"C")`:
+
+```scala
+NEW(sym.T)                   // new T
+NEW("C")                     // new C
+NEW(REF("B") DOT "C")        // new B.C
+```
+
+Optionally, arguments may be passed into the constructor using `NEW(path|typ|"C", arg, ...)`:
+
+```scala
+NEW("C", LIT(0), LIT(1))     // new C(0, 1)
+```
+
+### Anonymous classes
+
+Anonymous classes are created by passing `ANONDEF(parent|"C", ...)` into `NEW(...)`:
+
+```scala
+NEW(ANONDEF() := BLOCK(
+  DEF("name") := LIT("Robert")
+))
+NEW(ANONDEF("C") := BLOCK(
+  DEF("name") := LIT("Robert")
+))
+NEW(ANONDEF("C") withEarlyDefs(
+  VAL("name") := LIT("Robert")
+))
+```
+
+These examples print as:
+
+```scala
+new {
+  def name = "Robert"
+}
+new C {
+  def name = "Robert"
+}
+new {
+  val name = "Robert"
+} with C
+```
