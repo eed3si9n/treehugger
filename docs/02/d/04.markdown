@@ -1,0 +1,22 @@
+Case Classes
+------------
+
+Case classes are defined using `CASECLASSDEF(...)`:
+
+```scala
+object sym {
+  val Expr = RootClass.newClass("Expr")
+  val Var  = RootClass.newClass("Var")
+}
+
+(CLASSDEF(sym.Expr) withFlags(Flags.SEALED, Flags.ABSTRACT): Tree)
+(CASECLASSDEF(sym.Var)
+  withParams(VAL("name", StringClass)) withParents(Expr): Tree)
+```
+
+These print as:
+
+```scala
+sealed abtract class Expr
+case class Var(name: String) extends Expr
+```

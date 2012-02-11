@@ -67,3 +67,25 @@ class C extends B {
   def x = 0
 }
 ```
+
+### Early denifitions
+
+To define field values before supertype constructor is called add early definitions using `withEarlyDefs(...)`:
+
+```scala
+CLASSDEF("C") withEarlyDefs(
+  VAL("name") := LIT("Bob")
+) withParents("B") := BLOCK(
+  LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+class C extends {
+  val name = "Bob"
+} with B {
+  0
+}
+```

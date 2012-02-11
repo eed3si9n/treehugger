@@ -1,0 +1,15 @@
+Polymorphic Classes
+-------------------
+
+Polymorphic classes are defined using `withTypeParams(...)`:
+
+```scala
+(CLASSDEF("Queue") withTypeParams(TYPE("T"))
+  withParams(VAL("leading", "T"), VAL("trailing", "T")): Tree)
+```
+
+This prints as:
+
+```scala
+class Queue[T](val leading: List[T], val trailing: List[T])
+```

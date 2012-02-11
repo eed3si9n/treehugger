@@ -1,0 +1,18 @@
+Object Definitions
+------------------
+
+Object definitions are written using `MODULEDEF(...)`:
+
+```scala
+MODULEDEF("Main") withParents("App") := BLOCK(
+  LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+object Main extends App {
+  0
+}
+```

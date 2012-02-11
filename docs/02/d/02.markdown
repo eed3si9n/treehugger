@@ -110,3 +110,18 @@ This prints as:
 ```scala
 sealed abstract class Animal
 ```
+
+### Private constructors
+
+To define private constructors use `Flags.PRIVATE` with `withCtorFlags(...)` on `CLASSDEF(...)`:
+
+```scala
+(CLASSDEF("C") withCtorFlags(Flags.PRIVATE)
+  withParams(PARAM("x", IntClass)): Tree)
+```
+
+This prints as:
+
+```scala
+class C private (x: Int)
+```
