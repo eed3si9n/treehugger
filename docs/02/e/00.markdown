@@ -1,0 +1,4 @@
+Expressions
+-----------
+
+Now that we've covered classes and objects, we should look into expressions in depth.

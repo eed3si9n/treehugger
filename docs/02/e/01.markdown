@@ -1,0 +1,101 @@
+Basic Expressions
+-----------------
+
+### Literals
+
+As we've seen earlier, literals are written as follows:
+
+```scala
+LIT(1)     // Int
+LIT(1L)    // Long
+LIT(1.23)  // Double
+LIT(1.23F) // Float
+LIT('H')   // Char
+LIT("H")   // String
+LIT('Sym)  // scala.Symbol
+TRUE       // true
+FALSE      // false
+NULL       // null
+UNIT       // ()
+```
+
+### Simple Names
+
+Simple names are written using `REF(sym|"x")` to refer to values and methods that immediately available in the current scope:
+
+```scala
+object sym {
+  val x = RootClass.newValue("x")
+  val y = RootClass.newValue("y") 
+}
+
+REF("x")
+REF(sym.x)
+```
+
+These print as:
+
+```scala
+x
+x
+```
+
+### Selection
+
+To refer to other values and methods, selections are written by calling `DOT(sym|"y")` either on a symbol or on a `REF(sym|"x")`. This returns an intermediate structure that can turn into a `Tree` by calling `tree` method or by implicit conversion:
+
+```scala
+(sym.x DOT sym.y).tree
+(sym.x DOT "y": Tree)
+(REF("x") DOT "y": Tree)
+```
+
+All of the above print as:
+
+```scala
+x.y
+```
+
+### This
+
+References to `this` are written using `THIS` or `THIS(sym|"C")`:
+
+```scala
+THIS
+THIS(sym.Address)
+```
+
+These print as:
+
+```scala
+this
+Address.this
+```
+
+### Super
+
+References to `super` are written using `SUPER` or `SUPER(sym|"C")`. This also returns an intermediate structure that can turn into a `Tree` by calling `tree` method or via implicit conversion:
+
+```scala
+(SUPER: Tree)
+(SUPER("C"): Tree)
+```
+
+These print as:
+
+```scala
+super
+C.super
+```
+
+To add type parameter to `super`, call `TYPEAPPLY(sym|"T")`:
+
+```scala
+SUPER TYPEAPPLY "T"
+```
+
+This prints as:
+
+```scala
+super[T]
+```

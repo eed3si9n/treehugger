@@ -19,10 +19,10 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 `SUPER TYPEAPPLY "T"`."""                                                     ! super3^      
                                                                               p^
   "Function applications are written as"                                      ^
-      """`sym APPLY arg` where `arg` is a tree,"""                            ! apply1^
-      """`tree APPLY arg`, or"""                                              ! apply2^
+      """`sym APPLY (arg, ...)` where `arg` is a tree,"""                     ! apply1^
+      """`tree APPLY (arg, ...)`, or"""                                       ! apply2^
       """as a shorthand for application on a selection
-`(sym1 DOT sym2)(arg)`."""                                                    ! apply3^
+`(sym1 DOT sym2)(arg, ...)`."""                                               ! apply3^
                                                                               end^
   "Sequence arguments are written as"                                         ^
       """`sym APPLY SEQARG(arg)"` to pass a sequence into vararg."""          ! seqarg1^
@@ -31,7 +31,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """`sym APPLY (REF(sym1) := arg)"`."""                                  ! namedarg1^
                                                                               end^
   "Method values are written as"                                              ^
-      """`sym APPLY WILDCARD`."""                                             ! methodvalue1^
+      """`sym APPLY PARTIALLY`."""                                            ! methodvalue1^
                                                                               p^
   "Type applications are written as"                                          ^
       """`sym TYPEAPPLY typ`."""                                              ! typeapply1^
@@ -136,7 +136,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   
   def apply1 = (sym.println APPLY LIT("Hello, world!")) must print_as("""println("Hello, world!")""")
   
-  def apply2 = (REF("x") DOT "y" APPLY LIT("Hello, world!")) must print_as("""x.y("Hello, world!")""")
+  def apply2 = (REF("x") DOT "y" APPLY (LIT(0), LIT(1)))  must print_as("""x.y(0, 1)""")
   
   def apply3 = {
     val sym1 = RootClass.newValue("x")
@@ -149,7 +149,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   
   def namedarg1 = (REF("put") APPLY (REF("x") := LIT(0))) must print_as("put(x = 0)")
   
-  def methodvalue1 = (REF("put") APPLY WILDCARD) must print_as("put(_)")
+  def methodvalue1 = (REF("put") APPLY PARTIALLY) must print_as("put _")
 
   def typeapply1 = (REF("put") TYPEAPPLY sym.T) must print_as("put[T]")
   

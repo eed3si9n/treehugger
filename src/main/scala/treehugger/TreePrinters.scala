@@ -480,8 +480,9 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         
         case Apply(fun, vargs) =>
           if (!isTupleTree(tree)) print(fun)
-
-          printRow(vargs, "(", ", ", ")")
+          if (vargs.size == 1
+            && vargs.head.symbol == definitions.PartiallyAppliedParam) print(" _")
+          else printRow(vargs, "(", ", ", ")")
 
         case ApplyDynamic(qual, vargs) =>
           print("<apply-dynamic>(", qual, "#", tree.symbol.nameString)

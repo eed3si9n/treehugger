@@ -1,0 +1,72 @@
+Function Applications
+---------------------
+
+There are two ways to write function applications. The first way is calling `APPLY(arg, ...)` on a symbol or a tree:
+
+```scala
+sym.println APPLY (LIT("Hello, world!"))
+(REF("x") DOT "y") APPLY (LIT(0), LIT(1))
+```
+
+These print as:
+
+```scala
+println("Hello, world!")
+x.y(0, 1)
+```
+
+### Function application on selections
+
+The second way is to apply `arg, ...` on intermediate structure returned by `DOT(sym|"y")`:
+
+```scala
+(REF("x") DOT "y")(LIT(0), LIT(1))
+```
+
+This prints as:
+
+```scala
+x.y(0, 1)
+```
+
+### Sequence arguments
+
+To pass sequence into a vararg parameter, use `SEQARG(arg)`:
+
+```scala
+THIS APPLY (SEQARG(REF("list")))
+```
+
+This prints as:
+
+```scala
+this((list: _*))
+```
+
+### Named arguments
+
+To pass named arguments into a function, specify the parameter using `REF(sym|"x")` as follows:
+
+```scala
+REF("put") APPLY (REF("x") := LIT(0))
+```
+
+This prints as:
+
+```scala
+put(x = 0)
+```
+
+### Partially applied functions
+
+Partially applied functions are written by calling `APPLY` with `PARTIALLY`:
+
+```scala
+REF("put") APPLY PARTIALLY
+```
+
+This prints as:
+
+```scala
+put _
+```

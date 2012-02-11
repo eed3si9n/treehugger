@@ -44,6 +44,7 @@ trait TreehuggerDSLs { self: Forest =>
     val SEQ_WILDCARD  = Ident(tpnme.WILDCARD_STAR)
     val NIL           = REF(NilModule)
     val NONE          = REF(NoneModule)
+    val PARTIALLY     = Ident(PartiallyAppliedParam) setSymbol PartiallyAppliedParam
 
     object WILD {
       def empty               = Ident(nme.WILDCARD)
