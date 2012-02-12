@@ -52,7 +52,7 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
   import definitions._
   import treehuggerDSL._
                                                                              
-  def pattern1 = (ID("x"): Tree) must print_as("x")
+  def pattern1 = ID("x") must print_as("x")
 
   def pattern2 = (WILDCARD) must print_as("_")
 
@@ -68,7 +68,8 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
 
   def pattern8 = sym.C UNAPPLY(LIT(0)) must print_as("C(0)")
 
-  def pattern9 = REF("C") UNAPPLY(LIT(0)) must print_as("C(0)")
+  def pattern9 =
+    REF("Address") UNAPPLY (WILDCARD, WILDCARD, WILDCARD) must print_as("Address(_, _, _)")
 
   def pattern10 = TUPLE(LIT(0), LIT(1)) must print_as("(0, 1)")
   
@@ -102,13 +103,26 @@ class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
     )
   
   def pattern16 =
-    BLOCK(
+    (BLOCK(
       CASE (TUPLE(ID("a"), TUPLE(ID("b"), ID("c")))) ==> REF("a") INT_+ REF("b") INT_* REF("c")
     ) must print_as(
       """{""",
       """  case (a, (b, c)) => a + b * c""",
       """}"""
-    )
+    )) and
+    (BLOCK(
+      CASE(SOME(ID("x"))) ==> REF("x"),
+      CASE(NONE) ==> LIT(0)
+    ) must print_as(
+      "{",
+      "  case Some(x) => x",
+      "  case None => 0",
+      "}"
+    ))
   
-  def patternvalue1 = (VAL(SOME(ID("x"))) := SOME(LIT(1))) must print_as("val Some(x) = Some(1)")
+  def patternvalue1 =
+    ((VAL(REF("Address") UNAPPLY
+      (ID("name"), ID("street"), ID("city"))) := REF("x")) must print_as(
+        "val Address(name, street, city) = x")) and
+    ((VAR(SOME(ID("y"))) := SOME(LIT(1))) must print_as("var Some(y) = Some(1)")) 
 }

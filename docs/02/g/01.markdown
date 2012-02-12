@@ -1,0 +1,118 @@
+Patterns
+--------
+
+Let's look into the pattern expresions.
+
+### Variable patterns
+
+Variable patterns are written as `ID(sym|"x")` and `WILDCARD`. They both match any value:
+
+```scala
+ID("x")                      // x
+WILDCARD                     // _
+```
+
+### Typed patterns
+
+Typed patterns are written as `pat withType(typ|"C")`:
+
+```scala
+ID("x") withType(IntClass)   // (x: Int)
+WILDCARD withType(IntClass)  // (_: Int)
+```
+
+### Pattern binders
+
+Pattern binders are written as `pat withBinder(sym|"x")`. Binders are used to give names to patterns:
+
+```scala
+WILDCARD withBinder("x")     // (x @ _)
+```
+
+### Literal patterns
+
+Literal patterns are written using `LIT(...)`:
+
+```scala
+LIT("X")                     // "X"
+```
+
+### Stable identifier patterns
+
+Stable identifier patterns are written using `BACKQUOTED(sym|"x")`:
+
+```scala
+BACKQUOTED("x")              // `x`
+```
+
+### Constructor patterns
+
+Constructor patterns are written by calling `UNAPPLY(pattern, ...)` to a symbol or a tree:
+
+```scala
+REF("Address") UNAPPLY(WILDCARD, WILDCARD, WILDCARD)
+```
+
+This prints as:
+
+```scala
+Address(_, _, _)
+```
+
+### Tuple patterns
+
+Tuple patterns are written using `TUPLE(pattern, ...)`:
+
+```scala
+TUPLE(LIT(0), LIT(1))        // (0, 1)
+```
+
+### Pattern sequences
+
+Sequence wildcards are written using `SEQ_WILDCARD withBinder(sym|"x")`:
+
+```scala
+REF("C") UNAPPLY(SEQ_WILDCARD withBinder("xs"))
+```
+
+This prints as:
+
+```scala
+C((xs @ _*))
+```
+
+### Infix operation patterns
+
+Infix operations patterns are written by calling `INFIX(op) UNAPPLY(pat, ...)` to a symbol or a tree:
+
+```scala
+LIT(0) INFIX(ConsClass) UNAPPLY (NIL)
+```
+
+This prints as:
+
+```scala
+0 :: Nil
+```
+
+Because this pattern appears frequently, treehugger DSL provides a built-in constructor `UNLIST_::`:
+
+```scala
+LIT(0) UNLIST_:: NIL         // 0 :: Nil
+```
+
+This works because an infix operation pattern _p op (q, ...)_ is a shorthand for the constructor pattern _op(p, q, ...)_.
+
+### Pattern alternatives
+
+Pattern alternatives are written as `pat1 OR_PATTERN pat2`:
+
+```scala
+LIT("New York") OR_PATTERN LIT("Paris")
+```
+
+This prints as:
+
+```scala
+"New York" | "Paris"
+```

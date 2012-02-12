@@ -1,0 +1,20 @@
+Case Sequence Functions
+-----------------------
+
+Case sequence functions are defined by listing `CASE(...)` clauses in a `BLOCK(...)`:
+
+```scala
+BLOCK(
+  CASE(SOME(ID("x"))) ==> REF("x"),
+  CASE(NONE) ==> LIT(0)
+)
+```
+
+This prints as:
+
+```scala
+{
+  case Some(x) => x
+  case None => 0
+}
+```

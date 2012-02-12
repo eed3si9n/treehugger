@@ -111,7 +111,8 @@ def whileLoop(cond: => Boolean)(stat: => Unit)
 Repeated parameters are written using `STAR(typ)` as follows:
 
 ```scala
-(DEF("sum", IntClass) withParams(PARAM("args", STAR(IntClass))): Tree)
+(DEF("sum", IntClass)
+  withParams(PARAM("args", STAR(IntClass))): Tree)
 ```
 
 This prints as:

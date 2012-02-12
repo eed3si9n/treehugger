@@ -1,0 +1,43 @@
+Pattern Matching Expressions
+----------------------------
+
+Pattern matching expressions are written by calling `MATCH(CASE(pattern), ...)` on a symbol or a tree:
+
+```scala
+REF("x") MATCH(
+  CASE (LIT(0) OR_PATTERN LIT(1)) ==> TRUE,
+  CASE (WILDCARD) ==> FALSE
+)
+```
+
+This prints as:
+
+```scala
+x match {
+  case 0 | 1 => true
+  case _ => false
+}
+```
+
+Just as we saw in anonymous functions, treehugger DSL uses `==>` to denote Scala's `=>`.
+
+## Guarded patterns
+
+Optinally, a guard clause may be added to the case clause using `IF(...)`:
+
+```scala
+REF("x") MATCH(
+  CASE (ID("x"),
+    IF(REF("x") INT_< LIT(10))) ==> TRUE,
+  CASE (WILDCARD) ==> FALSE
+)
+```
+
+This prints as:
+
+```scala
+x match {
+  case x if x < 10 => true
+  case _ => false
+}
+```

@@ -1,0 +1,36 @@
+Pattern Matching
+----------------
+
+Pattern matching is written using `tree MATCH(CASE(...), ...)`:
+
+```scala
+DEF("maxList", "T")
+    withTypeParams(TYPE("T") VIEWBOUNDS orderedType("T"))
+    withParams(PARAM("elements", listType("T"))) :=
+  REF("elements") MATCH (
+    CASE(ListClass UNAPPLY()) ==>
+      THROW(IllegalArgumentExceptionClass, "empty list!"),
+    CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
+    CASE(ID("x") UNLIST_:: ID("rest")) ==> BLOCK(
+      VAL("maxRest") := REF("maxList") APPLY(REF("rest")),
+      IF(REF("x") INT_> REF("maxRest")) THEN REF("x")
+      ELSE REF("maxRest") 
+    )
+  )
+```
+
+This prints as:
+
+```scala
+def maxList[T <% Ordered[T]](elements: List[T]): T =
+  elements match {
+    case List() =>
+      throw new IllegalArgumentException("empty list!")
+    case List(x) => x
+    case x :: rest => {
+      val maxRest = maxList(rest)
+      if (x > maxRest) x
+      else maxRest
+    }
+  }
+```

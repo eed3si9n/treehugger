@@ -9,7 +9,8 @@ Abstract type declarations are written using `TYPE(...)`. Optionally, lower boun
 (TYPE("T"): Tree)
 (TYPE("T") LOWER(IntClass): Tree)
 
-val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T) 
+val ComparableTClass =
+  appliedType(ComparableClass.typeConstructor, sym.T) 
 (TYPE(sym.T) UPPER(ComparableTClass): Tree)
 ```
 

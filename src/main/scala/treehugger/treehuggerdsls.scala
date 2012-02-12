@@ -149,6 +149,7 @@ trait TreehuggerDSLs { self: Forest =>
 
       def LIST_::(lhs: Tree) = lhs INFIX("::", target)
       def LIST_:::(lhs: Tree) = lhs INFIX(":::", target)
+      def UNLIST_::(lhs: Tree) = lhs INFIX(ConsClass) UNAPPLY(target)
 
       val FOREACH: Tree => Tree = APPLYFUNC(Traversable_foreach) _
       val MAP: Tree => Tree = APPLYFUNC(Traversable_map) _
@@ -582,6 +583,7 @@ trait TreehuggerDSLs { self: Forest =>
     def VAR(name: Name): ValNameStart               = VAL(name) withFlags Flags.MUTABLE
     def VAR(sym: Symbol, tp: Type): ValNameStart    = VAL(sym, tp) withFlags Flags.MUTABLE
     def VAR(sym: Symbol): ValSymStart               = VAL(sym) withFlags Flags.MUTABLE
+    def VAR(tree: Tree): ValTreeStart               = VAL(tree) withFlags Flags.MUTABLE
     
     def PARAM(name: Name, tp: Type): ValNameStart   = VAL(name, tp) withFlags Flags.PARAM
     def PARAM(name: Name): ValNameStart             = VAL(name) withFlags Flags.PARAM

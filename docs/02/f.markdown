@@ -23,7 +23,8 @@ Implicit parameters are also written using `withFlags(Flags.IMPLICIT)`:
 ```scala
 (DEF("greet")
     withParams(PARAM("name", StringClass))
-    withParams(PARAM("config", "Config") withFlags(Flags.IMPLICIT)) := BLOCK(
+    withParams(PARAM("config", "Config")
+      withFlags(Flags.IMPLICIT)) := BLOCK(
   sym.println APPLY(REF("config") APPLY REF("name"))
 ))
 ```
@@ -42,7 +43,7 @@ View bounds are written by calling `VIEWBOUNDS(typ|"T")` on `TYPE(...)`:
 
 ```scala
 (DEF("maxList", "T")
-  withTypeParams(TYPE("T") VIEWBOUNDS(orderedType("T")))
+  withTypeParams(TYPE("T") VIEWBOUNDS orderedType("T"))
   withParams(PARAM("elements", listType("T"))): Tree)
 ```
 
@@ -58,7 +59,7 @@ Context bounds are written by calling `CONTEXTBOUNDS(typ|"T")` on `TYPE(...)`:
 
 ```scala
 (DEF("put", UnitClass)
-  withTypeParams(TYPE(sym.A) CONTEXTBOUNDS(FullManifestClass))
+  withTypeParams(TYPE(sym.A) CONTEXTBOUNDS FullManifestClass)
   withParams(PARAM("x", sym.A)): Tree)
 ```
 

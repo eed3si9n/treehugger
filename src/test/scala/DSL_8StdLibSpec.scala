@@ -35,6 +35,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
   "Built-in constructors are written as"                                      ^
       """`LIST(tree, ...)` for List,"""                                       ! listctor1^
       """`NIL` for Nil,"""                                                    ! listctor2^
+      """`tree UNLIST_::: tree` for ::,"""                                    ! listctor3^
       """`SOME(tree, ...)` for Some,"""                                       ! optionctor1^
       """`NONE` for None,"""                                                  ! optionctor2^
       """`ARRAY(tree, ...)` for Array"""                                      ! arrayctor1^
@@ -134,7 +135,9 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
   def listctor1 = LIST(LIT(0)) must print_as("List(0)")
 
   def listctor2 = NIL must print_as("Nil")
-
+  
+  def listctor3 = (REF("x") UNLIST_:: NIL) must print_as("x :: Nil")
+  
   def optionctor1 = SOME(LIT(0)) must print_as("Some(0)")
 
   def optionctor2 = NONE must print_as("None")

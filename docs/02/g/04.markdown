@@ -1,0 +1,17 @@
+Pattern Values
+--------------
+
+Pattern values are defined by placing a pattern in `VAL(...)` or `VAR(...)`:
+
+```scala
+VAL(REF("Address") UNAPPLY
+  (ID("name"), ID("street"), ID("city"))) := REF("x")
+VAR(SOME(ID("y"))) := SOME(LIT(1))
+```
+
+These examples print as:
+
+```scala
+val Address(name, street, city) = x
+var Some(y) = Some(1)
+```
