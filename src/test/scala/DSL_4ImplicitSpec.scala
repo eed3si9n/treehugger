@@ -16,10 +16,17 @@ class DSL_4ImplicitSpec extends DSLSpec { def is = sequential                 ^
   import treehuggerDSL._
                                                                              
   def implicit1 =
-    (VAL("x", sym.Addressable) withFlags(Flags.IMPLICIT): Tree) must print_as(
-      "implicit val x: Addressable")
+    (DEF("intToRational") withFlags(Flags.IMPLICIT)
+      withParams(PARAM("x", IntClass)) := NEW("Rational", REF("x"))) must print_as(
+    "implicit def intToRational(x: Int) = new Rational(x)")
   
   def implicit2 =
-    (DEF("put", UnitClass) withParams(PARAM("x", IntClass) withFlags(Flags.IMPLICIT)) := UNIT) must print_as(
-    "def put(implicit x: Int): Unit = ()")
+    (DEF("greet")
+      withParams(PARAM("name", StringClass))
+      withParams(PARAM("config", "Config") withFlags(Flags.IMPLICIT)) := BLOCK(
+      sym.println APPLY(REF("config") APPLY REF("name"))
+    )) must print_as(
+    "def greet(name: String)(implicit config: Config) {",
+    "  println(config(name))",
+    "}")
 }

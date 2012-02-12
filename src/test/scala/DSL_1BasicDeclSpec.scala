@@ -200,11 +200,11 @@ limit them to some members."""                                                ! 
         "def compare[T](a: T = 0)(b: T = 0): Boolean")
 
   def bounds1 = {
-    val tree: Tree = DEF("put", UnitClass).
-      withTypeParams(TYPE(sym.A) VIEWBOUNDS(orderedType(sym.B))).
-      withParams(PARAM("x", sym.B))
+    val tree: Tree = DEF("maxList", "T").
+      withTypeParams(TYPE("T") VIEWBOUNDS(orderedType("T"))).
+      withParams(PARAM("elements", listType("T")))
     
-    tree must print_as("def put[A <% Ordered[B]](x: B): Unit")
+    tree must print_as("def maxList[T <% Ordered[T]](elements: List[T]): T")
   }
     
   def bounds2 = {
