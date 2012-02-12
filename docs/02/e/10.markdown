@@ -1,0 +1,35 @@
+While loops
+-----------
+
+While loops are written using `WHILE(...) DO BLOCK(...)`:
+
+```scala
+WHILE(TRUE) DO BLOCK(
+  sym.println APPLY LIT("Hello")
+)
+```
+
+This prints as:
+
+```scala
+while (true) {
+  println("Hello")
+}
+
+### Do-while loop
+
+Do-while loops are written by calling `DO_WHILE(...)` on a block:
+
+```scala
+BLOCK(
+  sym.println APPLY LIT("Hello")
+) DO_WHILE(TRUE)
+```
+
+This prints as:
+
+```scala
+do {
+  println("Hello")
+} while (true)
+```

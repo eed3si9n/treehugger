@@ -1,0 +1,20 @@
+If Expressions
+--------------
+
+If expressions are written using `IF(...) THEN(...) ELSE(...)|ENDIF` as follows:
+
+```scala
+(IF (REF("x") ANY_== REF("y")) THEN REF("x")
+ELSE LIT(0))
+
+IF (REF("sunny")) THEN (sym.println APPLY LIT("Hi!")) ENDIF
+```
+
+These examples print as:
+
+```scala
+if (x == y) x
+else 0
+
+if (sunny) println("Hi!")
+```

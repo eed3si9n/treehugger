@@ -226,11 +226,11 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       "else 0")
 
   def conditional2 =
-    (IF (REF("x") ANY_== REF("y")) THEN REF("x") ENDIF) must print_as(
-      "if (x == y) x")    
+    (IF (REF("sunny")) THEN (sym.println APPLY LIT("Hi!")) ENDIF) must print_as(
+      "if (sunny) println(\"Hi!\")")    
   
   def while1 =
-    (WHILE(TRUE) DO (
+    (WHILE(TRUE) DO BLOCK(
       sym.println APPLY LIT("Hello")
     )) must print_as(
       """while (true) {""",
