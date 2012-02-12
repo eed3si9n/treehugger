@@ -1,0 +1,79 @@
+Collection Class Operators
+--------------------------
+
+### List operators
+
+```scala
+lhs LIST_:: rhs              // ::
+lhs LIST_::: rhs             // :::
+lhs SEQ_++ rhs               // ++
+lhs SEQ_/: rhs               // /:
+lhs SEQ_:\ rhs               // :\
+```
+
+### Collection operators
+
+The collection operators form infix application trees only when the right-hand side is an anonymous function block or a case sequence function. Otherwise, they form selection and application trees:
+
+```scala
+REF("list") MAP LAMBDA(VAL("x")) ==> BLOCK(
+  REF("x") INT_+ LIT(1)
+)
+
+REF("list") MAP (WILDCARD INT_+ LIT(1))
+```
+
+These print as:
+
+```scala
+list map { x =>
+  x + 1
+}
+
+foo.map(_ + 1)
+```
+
+Here are the operators:
+
+```scala
+lhs FOREACH rhs              // foreach
+lhs MAP rhs                  // map
+lhs FLATMAP rhs              // flatMap
+lhs COLLECT rhs              // collect
+lhs FIND rhs                 // find
+lhs SLICE (from, to)         // slice
+lhs TAKE rhs                 // take
+lhs DROP rhs                 // drop
+lhs TAKEWHILE rhs            // take
+lhs DROPWHILE rhs            // drop
+lhs FILTER rhs               // filter
+lhs WITHFILTER rhs           // withFilter
+lhs FILTERNOT rhs            // filterNot
+lhs SPLITAT rhs              // splitAt
+lhs SPAN rhs                 // span
+lhs PARTITION rhs            // partition
+lhs GROUPBY rhs              // groupBy
+lhs FORALL rhs               // forall
+lhs EXISTS rhs               // exists
+lhs COUNT rhs                // count
+lhs FOLDLEFT rhs             // foldLeft
+lhs FOLDRIGHT rhs            // foldRight
+lhs REDUCELEFT rhs           // reduceLeft
+lhs REDUCERIGHT rhs          // reduceRight
+```
+
+### Collection Constructors
+
+Here are built-in constructors and values:
+
+```scala
+LIST(arg, ...)               // List
+NIL                          // Nil
+pat1 UNLIST_:: pat2          // ::
+SOME(arg, ...)               // Some
+NONE                         // None
+ARRAY(arg, ...)              // Array
+SEQ(arg, ...)                // Seq
+VECTOR(arg, ...)             // Vector
+MAKE_MAP(k ANY_-> v, ...)    // Map
+```

@@ -26,11 +26,18 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       """`tree INT_TO tree` for RichInt to method,"""                         ! int13^
       """`tree LIST_:: tree` for List :: method,"""                           ! list1^
       """`tree LIST_::: tree` for List ::: method,"""                         ! list2^
-      """`tree FOREACH LAMBDA(VAL("x")) ===> BLOCK(stat, ...)` for collection foreach method,"""  ! traversable1^
-      """`tree MAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)` for collection map method,"""  ! traversable2^
-      """`tree FILTER LAMBDA(VAL("x")) ===> BLOCK(stat, ...)` for collection filter method,"""  ! traversable3^
-      """`tree FLATMAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)` for collection flatMap method,"""  ! traversable4^
-      """`tree COLLECT BLOCK(CASE(pattern) ===> tree, ...)` for collection collect method."""  ! traversable5^
+      """`tree FOREACH LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+  for collection foreach method,"""                                           ! traversable1^
+      """`tree MAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+  for collection map method,"""                                               ! traversable2^
+      """`tree FILTER LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+  for collection filter method,"""                                            ! traversable3^
+      """`tree FLATMAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+  for collection flatMap method,"""                                           ! traversable4^
+      """`tree COLLECT BLOCK(CASE(pattern) ===> tree, ...)`
+  for collection collect method,"""                                           ! traversable5^
+      """`tree SEQ_/: tree` for collection /: method,"""                      ! traversable6^
+      """`tree SEQ_\: tree` for collection \: method,"""                      ! traversable7^
                                                                               p^
   "Built-in constructors are written as"                                      ^
       """`LIST(tree, ...)` for List,"""                                       ! listctor1^
@@ -41,7 +48,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       """`ARRAY(tree, ...)` for Array"""                                      ! arrayctor1^
       """`SEQ(tree, ...)` for Seq"""                                          ! seqctor1^
       """`VECTOR(tree, ...)` for Vector"""                                    ! vectorctor1^
-      """`MAKE_MAP(key ANY_-> value, ...)` for MAP"""                         ! mapctor1^
+      """`MAKE_MAP(key ANY_-> value, ...)` for Map"""                         ! mapctor1^
                                                                               end
   
   import treehugger.forest._
@@ -101,13 +108,16 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
     )
   
   def traversable2 =
-    (REF("foo") MAP LAMBDA(VAL("x")) ==> BLOCK(
-      REF("x"))) must print_as(
+    ((REF("foo") MAP LAMBDA(VAL("x")) ==> BLOCK(
+      REF("x") INT_+ LIT(1))) must print_as(
       "foo map { x =>",
-      "  x",
+      "  x + 1",
       "}"
-    )
-  
+    )) and
+    ((REF("foo") MAP (WILDCARD INT_+ LIT(1))) must print_as(
+      "foo.map(_ + 1)"
+    ))
+
   def traversable3 =
     (REF("foo") FILTER LAMBDA(VAL("x")) ==> BLOCK(
       REF("x"))) must print_as(
@@ -132,6 +142,16 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       "}"
     )
   
+  def traversable6 =
+    ((LIT(0) SEQ_/: REF("foo")) APPLY (WILDCARD INT_+ WILDCARD)) must print_as(
+      "(0 /: foo)(_ + _)"
+    )
+
+  def traversable7 =
+    ((REF("foo") SEQ_:\ LIT(0)) APPLY (WILDCARD INT_+ WILDCARD)) must print_as(
+      "(foo :\\ 0)(_ + _)"
+    )  
+
   def listctor1 = LIST(LIT(0)) must print_as("List(0)")
 
   def listctor2 = NIL must print_as("Nil")

@@ -1,0 +1,42 @@
+Value Class Operators
+---------------------
+
+Here are the operators that form infix application tree when called on a symbol or a tree.
+
+### Boolean operators
+
+```scala
+lhs OR rhs                   // ||
+lhs AND rhs                  // &&
+```
+
+### Any operators
+
+```scala
+lhs ANY_== rhs               // ==
+lhs ANY_!= rhs               // !=
+lhs ANY_-> rhs               // ->
+```
+
+### AnyRef operators
+
+```scala
+lhs OBJ_EQ rhs               // eq
+lhs OBJ_NE rhs               // ne
+```
+
+### Numeric operators
+
+```scala
+lhs INT_| rhs                // |
+lhs INT_& rhs                // &
+lhs INT_< rhs                // <
+lhs INT_> rhs                // >
+lhs INT_<= rhs               // <=
+lhs INT_>= rhs               // >=
+lhs INT_+ rhs                // +
+lhs INT_- rhs                // -
+lhs INT_* rhs                // *
+lhs INT_/ rhs                // /
+lhs INT_TO rhs               // TO
+```

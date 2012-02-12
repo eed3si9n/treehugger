@@ -151,18 +151,35 @@ trait TreehuggerDSLs { self: Forest =>
       def LIST_:::(lhs: Tree) = lhs INFIX(":::", target)
       def UNLIST_::(lhs: Tree) = lhs INFIX(ConsClass) UNAPPLY(target)
 
+      def SEQ_++(rhs: Tree) = target INFIX("++", rhs)
+      def SEQ_/:(lhs: Tree) = PAREN(lhs INFIX("/:", target))
+      def SEQ_:\(rhs: Tree) = PAREN(target INFIX(":\\", rhs))
+
       val FOREACH: Tree => Tree = APPLYFUNC(Traversable_foreach) _
       val MAP: Tree => Tree = APPLYFUNC(Traversable_map) _
       val FILTER: Tree => Tree = APPLYFUNC(Traversable_filter) _
       val FLATMAP: Tree => Tree = APPLYFUNC(Traversable_flatMap) _
       val COLLECT: Tree => Tree = APPLYFUNC(Traversable_collect) _
       val FIND: Tree => Tree = APPLYFUNC(Traversable_find) _
-
-      /** Methods for sequences **/
-      def DROP(count: Int): Tree =
-        if (count == 0) target
-        else (target DOT nme.drop)(LIT(count))
-            
+      def SLICE(from: Tree, to: Tree) = (target DOT "slice")(from, to)
+      def TAKE(n: Tree) = (target DOT Traversable_take)(n)
+      def DROP(n: Tree) = (target DOT Traversable_drop)(n)
+      val TAKEWHILE: Tree => Tree = APPLYFUNC(Traversable_takeWhile) _
+      val DROPWHILE: Tree => Tree = APPLYFUNC(Traversable_dropWhile) _
+      val WITHFILTER: Tree => Tree = APPLYFUNC(Traversable_withFilter) _
+      val FILTERNOT: Tree => Tree = APPLYFUNC(Traversable_filterNot) _
+      def SPLITAT(n: Tree) = (target DOT "splitAt")(n)
+      val SPAN: Tree => Tree = APPLYFUNC(Traversable_span) _
+      val PARTITION: Tree => Tree = APPLYFUNC(Traversable_partition) _
+      val GROUPBY: Tree => Tree = APPLYFUNC(Traversable_groupBy) _
+      val FORALL: Tree => Tree = APPLYFUNC(Traversable_forall) _
+      val EXISTS: Tree => Tree = APPLYFUNC(Traversable_exists) _
+      val COUNT: Tree => Tree = APPLYFUNC(Traversable_count) _
+      val FOLDLEFT: Tree => Tree = APPLYFUNC(Traversable_foldLeft) _
+      val FOLDRIGHT: Tree => Tree = APPLYFUNC(Traversable_foldRight) _
+      val REDUCELEFT: Tree => Tree = APPLYFUNC(Traversable_reduceLeft) _
+      val REDUCERIGHT: Tree => Tree = APPLYFUNC(Traversable_reduceRight) _
+      
       def APPLYFUNC(sym: Symbol)(f: Tree): Tree = f match {
         case Block(stats, expr)
         if (stats ::: List(expr)) forall {_.isInstanceOf[CaseDef]} =>

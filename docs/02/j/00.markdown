@@ -1,0 +1,4 @@
+Standard Library
+----------------
+
+treehugger DSL provides some built-in functions for commonly used functions.
