@@ -141,7 +141,7 @@ trait TreehuggerDSLs { self: Forest =>
       def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
       def withBinder(sym: Symbol) = Bind(sym, target)
       def withBinder(name: Name)  = Bind(name, target)
-      def withAnnotation(anno: AnnotationInfo*) =
+      def withAnnots(anno: AnnotationInfo*) =
         withType(annotatedType(anno.toList, NoType))
       
       /** Assignment */
@@ -241,7 +241,7 @@ trait TreehuggerDSLs { self: Forest =>
         _mods = Modifiers(_mods.flags, pin.name, _mods.annotations)
         this
       }
-      def withAnnotation(annot: AnnotationInfo*): this.type = {
+      def withAnnots(annot: AnnotationInfo*): this.type = {
         if (_mods == null)
           _mods = defaultMods
         _mods = Modifiers(_mods.flags, _mods.privateWithin, _mods.annotations ::: annot.toList)
@@ -700,7 +700,7 @@ trait TreehuggerDSLs { self: Forest =>
       case _                          => AppliedTypeTree(REF(TupleClass(trees.length)), trees)
     }
 
-    def ANNOT(typ: Type)              = AnnotationInfo(typ, Nil, Nil)
+    def ANNOT(typ: Type, args: Tree*) = AnnotationInfo(typ, args.toList, Nil)
 
     def LIST(xs: Tree*): Tree    = ID("List") APPLY(xs.toList: _*)
     def SOME(xs: Tree*): Tree    = Apply(SomeModule, TUPLE(xs.toList, true))

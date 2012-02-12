@@ -21,3 +21,29 @@ Postfix operations are written by calling `POSFIX(sym|"x")` on a tree or a symbo
 ```scala
 LIT(1) POSTFIX(Any_toString) // 1 toString
 ```
+
+### Infix operations
+
+Infix operations are written using `INFIX(sym|"op")` as follows:
+
+```scala
+LIT(1) INFIX("+") APPLY(LIT(2))
+```
+
+This prints as:
+
+```scala
+1 + 2
+```
+
+Alternatively, `INFIX(sym|"op", arg, ...)` can be called with righ-hand side arguments:
+
+```scala
+LIT(1) INFIX("+", LIT(2))    // 1 + 2
+```
+
+Finally, for commonly used operations treehugger DSL defines some built-in operators, which will be covered later:
+
+```scala
+LIT(1) INT_+ LIT(2)          // 1 + 2
+```

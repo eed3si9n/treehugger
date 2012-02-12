@@ -178,7 +178,17 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Nil  => tree.asInstanceOf[MemberDef].mods.annotations
         case anns => anns
       }
-      annots foreach (annot => print("@"+annot+" "))
+      annots foreach (printAnnotation)
+    }
+
+    def printAnnotation(annot: AnnotationInfo) {
+      print("@", annot.atp)
+      
+      if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
+      else if (!annot.assocs.isEmpty)
+        print(annot.assocs map { case (x, y) => x+" = "+y } mkString ("(", ", ", ")"))
+      
+      print(" ")
     }
 
     private var currentOwner: Symbol = NoSymbol

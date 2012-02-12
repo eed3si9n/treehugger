@@ -1,0 +1,34 @@
+Types, Annotations, and Assignments
+-----------------------------------
+
+### Typed Expressions
+
+Typed expressions are written using `withType(typ|"C")`:
+
+```scala
+LIT(0) withType(LongClass)   // (0: Long)
+```
+
+### Annotated Expressions
+
+Annotated expressions are written using `withAnnots(annot, ...)`:
+
+```scala
+REF("e") withAnnots(ANNOT(UncheckedClass))
+```
+
+This prints as:
+
+```scala
+(e: @unchecked)
+```
+
+Annotations are covered later in details.
+
+### Assignments
+
+Assignments are written using `:=`:
+
+```scala
+REF("x") := LIT(0)           // x = 0 
+```
