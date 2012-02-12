@@ -1,0 +1,58 @@
+For expressions
+---------------
+
+For expressions are written using `FOR(enum, ...) DO tree` as follows:
+
+```scala
+FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO (
+  sym.println APPLY LIT("Hello"))
+
+FOR(
+  VALFROM("i") := LIT(0) INT_TO LIT(2),
+  IF(REF("x") INT_< LIT(10))
+) DO (sym.println APPLY LIT("Hello"))
+
+FOR(
+  VALFROM("i") := LIT(0) INT_TO LIT(2),
+  VAL("x") := REF("i")
+) DO BLOCK(
+  sym.println APPLY LIT("Hello")
+)
+```
+
+These examples print as:
+
+```scala
+for (i <- 1 to 2)
+  println("Hello")
+
+for {
+  i <- 0 to 2
+  if x < 10
+} println("Hello")
+
+for {
+  i <- 0 to 2
+  x = i
+} {
+  println("Hello")
+}
+```
+
+`FOR(...)` takes vararg of enumerators which are constructed using `VALFROM(sym|"x") := tree`, `IF(tree)`,  or `VAL(sym|"x") := tree`.
+
+### For comprehension
+
+For comprehensions are written using `FOR(enum, ...) YEILD tree`:
+
+```scala
+FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) YIELD (
+  REF("i"))
+```
+
+This prints as:
+
+```scala
+for (i <- 0 to 2)
+  yield i
+```

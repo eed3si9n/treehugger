@@ -16,9 +16,9 @@ while (true) {
   println("Hello")
 }
 
-### Do-while loop
+### Do loops
 
-Do-while loops are written by calling `DO_WHILE(...)` on a block:
+Do loops are written by calling `DO_WHILE(...)` on a block:
 
 ```scala
 BLOCK(

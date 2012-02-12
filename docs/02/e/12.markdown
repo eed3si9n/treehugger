@@ -1,0 +1,60 @@
+Return Expressions and Exception Handling
+-----------------------------------------
+
+### Return expression
+
+Return exressions are written using `RETURN(tree)`:
+
+```scala
+RETURN(LIT(0))               // return 0
+```
+
+### Throwing exceptions
+
+Exceptions are thrown using `THROW(sym|c, [tree|"message"])`:
+
+```scala
+THROW(IllegalArgumentExceptionClass)
+THROW(IllegalArgumentExceptionClass, "oh no")
+THROW(IllegalArgumentExceptionClass, REF("x"))
+```
+
+These examples print as:
+
+```scala
+throw new IllegalArgumentException()
+throw new IllegalArgumentException("oh no")
+throw new IllegalArgumentException(x.toString())
+```
+
+### Catching exceptions
+
+Exceptions are caught using `TRY(stat, ...) CATCH(CASE(pat), ...) [ENDTRY|FINALLY(...)]`. `CASE(...)` accepts a pattern matching expression, which is shown briefly here, and covered in detail later:
+
+```scala
+(TRY (REF("something") APPLY LIT(0))
+CATCH (
+  CASE(WILDCARD) ==> (sym.println APPLY LIT("error"))
+) ENDTRY)
+
+(TRY (REF("something") APPLY LIT(0))
+CATCH (
+  CASE(WILDCARD) ==> (sym.println APPLY LIT("error"))
+) FINALLY(sym.println APPLY LIT("finally")))
+```
+
+In the above examples, `WILDCARD` is a pattern expression that matches to anything. The examples print as:
+
+```scala
+try {
+  something(0)
+} catch {
+  case _ => println("error")
+}
+
+try {
+  something(0)
+} catch {
+  case _ => println("error")
+} finally println("finally")
+```

@@ -1,0 +1,45 @@
+Anonymous Functions
+-------------------
+
+Anonymous functions are written using `LDAMBDA(VAL(...), ...) ===> rhs`:
+
+```scala
+LAMBDA(VAL("x")) ==> (REF("x") INT_+ LIT(1))
+
+LAMBDA(VAL("x", IntClass)) ==> BLOCK(
+  REF("x") INT_+ LIT(1))
+```
+
+These examples print as:
+
+```scala
+x => x + 1
+
+{ (x: Int) =>
+  x + 1
+}
+```
+
+As the second example shows, when the right-hand side tree is a block, the entire anonymous function is wrapped in a block, which makes it convenient to be used with higher-order functions.
+
+### Wildcard parameter
+
+The parameter list of anonymous functions may be `WILDCARD`:
+
+```scala
+LAMBDA(VAL(WILDCARD)) ==> (REF("x") INT_+ LIT(1))
+```
+
+This prints as:
+
+```scala
+_ => x + 1
+```
+
+### Placeholder syntax
+
+In addition, an anonymous functions are formed when an expression contains `WILDCARD`.
+
+```scala
+WILDCARD INT_+ WILDCARD      // _ + _
+```
