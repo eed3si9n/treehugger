@@ -1,0 +1,18 @@
+Packaging
+---------
+
+Packagings are written using `PACKAGE(sym|"p")` as follows:
+
+```scala
+PACKAGE("p") := BLOCK(
+  OBJECTDEF("M")
+)
+```
+
+This prints as:
+
+```scala
+package p {
+  object M
+}
+```

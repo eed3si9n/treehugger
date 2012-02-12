@@ -1,0 +1,18 @@
+Package Objects
+---------------
+
+Package objects are written using `PACKAGEOBJECTDEF(...)`:
+
+```scala
+PACKAGEOBJECTDEF("p") := BLOCK(
+  OBJECTDEF("M")
+)
+```
+
+This prints as:
+
+```scala
+package object p {
+  object M 
+}
+```

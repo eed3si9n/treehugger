@@ -1,0 +1,33 @@
+Compilation Units
+-----------------
+
+Compilation units are written by calling `inPackage(sym|"p")` or `withoutPackage` on `BLOCK(...)`:
+
+```scala
+BLOCK(
+  OBJECTDEF("M")
+) inPackage("p")
+```
+
+This prints as:
+
+```scala
+package p
+
+object M
+```
+
+```scala
+BLOCK(
+  OBJECTDEF("M1"),
+  OBJECTDEF("M2")
+) withoutPackage
+```
+
+This prints as:
+
+```scala
+object M1
+
+object M2
+```

@@ -11,6 +11,9 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
   "Packaging are written as"                                                  ^
       """`PACKAGE(sym|"p") := BLOCK(stat, ...)`."""                           ! package1^
                                                                               p^
+  "Packaging are written as"                                                  ^
+      """`PACKAGEOBJECTDEF(sym|"p") := BLOCK(stat, ...)`."""                  ! packageobj1^
+                                                                              p^
                                                                               end
   
   import treehugger.forest._
@@ -49,4 +52,12 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
       "package p {",
       "  object M",
       "}")    
+
+  def packageobj1 =
+    (PACKAGEOBJECTDEF("p") := BLOCK(
+      OBJECTDEF("M")
+    )) must print_as(
+      "package object p {",
+      "  object M",
+      "}")   
 }

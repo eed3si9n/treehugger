@@ -614,6 +614,11 @@ trait TreehuggerDSLs { self: Forest =>
         
     def CASEOBJECTDEF(name: Name): ModuleDefStart   = OBJECTDEF(name) withFlags Flags.CASE
     def CASEOBJECTDEF(sym: Symbol): ModuleDefStart  = OBJECTDEF(sym) withFlags Flags.CASE
+
+    def PACKAGEOBJECTDEF(name: Name): ModuleDefStart =
+      OBJECTDEF(name) withFlags Flags.PACKAGE
+    def PACKAGEOBJECTDEF(sym: Symbol): ModuleDefStart =
+      OBJECTDEF(sym) withFlags Flags.PACKAGE
     
     def PACKAGE(name: Name): PackageDefStart        = new PackageDefStart(name, false)
     def PACKAGE(sym: Symbol): PackageSymStart       = new PackageSymStart(sym, false)

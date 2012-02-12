@@ -270,6 +270,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case ModuleDef(mods, name, impl) =>
           printAnnotations(tree)
           printModifiers(tree, mods);
+          if (mods.hasFlag(Flags.PACKAGE)) print("package ")
           print("object " + symName(tree, name))
           if (impl.parents.isEmpty) print("") 
           else print(" extends ")
