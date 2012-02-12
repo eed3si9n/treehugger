@@ -1,10 +1,10 @@
 Object Definitions
 ------------------
 
-Object definitions are written using `MODULEDEF(...)`:
+Object definitions are written using `OBJECTDEF(...)`:
 
 ```scala
-MODULEDEF("Main") withParents("App") := BLOCK(
+OBJECTDEF("Main") withParents("App") := BLOCK(
   LIT(0)
 )
 ```
@@ -15,4 +15,12 @@ This prints as:
 object Main extends App {
   0
 }
+```
+
+### Case object definitions
+
+Case object definitions are written using `CASEOBJECTDEF(...)`:
+
+```scala
+(CASEOBJECTDEF("C"): Tree)  // case object C
 ```

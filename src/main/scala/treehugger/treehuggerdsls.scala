@@ -609,11 +609,11 @@ trait TreehuggerDSLs { self: Forest =>
     def TRAITDEF(name: Name): ClassDefStart         = new TraitDefStart(name.toTypeName)
     def TRAITDEF(sym: Symbol): ClassDefStart        = new TraitDefStart(sym.name.toTypeName)
 
-    def MODULEDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
-    def MODULEDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)
-    
-    def CASEMODULEDEF(name: Name): ModuleDefStart   = MODULEDEF(name) withFlags Flags.CASE
-    def CASEMODULEDEF(sym: Symbol): ModuleDefStart  = MODULEDEF(sym) withFlags Flags.CASE
+    def OBJECTDEF(name: Name): ModuleDefStart       = new ModuleDefStart(name)
+    def OBJECTDEF(sym: Symbol): ModuleDefStart      = new ModuleDefStart(sym.name)
+        
+    def CASEOBJECTDEF(name: Name): ModuleDefStart   = OBJECTDEF(name) withFlags Flags.CASE
+    def CASEOBJECTDEF(sym: Symbol): ModuleDefStart  = OBJECTDEF(sym) withFlags Flags.CASE
     
     def PACKAGE(name: Name): PackageDefStart        = new PackageDefStart(name, false)
     def PACKAGE(sym: Symbol): PackageSymStart       = new PackageSymStart(sym, false)

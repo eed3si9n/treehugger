@@ -29,7 +29,10 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """`TRAITDEF(sym|"D")`."""                                              ! trait1^
                                                                               end^
   "Object definitions are written as"                                         ^
-      """`MODULEDEF(sym|"E")`."""                                             ! object1^
+      """`OBJECTDEF(sym|"E")`."""                                             ! object1^
+                                                                              end^
+  "Case object definitions are written as"                                    ^
+      """`CASEOBJECTDEF(sym|"E")`."""                                         ! object2^
                                                                               end^
   "Class members can"                                                         ^
       """be defined by placing value defitions and function definitions within the class body as
@@ -93,7 +96,9 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   
   def trait1 = (TRAITDEF("D"): Tree) must print_as("trait D")
   
-  def object1 = (MODULEDEF("E"): Tree) must print_as("object E")
+  def object1 = (OBJECTDEF("E"): Tree) must print_as("object E")
+
+  def object2 = (CASEOBJECTDEF("E"): Tree) must print_as("case object E")
   
   def member1 =
     (CLASSDEF("C") := BLOCK(

@@ -19,7 +19,7 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
                                                                              
   def unit1 =
     (PACKAGEHEADER("p") := BLOCK(
-      MODULEDEF("M")
+      OBJECTDEF("M")
     )) must print_as(
       "package p",
       "",
@@ -27,7 +27,7 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
 
   def unit2 =
     (BLOCK(
-      MODULEDEF("M")
+      OBJECTDEF("M")
     ) inPackage("p")) must print_as(
       "package p",
       "",
@@ -35,8 +35,8 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
 
   def unit3 =
     (BLOCK(
-      MODULEDEF("M1"),
-      MODULEDEF("M2")
+      OBJECTDEF("M1"),
+      OBJECTDEF("M2")
     ) withoutPackage) must print_as(
       "object M1",
       "",
@@ -44,7 +44,7 @@ class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
 
   def package1 =
     (PACKAGE("p") := BLOCK(
-      MODULEDEF("M")
+      OBJECTDEF("M")
     )) must print_as(
       "package p {",
       "  object M",

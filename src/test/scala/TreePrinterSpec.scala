@@ -62,7 +62,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val cache = ChecksumAccumulator.newValue("cache")
     val s = RootClass.newValue("s")
     
-    val tree = (MODULEDEF(ChecksumAccumulator) := BLOCK(
+    val tree = (OBJECTDEF(ChecksumAccumulator) := BLOCK(
         VAL(cache) withFlags(Flags.PRIVATE) :=
           mutableMapType(StringClass, IntClass) APPLY (),
         DEF("calculate", IntClass) withParams(PARAM(s, StringClass)) :=
@@ -153,7 +153,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val ArrowAssocA = appliedType(ArrowAssocClass, A.toType)
     
     val tree =
-      (MODULEDEF(PredefModule) := BLOCK(
+      (OBJECTDEF(PredefModule) := BLOCK(
         (CLASSDEF(ArrowAssocClass) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) := BLOCK(
           DEF(arrow.name, tuple2AB) withTypeParams(TYPE(B)) withParams(PARAM("y", B)) :=
             TUPLE(REF("x"), REF("y"))
