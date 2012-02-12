@@ -106,6 +106,12 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """by using placeholder syntax
 `WILDCARD op tree`."""                                                        ! lambda3^
                                                                               p^
+  "Structural types are written as"                                           ^
+      """`STRUCTURAL(stat, ...)`."""                                          ! struc1^
+                                                                              p^
+  "Types projections are written as"                                          ^
+      """`typ TYPE_#("C")`."""                                                ! proj1^
+                                                                              p^
                                                                               end
   
   import treehugger.forest._
@@ -332,4 +338,14 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     LAMBDA(VAL(WILDCARD)) ==> (REF("x") INT_+ LIT(1)) must print_as("_ => x + 1")
 
   def lambda3 = (WILDCARD INT_+ WILDCARD) must print_as("_ + _")
+
+  def struc1 =
+    (sym.foo withType(STRUCTURAL(
+      DEF("x", IntClass)
+    ))) must print_as("(foo: ({ def x: Int }))")
+
+  def proj1 =
+    sym.foo withType(STRUCTURAL(
+      TYPE("L") withTypeParams(TYPE("A")) := REF("Const") TYPEAPPLY ("M", "A")
+    ) TYPE_#("L")) must print_as("(foo: ({ type L[A] = Const[M, A] })#L)")
 }

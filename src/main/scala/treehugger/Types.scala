@@ -86,7 +86,8 @@ trait Types extends api.Types { self: Forest =>
      *  inherited by subtypes and typerefs.
      *  The empty scope for all other types.
      */
-    def decls: Scope = EmptyScope
+    def decls: List[Tree] = Nil
+    // def decls: Scope = EmptyScope
 
     /** For a typeref, its arguments. The empty list for all other types */
     def typeArgs: List[Type] = List()
@@ -280,8 +281,12 @@ trait Types extends api.Types { self: Forest =>
   /** A common base class for intersection types and class types
    */
   abstract class CompoundType extends Type {
+    def customToString: String
     override def safeToString: String =
-      parents.mkString(" with ")
+      if (customToString != "") customToString
+      else parents.mkString(" with ") +
+        (if (parents.isEmpty || (!decls.isEmpty))
+          decls.mkString("{", "; ", "}") else "")      
   }
   
   /** A class representing intersection types with refinements of the form
@@ -290,7 +295,7 @@ trait Types extends api.Types { self: Forest =>
    *  one should always use `refinedType` for creation.
    */
   case class RefinedType(override val parents: List[Type],
-                         override val decls: Scope) extends CompoundType {
+                         override val decls: List[Tree]) extends CompoundType {
     override def isHigherKinded = (
       parents.nonEmpty &&
       (parents forall (_.isHigherKinded))
@@ -299,29 +304,38 @@ trait Types extends api.Types { self: Forest =>
     override def typeParams =
       if (isHigherKinded) parents.head.typeParams
       else super.typeParams
-      
+
+    def customToString: String = ""
   }
   
-  final class RefinedType0(parents: List[Type], decls: Scope, clazz: Symbol) extends RefinedType(parents, decls) {
+  final class RefinedType0(parents: List[Type], decls: List[Tree],
+      clazz: Symbol, customToString0: String) extends RefinedType(parents, decls) {
     override def typeSymbol = clazz
+    override def customToString = customToString0
   }
 
   object RefinedType extends RefinedTypeExtractor {
-    def apply(parents: List[Type], decls: Scope, clazz: Symbol): RefinedType =
-      new RefinedType0(parents, decls, clazz)
+    def apply(parents: List[Type], decls: List[Tree],
+        clazz: Symbol): RefinedType =
+      new RefinedType0(parents, decls, clazz, "")
+
+    def apply(parents: List[Type], decls: List[Tree],
+        clazz: Symbol, customToString0: String): RefinedType =
+      new RefinedType0(parents, decls, clazz, customToString0)
   }
   
   /** A class representing a class info
    */
   case class ClassInfoType(
     override val parents: List[Type],
-    override val decls: Scope,
+    override val decls: List[Tree],
     override val typeSymbol: Symbol) extends CompoundType {
+    def customToString: String = ""
   }
 
   object ClassInfoType extends ClassInfoTypeExtractor
 
-  class PackageClassInfoType(decls: Scope, clazz: Symbol)
+  class PackageClassInfoType(decls: List[Tree], clazz: Symbol)
   extends ClassInfoType(List(), decls, clazz)
   
   /** A class representing a constant type.
@@ -397,20 +411,16 @@ trait Types extends api.Types { self: Forest =>
        else pre.prefixString
      )
      private def argsString = if (args.isEmpty) "" else args.mkString("[", ",", "]")
-     // private def refinementString = (
-     //   if (sym.isStructuralRefinement) (
-     //     decls filter (sym => sym.isPossibleInRefinement && sym.isPublic)
-     //       map (_.defString)
-     //       mkString(" {", "; ", "}")
-     //   )
-     //   else ""
-     // )
+     private def refinementString =
+       if (sym.isStructuralRefinement)
+         decls map (_.toString) mkString(" {", "; ", "}")
+       else ""
      
     private def finishPrefix(rest: String) = (
       if (sym.isPackageClass) packagePrefix + rest
       else if (sym.isModuleClass) objectPrefix + rest
       // else if (!sym.isInitialized) rest
-      // else if (sym.isAnonymousClass)
+      else if (sym.isStructuralRefinement) refinementString
       //   thisInfo.parents.mkString("", " with ", refinementString)
       // else if (sym.isRefinementClass) "" + thisInfo
       else rest
@@ -647,10 +657,21 @@ trait Types extends api.Types { self: Forest =>
     if (sym.isRootPackage) ThisType(RootClass)
     else SingleType(pre, sym)
   }
+
+   /** the canonical creator for a refined type with a given scope */
+  def refinedType(parents: List[Type], owner: Symbol, decls: List[Tree], customToString: String): Type = {
+    val clazz = owner.newRefinementClass(NoPosition)
+    val result = RefinedType(parents, decls, clazz, customToString)
+    // clazz.setInfo(result)
+    result
+  }
   
   def typeRef(sym: Symbol): Type = TypeRef(NoPrefix, sym, Nil)
   
   def typeRef(pre: Type, sym: Symbol, args: List[Type]): Type = TypeRef(pre, sym, args)
+
+  def typeRef(pre: Type, sym: Symbol, args: Type*): Type =
+    typeRef(pre, sym, args.toList)
 
   // Optimization to avoid creating unnecessary new typerefs.
   def copyTypeRef(tp: Type, pre: Type, sym: Symbol, args: List[Type]): Type = tp match {

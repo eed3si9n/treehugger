@@ -198,7 +198,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       if ((tt.tpe eq null) || (doPrintPositions && tt.original != null)) {
         if (tt.original != null) "<type: " + tt.original + ">"
         else "<type ?>"
-      } else if ((tt.tpe.typeSymbol ne null) && tt.tpe.typeSymbol.isAnonymousClass) {
+      }
+      else if ((tt.tpe.typeSymbol ne null) && tt.tpe.typeSymbol.isAnonymousClass) {
         tt.tpe.typeSymbol.toString
       } else {
         tt.tpe.toString

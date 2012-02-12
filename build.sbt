@@ -4,6 +4,10 @@ name := "treehugger"
 
 version := "0.0.1-SNAPSHOT"
 
+initialCommands in console := """import treehugger.forest._
+                                |import definitions._
+                                |import treehuggerDSL._""".stripMargin
+
 libraryDependencies <++= (scalaVersion) { (sv) => sv match {
   case "2.8.1"   => Seq("org.specs2" %% "specs2" % "1.5" % "test",
                         "org.specs2" %% "specs2-scalaz-core" % "5.1-SNAPSHOT" % "test")

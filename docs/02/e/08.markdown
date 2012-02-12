@@ -1,7 +1,7 @@
 Types, Annotations, and Assignments
 -----------------------------------
 
-### Typed Expressions
+### Typed expressions
 
 Typed expressions are written using `withType(typ|"C")`:
 
@@ -9,7 +9,40 @@ Typed expressions are written using `withType(typ|"C")`:
 LIT(0) withType(LongClass)   // (0: Long)
 ```
 
-### Annotated Expressions
+### Structural types
+
+Structural types are written using `STRUCTURAL(tree, ...)`:
+
+```scala
+REF("x") withType(STRUCTURAL(
+  DEF("close", UnitClass)
+))
+```
+
+This prints as:
+
+```scala
+(x: ({ def close: Unit }))
+```
+
+### Type projections
+
+Type projections are written by calling `TYPE_#` on a type:
+
+```scala
+REF("x") withType(STRUCTURAL(
+  TYPE("L") withTypeParams(TYPE("A")) :=
+    REF("Const") TYPEAPPLY ("M", "A")
+) TYPE_#("L"))
+```
+
+This prints as:
+
+```scala
+(foo: ({ type L[A] = Const[M, A] })#L)
+```
+
+### Annotated expressions
 
 Annotated expressions are written using `withAnnots(annot, ...)`:
 

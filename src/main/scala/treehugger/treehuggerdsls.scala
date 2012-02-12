@@ -60,6 +60,12 @@ trait TreehuggerDSLs { self: Forest =>
     def mkInfixOr(lhs: Tree, rhs: Tree) = infix(PAREN(lhs), Boolean_or, PAREN(rhs))
     def mkInfixAnd(lhs: Tree, rhs: Tree) = infix(PAREN(lhs), Boolean_and, PAREN(rhs))
     
+    class TypeMethods(target: Type) {
+      def TYPE_#(sym: Symbol, args: Type*): Type = typeRef(target, sym, args: _*)
+      def TYPE_#(name: Name, args: Type*): Type =
+        TYPE_#(RootClass.newClass(name), args: _*)
+    }
+
     class TreeMethods(target: Tree) {
       /** logical/comparison ops **/
       def OR(other: Tree)  = mkInfixOr(target, other)
@@ -704,8 +710,17 @@ trait TreehuggerDSLs { self: Forest =>
     def CONTRAVARIANT(name: Name): Name   = newTypeName("-" + name.name)
     def CONTRAVARIANT(symbol: Symbol): Symbol =
       symbol.owner.newAliasType(symbol.name).setFlag(Flags.CONTRAVARIANT)
-    
+    def STRUCTURAL(tree: Tree*)       = 
+      tree.toList match {
+        case List(Block(xs, x)) => makeStructuralType(xs ::: List(x))
+        case _ => makeStructuralType(tree.toList)
+      }
 
+    def makeStructuralType(trees: List[Tree]): Type = {
+      val customString = trees map { tree => treeToString(tree) } mkString("({ ", ", ", " })")
+      refinedType(Nil, NoSymbol, trees, customString)
+    }
+    
     case class PRIVATEWITHIN(name: Name)
     
     def PAREN(trees: Tree*): Tree = TUPLE(trees.toList)
@@ -737,6 +752,9 @@ trait TreehuggerDSLs { self: Forest =>
 
 
     /** Implicits - some of these should probably disappear **/
+    implicit def mkTypeMethods(target: Type): TypeMethods = new TypeMethods(target)
+    implicit def mkTypeMethodsFromSymbol(sym: Symbol): TypeMethods = new TypeMethods(sym.toType)
+
     implicit def mkTreeMethods(target: Tree): TreeMethods = new TreeMethods(target)
     implicit def mkTreeMethodsFromSymbol(target: Symbol): TreeMethods = new TreeMethods(Ident(target))
     implicit def mkTreeMethodsFromType(target: Type): TreeMethods = new TreeMethods(TypeTree(target))

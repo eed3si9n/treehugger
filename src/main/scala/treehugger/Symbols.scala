@@ -101,6 +101,12 @@ trait Symbols extends api.Symbols { self: Forest =>
     final def newClass(name: Name, pos: Position = NoPosition) =
       new ClassSymbol(this, pos, name.toTypeName)
     
+    /** Refinement types P { val x: String; type T <: Number }
+     *  also have symbols, they are refinementClasses
+     */
+    final def newRefinementClass(pos: Position) =
+      newClass(pos, tpnme.REFINE_CLASS_NAME)
+    
     /** Symbol of a type definition  type T = ...
      */
     final def newAliasType(pos: Position, name: Name) =
@@ -306,7 +312,10 @@ trait Symbols extends api.Symbols { self: Forest =>
     final def variance: Int =
       if (isCovariant) 1
       else if (isContravariant) -1
-      else 0    
+      else 0
+
+    final def isStructuralRefinement: Boolean =
+      name == tpnme.REFINE_CLASS_NAME
 
 // ------ owner attribute --------------------------------------------------------------
 

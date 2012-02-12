@@ -6,17 +6,12 @@
 package treehugger
 
 trait Scopes extends api.Scopes { self: Forest =>
-  class Scope {
-  }
+  type Scope = List[Tree]
   
   /** The empty scope (immutable).
    */
-  object EmptyScope extends Scope {
-    // override def enter(e: ScopeEntry) {
-    //   abort("EmptyScope.enter")
-    // }
-  }
+  val EmptyScope = Nil
   
   /** Create a new scope */
-  def newScope: Scope = new Scope
+  def newScope = Nil
 }
