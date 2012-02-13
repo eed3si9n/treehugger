@@ -140,7 +140,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     (CLASSDEF("C") withEarlyDefs(
       VAL("name") := LIT("Bob")
     ) withParents("B") := BLOCK(
-      sym.print APPLY REF("msg")
+      Predef_print APPLY REF("msg")
     )) must print_as(
     "class C extends {",
     "  val name = \"Bob\"",

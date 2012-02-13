@@ -24,7 +24,7 @@ class DSL_4ImplicitSpec extends DSLSpec { def is = sequential                 ^
     (DEF("greet")
       withParams(PARAM("name", StringClass))
       withParams(PARAM("config", "Config") withFlags(Flags.IMPLICIT)) := BLOCK(
-      sym.println APPLY(REF("config") APPLY REF("name"))
+      Predef_println APPLY(REF("config") APPLY REF("name"))
     )) must print_as(
     "def greet(name: String)(implicit config: Config) {",
     "  println(config(name))",

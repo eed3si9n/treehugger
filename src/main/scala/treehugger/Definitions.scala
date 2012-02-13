@@ -169,6 +169,13 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     
     lazy val PredefModule: Symbol = getModule("scala.Predef")
     lazy val PredefModuleClass = PredefModule.moduleClass
+      lazy val Predef_assert   = PredefModuleClass.newMethod("assert")
+      lazy val Predef_assume   = PredefModuleClass.newMethod("assume")
+      lazy val Predef_require  = PredefModuleClass.newMethod("require")
+      lazy val Predef_print    = PredefModuleClass.newMethod("print")
+      lazy val Predef_println  = PredefModuleClass.newMethod("println")
+      lazy val Predef_printf   = PredefModuleClass.newMethod("printf")
+      lazy val Predef_readLine = PredefModuleClass.newMethod("readLine")
 
     lazy val SymbolModule: Symbol = getModule("scala.Symbol")
     lazy val Symbol_apply = getMember(SymbolModule, nme.apply)

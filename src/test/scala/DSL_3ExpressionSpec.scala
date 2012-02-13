@@ -143,7 +143,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     
   def super3 = (SUPER TYPEAPPLY sym.T) must print_as("super[T]")
   
-  def apply1 = (sym.println APPLY LIT("Hello, world!")) must print_as("""println("Hello, world!")""")
+  def apply1 = (Predef_println APPLY LIT("Hello, world!")) must print_as("""println("Hello, world!")""")
   
   def apply2 = (REF("x") DOT "y" APPLY (LIT(0), LIT(1)))  must print_as("""x.y(0, 1)""")
   
@@ -232,12 +232,12 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       "else 0")
 
   def conditional2 =
-    (IF (REF("sunny")) THEN (sym.println APPLY LIT("Hi!")) ENDIF) must print_as(
+    (IF (REF("sunny")) THEN (Predef_println APPLY LIT("Hi!")) ENDIF) must print_as(
       "if (sunny) println(\"Hi!\")")    
   
   def while1 =
     (WHILE(TRUE) DO BLOCK(
-      sym.println APPLY LIT("Hello")
+      Predef_println APPLY LIT("Hello")
     )) must print_as(
       """while (true) {""",
       """  println("Hello")""",
@@ -246,7 +246,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   
   def dowhile1 =
     BLOCK(
-      sym.println APPLY LIT("Hello")
+      Predef_println APPLY LIT("Hello")
     ) DO_WHILE(REF("x") INT_< LIT(10)) must print_as(
       """do {""",
       """  println("Hello")""",
@@ -255,7 +255,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     
   def for1 =
     FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO(
-      sym.println APPLY LIT("Hello")
+      Predef_println APPLY LIT("Hello")
     ) must print_as(
       """for (i <- 0 to 2)""",
       """  println("Hello")""" 
@@ -266,7 +266,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       VALFROM("i") := LIT(0) INT_TO LIT(2),
       IF(REF("x") INT_< LIT(10))
     ) DO(
-      sym.println APPLY LIT("Hello")
+      Predef_println APPLY LIT("Hello")
     ) must print_as(
       """for {""",
       """  i <- 0 to 2""",
@@ -279,7 +279,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       VALFROM("i") := LIT(0) INT_TO LIT(2),
       VAL("x") := REF("i")
     ) DO(
-      sym.println APPLY LIT("Hello")
+      Predef_println APPLY LIT("Hello")
     ) must print_as(
       """for {""",
       """  i <- 0 to 2""",
@@ -306,7 +306,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   def try1 =
     (TRY(REF("something") APPLY LIT(0))
     CATCH(
-      CASE(WILDCARD) ==> (sym.println APPLY LIT("error")))
+      CASE(WILDCARD) ==> (Predef_println APPLY LIT("error")))
     ENDTRY) must print_as(
       """try {""",
       """  something(0)""",
@@ -318,8 +318,8 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   def try2 =
     (TRY(REF("something") APPLY LIT(0))
     CATCH(
-      CASE(WILDCARD) ==> (sym.println APPLY LIT("error")))
-    FINALLY(sym.println APPLY LIT("finally"))) must print_as(
+      CASE(WILDCARD) ==> (Predef_println APPLY LIT("error")))
+    FINALLY(Predef_println APPLY LIT("finally"))) must print_as(
       """try {""",
       """  something(0)""",
       """} catch {""",

@@ -5,10 +5,7 @@ trait DSLSpec extends Specification {
   import definitions._
   import treehuggerDSL._
   
-  object sym {
-    val println = ScalaPackageClass.newMethod("println")
-    val print = ScalaPackageClass.newMethod("print")
-    
+  object sym {    
     val foo = RootClass.newValue("foo")
     val Addressable = RootClass.newClass("Addressable")
     val A = RootClass.newAliasType("A")

@@ -29,11 +29,7 @@ import treehugger.forest._
 import definitions._
 import treehuggerDSL._
 
-object sym {
-  val println = ScalaPackageClass.newMethod("println")
-}
-
-val tree = sym.println APPLY LIT("Hello, world!")
+val tree = Predef_println APPLY LIT("Hello, world!")
 val s = treeToString(tree)
 println(s)
 ```
@@ -47,7 +43,7 @@ println("Hello, world!")
 If we remove all the setups, the actual AST comes down to:
 
 ```scala
-sym.println APPLY LIT("Hello, world!")
+Predef_println APPLY LIT("Hello, world!")
 ```
 
 The above creates case class structure as follows:
@@ -62,7 +58,7 @@ The setup code will be abbreviated from here.
 
 ```scala
 DEF("hello") := BLOCK(
-  sym.println APPLY LIT("Hello, world!"))
+  Predef_println APPLY LIT("Hello, world!"))
 ```
 
 This prints out:
@@ -80,7 +76,7 @@ for expression and infix application are something that is completely missing in
 ```scala
 val greetStrings = RootClass.newValue("greetStrings")
 FOR(VALFROM("i") := LIT(0) INFIX (sym.to, LIT(2))) DO
-  (sym.print APPLY (greetStrings APPLY REF("i")))
+  (Predef_print APPLY (greetStrings APPLY REF("i")))
 ```
 
 This prints out:

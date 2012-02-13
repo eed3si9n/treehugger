@@ -20,7 +20,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   
   def e2 = {
     val tree = DEF("hello") := BLOCK(
-      sym.println APPLY LIT("Hello, world!"))
+      Predef_println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
     s.lines.toList must contain(
@@ -36,21 +36,25 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     def assignGreetStrings(index: Int, value: String): Tree =
       greetStrings APPLY LIT(index) := LIT(value)
     
-    val trees = (VAL(greetStrings) := NEW(arrayType(StringClass), LIT(3))) ::
-      assignGreetStrings(0, "Hello") ::
-      assignGreetStrings(1, ", ") ::
-      assignGreetStrings(2, "world!\n") ::
-      (FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO
-        (sym.print APPLY (greetStrings APPLY REF("i"))) ) ::
-      Nil
+    val tree = BLOCK(
+      VAL(greetStrings) := NEW(arrayType(StringClass), LIT(3)),
+      assignGreetStrings(0, "Hello"),
+      assignGreetStrings(1, ", "),
+      assignGreetStrings(2, "world!\n"),
+      FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO
+        (Predef_print APPLY (greetStrings APPLY REF("i")))) withoutPackage
     
-    val s = treeToString(trees: _*); println(s)
+    val s = treeToString(tree); println(s)
     
     s.lines.toList must contain(
       "val greetStrings = new Array[String](3)",
+      "",
       "greetStrings(0) = \"Hello\"",
+      "",
       "greetStrings(1) = \", \"",
+      "",
       "greetStrings(2) = \"world!\\n\"",
+      "",
       "for (i <- 0 to 2)",
       "  print(greetStrings(i))"
     ).inOrder

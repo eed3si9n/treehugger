@@ -1,7 +1,20 @@
 ---
 out: index.html
 ---
+
 treehugger
 ==========
 
 _treehugger_ is a library to write Scala source code programmatically. It's also an implementation of Scala abstract syntax tree based on Reflection API.
+
+### Setup
+
+```scala
+libraryDependencies ++= Seq(
+  "com.eed3si9n" %% "treehugger" % "$version$"
+)
+
+resolvers ++= Seq(
+  "sonatype" at "https://oss.sonatype.org/content/groups/public"
+)
+```

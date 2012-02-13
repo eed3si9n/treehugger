@@ -34,13 +34,13 @@ Exceptions are caught using `TRY(stat, ...) CATCH(CASE(pat), ...) [ENDTRY|FINALL
 ```scala
 (TRY (REF("something") APPLY LIT(0))
 CATCH (
-  CASE(WILDCARD) ==> (sym.println APPLY LIT("error"))
+  CASE(WILDCARD) ==> (Predef_println APPLY LIT("error"))
 ) ENDTRY)
 
 (TRY (REF("something") APPLY LIT(0))
 CATCH (
-  CASE(WILDCARD) ==> (sym.println APPLY LIT("error"))
-) FINALLY(sym.println APPLY LIT("finally")))
+  CASE(WILDCARD) ==> (Predef_println APPLY LIT("error"))
+) FINALLY(Predef_println APPLY LIT("finally")))
 ```
 
 In the above examples, `WILDCARD` is a pattern expression that matches to anything. The examples print as:

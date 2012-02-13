@@ -7,12 +7,8 @@ Here is a full example of how treehugger DSL could be used:
 import treehugger.forest._
 import definitions._
 import treehuggerDSL._
- 
-object sym {
-  val println = ScalaPackageClass.newMethod("println")
-}
- 
-val tree: Tree = sym.println APPLY LIT("Hello, world!")
+
+val tree: Tree = Predef_println APPLY LIT("Hello, world!")
 
 println(treeToString(tree))
 ```

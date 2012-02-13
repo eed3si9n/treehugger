@@ -4,7 +4,7 @@ Function Applications
 There are two ways to write function applications. The first way is calling `APPLY(arg, ...)` on a symbol or a tree. Here, `arg` denotes a `Tree`:
 
 ```scala
-sym.println APPLY (LIT("Hello, world!"))
+Predef_println APPLY LIT("Hello, world!")
 (REF("x") DOT "y") APPLY (LIT(0), LIT(1))
 ```
 

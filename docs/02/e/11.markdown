@@ -5,18 +5,18 @@ For expressions are written using `FOR(enum, ...) DO tree` as follows:
 
 ```scala
 FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO (
-  sym.println APPLY LIT("Hello"))
+  Predef_println APPLY LIT("Hello"))
 
 FOR(
   VALFROM("i") := LIT(0) INT_TO LIT(2),
   IF(REF("x") INT_< LIT(10))
-) DO (sym.println APPLY LIT("Hello"))
+) DO (Predef_println APPLY LIT("Hello"))
 
 FOR(
   VALFROM("i") := LIT(0) INT_TO LIT(2),
   VAL("x") := REF("i")
 ) DO BLOCK(
-  sym.println APPLY LIT("Hello")
+  Predef_println APPLY LIT("Hello")
 )
 ```
 

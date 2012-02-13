@@ -7,7 +7,7 @@ If expressions are written using `IF(...) THEN(...) ELSE(...)|ENDIF` as follows:
 (IF (REF("x") ANY_== REF("y")) THEN REF("x")
 ELSE LIT(0))
 
-IF (REF("sunny")) THEN (sym.println APPLY LIT("Hi!")) ENDIF
+IF (REF("sunny")) THEN (Predef_println APPLY LIT("Hi!")) ENDIF
 ```
 
 These examples print as:

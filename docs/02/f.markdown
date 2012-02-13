@@ -25,7 +25,7 @@ Implicit parameters are also written using `withFlags(Flags.IMPLICIT)`:
     withParams(PARAM("name", StringClass))
     withParams(PARAM("config", "Config")
       withFlags(Flags.IMPLICIT)) := BLOCK(
-  sym.println APPLY(REF("config") APPLY REF("name"))
+  Predef_println APPLY(REF("config") APPLY REF("name"))
 ))
 ```
 

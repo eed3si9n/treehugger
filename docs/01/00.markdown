@@ -6,7 +6,7 @@ It's sometimes convenient to write code that generates code. Unfortunately, it's
 For example, here's treehugger DSL for Hello World:
 
 ```scala
-sym.println APPLY LIT("Hello, world!")
+Predef_println APPLY LIT("Hello, world!")
 ```
 
 The above returns the following _tree_:
