@@ -2,7 +2,13 @@ organization := "com.eed3si9n"
 
 name := "treehugger"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.1.0-SNAPSHOT"
+
+homepage := Some(url("http://eed3si9n.com/treehugger"))
+
+licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php"))
+
+description := "a library to write Scala source code programmatically."
 
 initialCommands in console := """import treehugger.forest._
                                 |import definitions._
@@ -19,10 +25,30 @@ libraryDependencies <++= (scalaVersion) { (sv) => sv match {
 
 parallelExecution in Test := false
 
-resolvers ++= Seq("snapshots" at "http://scala-tools.org/repo-snapshots",
-                  "releases"  at "http://scala-tools.org/repo-releases")
+resolvers ++= Seq("scala-tools snapshots" at "http://scala-tools.org/repo-snapshots",
+                  "scala-tools releases"  at "http://scala-tools.org/repo-releases")
+
+pomExtra <<= (homepage) { (h) =>
+  (<url>{h.get.toString}</url>
+  <scm>
+    <url>git@github.com:eed3si9n/treehugger.git</url>
+    <connection>scm:git:git@github.com:eed3si9n/treehugger.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>eed3si9n</id>
+      <name>Eugene Yokota</name>
+      <url>http://eed3si9n.com</url>
+    </developer>
+  </developers>) }
+
+// --- Sonatype settings ---
+
+publishMavenStyle := true
 
 publishArtifact in (Compile, packageBin) := true
+
+publishArtifact in Test := false
 
 publishArtifact in (Test, packageBin) := false
 
@@ -31,9 +57,11 @@ publishArtifact in (Compile, packageDoc) := false
 publishArtifact in (Compile, packageSrc) := false
 
 publishTo <<= version { (v: String) =>
-  val nexus = "http://nexus.scala-tools.org/content/repositories/"
-  if(v endsWith "-SNAPSHOT") Some("Scala Tools Nexus" at nexus + "snapshots/")
-  else Some("Scala Tools Nexus" at nexus + "releases/")
+  val nexus = "https://oss.sonatype.org/"
+  if (v.trim.endsWith("SNAPSHOT")) 
+    Some("snapshots" at nexus + "content/repositories/snapshots") 
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+pomIncludeRepository := { x => false }
