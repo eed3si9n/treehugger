@@ -1,3 +1,6 @@
+---
+out: index.html
+---
 treehugger
 ==========
 
