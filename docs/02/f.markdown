@@ -43,8 +43,8 @@ View bounds are written by calling `VIEWBOUNDS(typ|"T")` on `TYPEVAR(...)`:
 
 ```scala
 (DEF("maxList", "T")
-  withTypeParams(TYPEVAR("T") VIEWBOUNDS orderedType("T"))
-  withParams(PARAM("elements", listType("T"))): Tree)
+  withTypeParams(TYPEVAR("T") VIEWBOUNDS TYPE_ORDERED("T"))
+  withParams(PARAM("elements", TYPE_LIST("T"))): Tree)
 ```
 
 This prints as:

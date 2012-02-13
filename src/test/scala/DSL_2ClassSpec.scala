@@ -62,13 +62,14 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     )
   
   def class3 = {
-    val tree: Tree = CLASSDEF("C") withParams(PARAM("x", IntClass), VAL("y", StringClass), VAR("z", listType(StringClass)))
+    val tree: Tree = CLASSDEF("C") withParams(PARAM("x", IntClass),
+      VAL("y", StringClass), VAR("z", TYPE_LIST(StringClass)))
     tree must print_as("class C(x: Int, val y: String, var z: List[String])")
   }
   
   def class4 =
     (CLASSDEF("Queue") withTypeParams(TYPEVAR("T"))
-      withParams(VAL("leading", listType("T")), VAL("trailing", listType("T"))): Tree) must print_as("class Queue[T](val leading: List[T], val trailing: List[T])")
+      withParams(VAL("leading", TYPE_LIST("T")), VAL("trailing", TYPE_LIST("T"))): Tree) must print_as("class Queue[T](val leading: List[T], val trailing: List[T])")
   
   def class5 = (CLASSDEF("C") withParents(sym.Addressable): Tree) must print_as("class C extends Addressable")
     

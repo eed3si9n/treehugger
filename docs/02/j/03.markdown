@@ -1,0 +1,22 @@
+---
+out: stdtypcon.html
+---
+Type Constructors
+-----------------
+
+Here are built-in type constructors:
+
+```scala
+TYPE_ITERATOR(typ)           // Iterator[A]
+TYPE_ARRAY(typ)              // Array[A]
+TYPE_LIST(typ)               // List[A]
+TYPE_SEQ(typ)                // Seq[A]
+TYPE_VECTOR(typ)             // Vector[A]
+TYPE_MAP(typ1, typ2)         // Map[A, B]
+TYPE_OPTION(typ)             // Option[A]
+TYPE_SOME(typ)               // Some[A]
+TYPE_ORDERED(typ)            // Ordered[A]
+TYPE_=:=(typ1, typ2)         // =:=[A, B]
+TYPE_<:<(typ1, typ2)         // <:<[A, B]
+TYPE_<%<(typ1, typ2)         // <%<[A, B]
+```

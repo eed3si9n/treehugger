@@ -1,3 +1,7 @@
+---
+out: treehugger_DSL.html
+---
+
 treehugger DSL
 --------------
 

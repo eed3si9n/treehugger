@@ -1,3 +1,9 @@
+---
+out: typelevelexp.html
+---
+
+  [1]: stdtypcon.html
+
 Type-Level Expressions
 ----------------------
 
@@ -43,6 +49,20 @@ REF("x") withType(ListClass TYPE_OF IntClass)
 ```
 
 This prints as:
+
+```scala
+(x: List[Int])
+```
+
+### Type constructors
+
+treehugger DSL provides built-in type constructors, which will be covered [later][1]:
+
+```
+REF("x") withType(TYPE_LIST(IntClass))
+```
+
+This also prints as:
 
 ```scala
 (x: List[Int])

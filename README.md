@@ -116,8 +116,9 @@ pattern matching was mostly in the original DSL (except `UNAPPLY` and `INFIXUNAP
 val maxListUpBound = RootClass.newMethod("maxListUpBound")
 val T = maxListUpBound.newTypeParameter("T")
 
-DEF(maxListUpBound.name, T)
-    withTypeParams(TYPEVAR(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=
+(DEF(maxListUpBound.name, T)
+    withTypeParams(TYPEVAR(T) UPPER TYPE_ORDERED(T))
+    withParams(PARAM("elements", TYPE_LIST(T))) :=
   REF("elements") MATCH(
     CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
     CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
@@ -126,7 +127,7 @@ DEF(maxListUpBound.name, T)
       IF(REF("x") INFIX (">", REF("maxRest"))) THEN REF("x")
       ELSE REF("maxRest") 
     )
-  )
+  ))
 ```
 
 This prints out:

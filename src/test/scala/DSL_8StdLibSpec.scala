@@ -40,15 +40,18 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       """`tree SEQ_\: tree` for collection \: method,"""                      ! traversable7^
                                                                               p^
   "Built-in constructors are written as"                                      ^
-      """`LIST(tree, ...)` for List,"""                                       ! listctor1^
-      """`NIL` for Nil,"""                                                    ! listctor2^
-      """`tree UNLIST_::: tree` for ::,"""                                    ! listctor3^
-      """`SOME(tree, ...)` for Some,"""                                       ! optionctor1^
-      """`NONE` for None,"""                                                  ! optionctor2^
+      """`LIST(tree, ...)` for List"""                                        ! listctor1^
+      """`NIL` for Nil"""                                                     ! listctor2^
+      """`tree UNLIST_::: tree` for ::"""                                     ! listctor3^
+      """`SOME(tree, ...)` for Some"""                                        ! optionctor1^
+      """`NONE` for None"""                                                   ! optionctor2^
       """`ARRAY(tree, ...)` for Array"""                                      ! arrayctor1^
       """`SEQ(tree, ...)` for Seq"""                                          ! seqctor1^
       """`VECTOR(tree, ...)` for Vector"""                                    ! vectorctor1^
       """`MAKE_MAP(key ANY_-> value, ...)` for Map"""                         ! mapctor1^
+                                                                              p^
+  "Built-in type constructors are written as"                                 ^
+      """`TYPE_LIST(typ)` for List"""                                         ! listtype1^
                                                                               end
   
   import treehugger.forest._
@@ -169,4 +172,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
   def vectorctor1 = VECTOR(LIT(0)) must print_as("Vector(0)")
 
   def mapctor1 = MAKE_MAP(LIT(0) ANY_-> LIT(1)) must print_as("Map(0 -> 1)")
+
+  def listtype1 =
+    VAL("x", TYPE_LIST(IntClass)).tree must print_as("val x: List[Int]")
 }

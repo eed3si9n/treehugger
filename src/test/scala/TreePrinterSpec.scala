@@ -115,8 +115,10 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
         DEF("put") withParams(PARAM("x", IntClass))
       )) ::
       (CLASSDEF(BasicIntQueue) withParents(IntQueue) := BLOCK(
-        VAL(buf) withFlags(Flags.PRIVATE) := NEW(arrayBufferType(IntClass)),
-        DEF("get", IntClass) := (REF(buf) DOT "remove" APPLY()),
+        VAL(buf) withFlags(Flags.PRIVATE) :=
+          NEW(ArrayBufferClass TYPE_OF IntClass),
+        DEF("get", IntClass) :=
+          REF(buf) DOT "remove" APPLY(),
         DEF("put") withParams(PARAM("x", IntClass)) := BLOCK(
           REF(buf) INFIX("+=") APPLY REF("x")
           )
@@ -186,10 +188,10 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val maxListUpBound = RootClass.newMethod("maxListUpBound")
     val T = maxListUpBound.newTypeParameter("T")
     
-    val trees =
+    val tree =
       (DEF(maxListUpBound.name, T)
-          withTypeParams(TYPEVAR(T) UPPER orderedType(T))
-          withParams(PARAM("elements", listType(T))) :=
+          withTypeParams(TYPEVAR(T) UPPER TYPE_ORDERED(T))
+          withParams(PARAM("elements", TYPE_LIST(T))) :=
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
@@ -198,10 +200,9 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
             IF(REF("x") INT_> REF("maxRest")) THEN REF("x")
             ELSE REF("maxRest") 
           )
-        ))::
-      Nil
+        ))
     
-    val out = treeToString(trees: _*); println(out)
+    val out = treeToString(tree); println(out)
     out.lines.toList must contain(
       """def maxListUpBound[T <: Ordered[T]](elements: List[T]): T =""",
       """  elements match {""",
@@ -223,15 +224,15 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     
     val tree: Tree =
       (CASECLASSDEF(Address)
-          withTypeParams(TYPEVAR(T) VIEWBOUNDS listType(T))
-          withParams(PARAM("name", optionType(T)) := REF(NoneModule)) := BLOCK(
-        DEF("stringOnly", Address) withParams(PARAM("ev", tpEqualsType(T, StringClass)) withFlags(Flags.IMPLICIT)) :=
+          withTypeParams(TYPEVAR(T) VIEWBOUNDS TYPE_LIST(T))
+          withParams(PARAM("name", TYPE_OPTION(T)) := REF(NoneModule)) := BLOCK(
+        DEF("stringOnly", Address) withParams(PARAM("ev", TYPE_=:=(T, StringClass)) withFlags(Flags.IMPLICIT)) :=
           Address APPLY(THIS DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
-            VAL(list, listType(T)) := REF("nm"),
+            VAL(list, TYPE_LIST(T)) := REF("nm"),
             (list MAP LAMBDA(VAL("x")) ==>
               (REF("x") INFIX(StringAdd_+) APPLY LIT("x"))) DOT "mkString" APPLY LIT(" ")
           )),
-        DEF("star") withParams(PARAM("n", STAR(IntClass))) :=
+        DEF("star") withParams(PARAM("n", TYPE_*(IntClass))) :=
           Address APPLYTYPE(StringClass) APPLY SOME(LIT("foo")).MAP(WILDCARD INFIX(StringAdd_+) APPLY LIT("x"))
       ))
       
@@ -281,7 +282,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
             ) TYPE_#("L"))) := BLOCK(
         DEF("point")
             withTypeParams(TYPEVAR("A"))
-            withParams(PARAM("a", BYNAME("A"))) :=
+            withParams(PARAM("a", TYPE_BYNAME("A"))) :=
           (sym.Const APPLYTYPE ("M", "A") APPLY(
             Predef_implicitly APPLYTYPE(sym.Monoid TYPE_OF "M") DOT "z"))
       )))

@@ -5,8 +5,8 @@ Pattern matching is written using `tree MATCH(CASE(...), ...)`:
 
 ```scala
 DEF("maxList", "T")
-    withTypeParams(TYPEVAR("T") VIEWBOUNDS orderedType("T"))
-    withParams(PARAM("elements", listType("T"))) :=
+    withTypeParams(TYPEVAR("T") VIEWBOUNDS TYPE_ORDERED("T"))
+    withParams(PARAM("elements", TYPE_LIST("T"))) :=
   REF("elements") MATCH (
     CASE(ListClass UNAPPLY()) ==>
       THROW(IllegalArgumentExceptionClass, "empty list!"),

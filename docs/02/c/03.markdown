@@ -25,7 +25,7 @@ where `lo` denotes an optional lower bound type and `hi` upper bound type.
 Type alias definitions are written by appending `:=` and right-hand side `Type`. The alias may accompany type parameters given by `withTypeParams(TYPEVAR(...))`:
 
 ```scala
-TYPEVAR("IntList") := listType(IntClass)
+TYPEVAR("IntList") := TYPE_LIST(IntClass)
 TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := tupleType(sym.A, sym.A)
 ```
 

@@ -1,3 +1,6 @@
+  [1]: typelevelexp.html
+  [2]: stdtypecon.html
+
 Symbols, Types, and Trees
 -------------------------
 
@@ -50,10 +53,10 @@ In the above code, `IntClass` is a symbol, but it is automatically promoted to a
 VAL("foo", "Int")
 ```
 
-Another way of creating a `Type` is to call one of the built-in functions to create an applied type:
+Types can also be created using [type-level expressions][1] and [built-in type constructors][2]:
 
 ```scala
-arrayType(StringClass)
+TYPE_ARRAY(StringClass)
 ```
 
 ### Tree

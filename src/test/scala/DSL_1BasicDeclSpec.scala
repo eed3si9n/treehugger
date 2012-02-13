@@ -76,9 +76,9 @@ where `tycon` is the type constructor Type."""                                ! 
      """with default arguments are written as
 `withParams(PARAM(sym|"x", typ|"Int") := arg)`."""                            ! param1^
      """By-name parameters are written as
-`withParams(PARAM(sym|"x", BYNAME(typ)))`"""                                  ! param2^
+`withParams(PARAM(sym|"x", TYPE_BYNAME(typ|"C")))`"""                         ! param2^
      """Repeated parameters are written as
-`withParams(PARAM(sym|"x", STAR(typ)))`."""                                   ! param3^
+`withParams(PARAM(sym|"x", TYPE_*(typ|"C")))`."""                             ! param3^
                                                                               end^
   "Procedure declarations are written as"                                     ^
       """`DEF(sym|"write")` by omitting the result type of the function."""   ! procedure1^
@@ -127,7 +127,7 @@ limit them to some members."""                                                ! 
   def value1 = {
     // They convert to trees implicitly
     val tree1: Tree = VAL(sym.foo, IntClass)
-    val tree2: Tree = VAL("bar", listType(StringClass))
+    val tree2: Tree = VAL("bar", TYPE_LIST(StringClass))
     
     (tree1 must print_as("val foo: Int")) and
     (tree2 must print_as("val bar: List[String]"))
@@ -148,7 +148,7 @@ limit them to some members."""                                                ! 
   def variable1 = {
     // They convert to trees implicitly
     val tree1: Tree = VAR(sym.foo, IntClass)
-    val tree2: Tree = VAR("bar", listType(StringClass))
+    val tree2: Tree = VAR("bar", TYPE_LIST(StringClass))
     
     (tree1 must print_as("var foo: Int")) and
     (tree2 must print_as("var bar: List[String]"))
@@ -201,8 +201,8 @@ limit them to some members."""                                                ! 
 
   def bounds1 = {
     val tree: Tree = DEF("maxList", "T").
-      withTypeParams(TYPEVAR("T") VIEWBOUNDS orderedType("T")).
-      withParams(PARAM("elements", listType("T")))
+      withTypeParams(TYPEVAR("T") VIEWBOUNDS TYPE_ORDERED("T")).
+      withParams(PARAM("elements", TYPE_LIST("T")))
     
     tree must print_as("def maxList[T <% Ordered[T]](elements: List[T]): T")
   }
@@ -225,14 +225,14 @@ limit them to some members."""                                                ! 
   def param2 = {
     // This converts to a tree implicitly
     val tree: Tree = DEF("whileLoop", UnitClass).
-      withParams(PARAM("cond", BYNAME(BooleanClass))).
-      withParams(PARAM("stat", BYNAME(UnitClass)))
+      withParams(PARAM("cond", TYPE_BYNAME(BooleanClass))).
+      withParams(PARAM("stat", TYPE_BYNAME(UnitClass)))
     tree must print_as("def whileLoop(cond: => Boolean)(stat: => Unit): Unit")
   }
   
   def param3 = {
     // This converts to a tree implicitly
-    val tree: Tree = DEF("sum", IntClass) withParams(PARAM("args", STAR(IntClass)))
+    val tree: Tree = DEF("sum", IntClass) withParams(PARAM("args", TYPE_*(IntClass)))
     tree must print_as("def sum(args: Int*): Int")
   }
   

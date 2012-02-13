@@ -92,12 +92,12 @@ Similar to `VAL(...)`, `PARAM(...)` can be followed by `:=` and rhs to specify t
 
 ### By-name parameters
 
-By-name parameters are written using `BYNAME(typ)` as follows:
+By-name parameters are written using `TYPE_BYNAME(typ)` as follows:
 
 ```scala
 (DEF("whileLoop")
-  withParams(PARAM("cond", BYNAME(BooleanClass)))
-  withParams(PARAM("stat", BYNAME(UnitClass))): Tree)
+  withParams(PARAM("cond", TYPE_BYNAME(BooleanClass)))
+  withParams(PARAM("stat", TYPE_BYNAME(UnitClass))): Tree)
 ```
 
 This prints as:

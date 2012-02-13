@@ -707,8 +707,6 @@ trait TreehuggerDSLs { self: Forest =>
     def REF(pre: Type, sym: Symbol)   = mkAttributedRef(pre, sym)
     def REF(name: Name)               = Ident(name)
 
-    def STAR(typ: Type): Type         = repeatedParamType(typ)
-    def BYNAME(typ: Type): Type       = byNameParamType(typ)
     def COVARIANT(name: Name): Name   = newTypeName("+" + name.name)
     def COVARIANT(symbol: Symbol): Symbol =
       symbol.owner.newAliasType(symbol.name).setFlag(Flags.COVARIANT)
@@ -742,7 +740,9 @@ trait TreehuggerDSLs { self: Forest =>
     def SEQ(xs: Tree*): Tree     = ID("Seq") APPLY(xs.toList: _*)
     def VECTOR(xs: Tree*): Tree  = ID("Vector") APPLY(xs.toList: _*)
     def MAKE_MAP(xs: Tree*): Tree = ID("Map") APPLY(xs.toList: _*)
-    
+
+    def TYPE_*(typ: Type): Type       = repeatedParamType(typ)
+    def TYPE_BYNAME(typ: Type): Type  = byNameParamType(typ)
     def TYPE_STRUCT(tree: Tree*)      = 
       tree.toList match {
         case List(Block(xs, x)) => makeStructuralType(xs ::: List(x))
@@ -752,7 +752,19 @@ trait TreehuggerDSLs { self: Forest =>
       val customString = trees map { tree => treeToString(tree) } mkString("({ ", ", ", " })")
       refinedType(Nil, NoSymbol, trees, customString)
     }
-
+    def TYPE_ARRAY(typ: Type): Type   = ArrayClass TYPE_OF typ
+    def TYPE_LIST(typ: Type): Type    = ListClass TYPE_OF typ
+    def TYPE_SEQ(typ: Type): Type     = SeqClass TYPE_OF typ
+    def TYPE_VECTOR(typ: Type): Type  = VectorClass TYPE_OF typ
+    def TYPE_ITERATOR(typ: Type): Type = IteratorClass TYPE_OF typ
+    def TYPE_MAP(k: Type, v: Type): Type = MapClass TYPE_OF(k, v)
+    def TYPE_OPTION(typ: Type): Type  = optionType(typ)
+    def TYPE_SOME(typ: Type): Type    = someType(typ)
+    def TYPE_ORDERED(typ: Type): Type = orderedType(typ)
+    def TYPE_=:=(arg1: Type, arg2: Type) = tpEqualsType(arg1, arg2)
+    def TYPE_<:<(arg1: Type, arg2: Type) = conformsType(arg1, arg2)
+    def TYPE_<%<(arg1: Type, arg2: Type) = conformsOrViewAsType(arg1, arg2)
+    
     implicit def stringToTermName(s: String): TermName = newTermName(s)
 
 

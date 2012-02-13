@@ -37,7 +37,7 @@ Primary constructor parameters are written using `withParams(...)` similar to fu
 CLASSDEF("C")
   withParams(PARAM("x", IntClass),
     VAL("y", StringClass),
-    VAR("z", listType(StringClass))) := BLOCK(
+    VAR("z", TYPE_LIST(StringClass))) := BLOCK(
   DEF("hi") := LIT("hi") 
 )
 ```
