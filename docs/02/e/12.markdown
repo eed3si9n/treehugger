@@ -24,7 +24,7 @@ These examples print as:
 ```scala
 throw new IllegalArgumentException()
 throw new IllegalArgumentException("oh no")
-throw new IllegalArgumentException(x.toString())
+throw new IllegalArgumentException(x.toString)
 ```
 
 ### Catching exceptions

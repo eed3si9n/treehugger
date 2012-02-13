@@ -52,8 +52,12 @@ trait TreehuggerDSLs { self: Forest =>
       def unapply(other: Any) = cond(other) { case Ident(nme.WILDCARD) => true }
     }
 
-    def fn(lhs: Tree, op:   Name, args: Tree*)  = Apply(Select(lhs, op), args.toList)
-    def fn(lhs: Tree, op: Symbol, args: Tree*)  = Apply(Select(lhs, op), args.toList)
+    def fn(lhs: Tree, op:   Name, args: Tree*)  =
+      if (args.toList.isEmpty) Select(lhs, op)
+      else Apply(Select(lhs, op), args.toList)
+    def fn(lhs: Tree, op: Symbol, args: Tree*)  =
+      if (args.toList.isEmpty) Select(lhs, op)
+      else Apply(Select(lhs, op), args.toList)
     def infix(lhs: Tree, op:   Name, args: Tree*): Infix = Infix(lhs, op, args.toList)
     def infix(lhs: Tree, op: Symbol, args: Tree*): Infix = Infix(lhs, op, args.toList)
 

@@ -301,7 +301,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     (THROW(IllegalArgumentExceptionClass, "oh no") must print_as(
       """throw new IllegalArgumentException("oh no")""")) and
     (THROW(IllegalArgumentExceptionClass, REF("x")) must print_as(
-      """throw new IllegalArgumentException(x.toString())"""))
+      """throw new IllegalArgumentException(x.toString)"""))
   
   def try1 =
     (TRY(REF("something") APPLY LIT(0))
