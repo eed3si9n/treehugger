@@ -61,8 +61,8 @@ References to `super` are written using `SUPER` or `SUPER(sym|"C")`. This also r
 (SUPER("C"): Tree)           // C.super
 ```
 
-To add type parameter to `super`, call `TYPEAPPLY(sym|"T")`:
+To add type parameter to `super`, call `APPLYTYPE(sym|"T")`:
 
 ```scala
-SUPER TYPEAPPLY "T"          // super[T]
+SUPER APPLYTYPE "T"          // super[T]
 ```

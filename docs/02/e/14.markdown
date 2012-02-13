@@ -1,0 +1,49 @@
+Type-Level Expressions
+----------------------
+
+### Structural types
+
+Structural types are written using `TYPE_STRUCT(tree, ...)`:
+
+```scala
+REF("x") withType(TYPE_STRUCT(
+  DEF("close", UnitClass)
+))
+```
+
+This prints as:
+
+```scala
+(x: ({ def close: Unit }))
+```
+
+### Type projections
+
+Type projections are written by calling `TYPE_# (typ|"C")` on a type:
+
+```scala
+REF("x") withType(TYPE_STRUCT(
+  TYPE("L") withTypeParams(TYPE("A")) :=
+    REF("Const") APPLYTYPE ("M", "A")
+) TYPE_#("L"))
+```
+
+This prints as:
+
+```scala
+(foo: ({ type L[A] = Const[M, A] })#L)
+```
+
+### Applied types
+
+Applied types are written by calling `TYPE_OF(typ|"C", ...)` on a type:
+
+```scala
+REF("x") withType(ListClass TYPE_OF IntClass)
+```
+
+This prints as:
+
+```scala
+(x: List[Int])
+```

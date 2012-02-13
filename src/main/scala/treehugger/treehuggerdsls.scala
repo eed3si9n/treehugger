@@ -68,6 +68,7 @@ trait TreehuggerDSLs { self: Forest =>
       def TYPE_#(sym: Symbol, args: Type*): Type = typeRef(target, sym, args: _*)
       def TYPE_#(name: Name, args: Type*): Type =
         TYPE_#(RootClass.newClass(name), args: _*)
+      def TYPE_OF(args: Type*) = appliedType(target, args: _*)
     }
 
     class TreeMethods(target: Tree) {
@@ -121,8 +122,8 @@ trait TreehuggerDSLs { self: Forest =>
       def MATCH(cases: CaseDef*)    = Match(target, cases.toList)
       def UNAPPLY(params: Tree*)    = UnApply(target, params.toList)
       
-      def TYPEAPPLY(typs: Type*)      = TypeApply(target, typs.toList map {TypeTree(_)})
-      def TYPEAPPLY(typs: List[Type]) = TypeApply(target, typs map {TypeTree(_)})
+      def APPLYTYPE(typs: Type*)      = TypeApply(target, typs.toList map {TypeTree(_)})
+      def APPLYTYPE(typs: List[Type]) = TypeApply(target, typs map {TypeTree(_)})
       
       def DOT(member: Name)         = SelectStart(Select(target, member))
       def DOT(sym: Symbol)          = SelectStart(Select(target, sym))
@@ -229,8 +230,8 @@ trait TreehuggerDSLs { self: Forest =>
     }
     
     case class SuperStart(tree: Super) {
-      def TYPEAPPLY(typ: Type): Super = Super(tree.qual, typ.toString.toTypeName)
-      def TYPEAPPLY(name: Name): Super = Super(tree.qual, name.toTypeName)
+      def APPLYTYPE(typ: Type): Super = Super(tree.qual, typ.toString.toTypeName)
+      def APPLYTYPE(name: Name): Super = Super(tree.qual, name.toTypeName)
       def empty = tree
     }
 
@@ -714,16 +715,6 @@ trait TreehuggerDSLs { self: Forest =>
     def CONTRAVARIANT(name: Name): Name   = newTypeName("-" + name.name)
     def CONTRAVARIANT(symbol: Symbol): Symbol =
       symbol.owner.newAliasType(symbol.name).setFlag(Flags.CONTRAVARIANT)
-    def STRUCTURAL(tree: Tree*)       = 
-      tree.toList match {
-        case List(Block(xs, x)) => makeStructuralType(xs ::: List(x))
-        case _ => makeStructuralType(tree.toList)
-      }
-
-    def makeStructuralType(trees: List[Tree]): Type = {
-      val customString = trees map { tree => treeToString(tree) } mkString("({ ", ", ", " })")
-      refinedType(Nil, NoSymbol, trees, customString)
-    }
     
     case class PRIVATEWITHIN(name: Name)
     
@@ -751,6 +742,16 @@ trait TreehuggerDSLs { self: Forest =>
     def SEQ(xs: Tree*): Tree     = ID("Seq") APPLY(xs.toList: _*)
     def VECTOR(xs: Tree*): Tree  = ID("Vector") APPLY(xs.toList: _*)
     def MAKE_MAP(xs: Tree*): Tree = ID("Map") APPLY(xs.toList: _*)
+    
+    def TYPE_STRUCT(tree: Tree*)      = 
+      tree.toList match {
+        case List(Block(xs, x)) => makeStructuralType(xs ::: List(x))
+        case _ => makeStructuralType(tree.toList)
+      }
+    def makeStructuralType(trees: List[Tree]): Type = {
+      val customString = trees map { tree => treeToString(tree) } mkString("({ ", ", ", " })")
+      refinedType(Nil, NoSymbol, trees, customString)
+    }
 
     implicit def stringToTermName(s: String): TermName = newTermName(s)
 

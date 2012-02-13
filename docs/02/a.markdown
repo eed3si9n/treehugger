@@ -1,7 +1,5 @@
-Full Example
-------------
-
-Here is a full example of how treehugger DSL could be used:
+Forest
+------
 
 ```scala
 import treehugger.forest._

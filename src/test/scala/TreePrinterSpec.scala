@@ -12,6 +12,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     """print case List(x) => x"""                                             ! e7^
     """print case class [T <% List[T]]Address()"""                            ! e8^
     """print new Addressable {}"""                                            ! e9^
+    """print mkPointed"""                                                     ! e10^
                                                                               end
   
   import treehugger.forest._
@@ -230,7 +231,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
               (REF("x") INFIX(StringAdd_+) APPLY LIT("x"))) DOT "mkString" APPLY LIT(" ")
           )),
         DEF("star") withParams(PARAM("n", STAR(IntClass))) :=
-          Address TYPEAPPLY(StringClass) APPLY SOME(LIT("foo")).MAP(WILDCARD INFIX(StringAdd_+) APPLY LIT("x"))
+          Address APPLYTYPE(StringClass) APPLY SOME(LIT("foo")).MAP(WILDCARD INFIX(StringAdd_+) APPLY LIT("x"))
       ))
       
     val out = treeToString(tree); println(out)
@@ -258,6 +259,36 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     out.lines.toList must contain(
       "new Addressable {",
       "  val street = \"123 Drive\"",
+      "}"
+    ).inOrder
+  }
+
+  def e10 = {
+    object sym {
+      val mkPointed = RootClass.newMethod("mkPointed")
+      val Const = RootClass.newClass("Const")
+      val Pointed = RootClass.newClass("Pointed")
+      val Monoid = RootClass.newClass("Monoid")
+    }
+
+    val tree: Tree =
+      (DEF(sym.mkPointed)
+          withFlags(Flags.IMPLICIT)
+          withTypeParams(TYPE("M") CONTEXTBOUNDS sym.Monoid) :=
+            NEW(ANONDEF(sym.Pointed TYPE_OF (TYPE_STRUCT(
+              TYPE("L") withTypeParams(TYPE("A")) := sym.Const APPLYTYPE ("M", "A")
+            ) TYPE_#("L"))) := BLOCK(
+        DEF("point")
+            withTypeParams(TYPE("A"))
+            withParams(PARAM("a", BYNAME("A"))) :=
+          (sym.Const APPLYTYPE ("M", "A") APPLY(
+            Predef_implicitly APPLYTYPE(sym.Monoid TYPE_OF "M") DOT "z"))
+      )))
+    
+    val out = treeToString(tree); println(out)
+    out.lines.toList must contain(
+      "implicit def mkPointed[M : Monoid] = new Pointed[({ type L[A] = Const[M, A] })#L] {",
+      "  def point[A](a: => A) = Const[M, A](implicitly[Monoid[M]].z)",
       "}"
     ).inOrder
   }

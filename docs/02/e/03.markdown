@@ -1,10 +1,10 @@
 Type Applications
 -----------------
 
-Type applications are written by calling `TYPEAPPLY(typ|"C", ...)` on a symbol or a tree:
+Type applications are written by calling `APPLYTYPE(typ|"C", ...)` on a symbol or a tree:
 
 ```scala
-REF("put") TYPEAPPLY(IntClass) APPLY(LIT(0))
+REF("put") APPLYTYPE(IntClass) APPLY(LIT(0))
 ```
 
 This prints as:

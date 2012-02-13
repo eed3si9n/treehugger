@@ -16,7 +16,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """`SUPER`, or"""                                                       ! super1^
       """with a qualifier as `SUPER(sym|"C")` where `Tree`s are expected."""  ! super2^
       """A trait qualifier may be added as
-`SUPER TYPEAPPLY "T"`."""                                                     ! super3^      
+`SUPER APPLYTYPE "T"`."""                                                     ! super3^      
                                                                               p^
   "Function applications are written as"                                      ^
       """`sym APPLY (arg, ...)` where `arg` is a tree,"""                     ! apply1^
@@ -34,7 +34,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """`sym APPLY PARTIALLY`."""                                            ! methodvalue1^
                                                                               p^
   "Type applications are written as"                                          ^
-      """`sym TYPEAPPLY (typ|"T", ...)`."""                                   ! typeapply1^
+      """`sym APPLYTYPE (typ|"T", ...)`."""                                   ! typeapply1^
                                                                               p^
   "Tuples are written as"                                                     ^
       """`TUPLE(tree1, tree2, ...)`."""                                       ! tuple1^
@@ -107,7 +107,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 `WILDCARD op tree`."""                                                        ! lambda3^
                                                                               p^
   "Structural types are written as"                                           ^
-      """`STRUCTURAL(stat, ...)`."""                                          ! struc1^
+      """`TYPE_STRUCT(stat, ...)`."""                                         ! struc1^
                                                                               p^
   "Types projections are written as"                                          ^
       """`typ TYPE_#("C")`."""                                                ! proj1^
@@ -141,7 +141,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     ((SUPER(sym.T): Tree) must print_as("T.super")) and
     ((SUPER("T"): Tree) must print_as("T.super"))
     
-  def super3 = (SUPER TYPEAPPLY sym.T) must print_as("super[T]")
+  def super3 = (SUPER APPLYTYPE sym.T) must print_as("super[T]")
   
   def apply1 = (Predef_println APPLY LIT("Hello, world!")) must print_as("""println("Hello, world!")""")
   
@@ -161,7 +161,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   def methodvalue1 = (REF("put") APPLY PARTIALLY) must print_as("put _")
 
   def typeapply1 =
-    (REF("put") TYPEAPPLY(IntClass) APPLY(LIT(0))) must print_as("put[Int](0)")
+    (REF("put") APPLYTYPE(IntClass) APPLY(LIT(0))) must print_as("put[Int](0)")
   
   def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("(0, 1)")
 
@@ -340,12 +340,12 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   def lambda3 = (WILDCARD INT_+ WILDCARD) must print_as("_ + _")
 
   def struc1 =
-    (sym.foo withType(STRUCTURAL(
+    (sym.foo withType(TYPE_STRUCT(
       DEF("x", IntClass)
     ))) must print_as("(foo: ({ def x: Int }))")
 
   def proj1 =
-    sym.foo withType(STRUCTURAL(
-      TYPE("L") withTypeParams(TYPE("A")) := REF("Const") TYPEAPPLY ("M", "A")
+    sym.foo withType(TYPE_STRUCT(
+      TYPE("L") withTypeParams(TYPE("A")) := REF("Const") APPLYTYPE ("M", "A")
     ) TYPE_#("L")) must print_as("(foo: ({ type L[A] = Const[M, A] })#L)")
 }

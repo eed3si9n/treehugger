@@ -1,26 +1,33 @@
-I heard you like to code...
----------------------------
+---
+out: introduction.html
+---
+I heard you like code...
+------------------------
 
-It's sometimes convenient to write code that generates code. Unfortunately, it's been done mostly in sloppy stringly typed fashion in Scala. treehugger lets you treat Scala code as data (case classes), and data as code (treehugger DSL).
+treehugger lets you treat Scala code as data (case classes), and data as code (treehugger DSL).
 
 For example, here's treehugger DSL for Hello World:
 
 ```scala
-Predef_println APPLY LIT("Hello, world!")
+import treehugger.forest._
+import definitions._
+import treehuggerDSL._
+
+val tree: Tree = Predef_println APPLY LIT("Hello, world!")
+
+println(tree)
+println(treeToString(tree))
 ```
 
-The above returns the following _tree_:
+The above code prints two lines:
 
 ```scala
 Apply(Ident(println),List(Literal(Constant(Hello, world!))))
-```
-
-By calling `treeToString(tree)`, it can be turned into Scala source code:
-
-```scala
 println("Hello, world!")
 ```
 
-Because it is responsible for formatting of the `string`, code generating code would be more clear using treehugger.
+The first line shows the structure of the returned _tree_, and the second line is the Scala source code represented by the tree. Because it is responsible for formatting of the `string`, your code generating code would be more clear using treehugger.
+
+### Thanks scalac!
 
 To be clear where the credit is due, the majority of treehugger's code is borrowed from the Scala compiler (`scalac`) written by Martin Odersky, Paul Phillips, and others. treehugger just took it further to fit its needs.
