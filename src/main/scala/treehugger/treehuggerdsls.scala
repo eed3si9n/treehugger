@@ -69,6 +69,7 @@ trait TreehuggerDSLs { self: Forest =>
       def TYPE_#(name: Name, args: Type*): Type =
         TYPE_#(RootClass.newClass(name), args: _*)
       def TYPE_OF(args: Type*) = appliedType(target, args: _*)
+
     }
 
     class TreeMethods(target: Tree) {
@@ -752,6 +753,14 @@ trait TreehuggerDSLs { self: Forest =>
       val customString = trees map { tree => treeToString(tree) } mkString("({ ", ", ", " })")
       refinedType(Nil, NoSymbol, trees, customString)
     }
+    def TYPE_REF(sym: Symbol): Type   = typeRef(sym)
+    def TYPE_REF(name: Name): Type    = TYPE_REF(RootClass.newClass(name))
+    def TYPE_REF(tree: Tree): Type    = makePathType(tree)   
+    def makePathType(tree: Tree): Type = {
+      val customString = treeToString(tree)
+      PathType(tree, customString)      
+    }
+
     def TYPE_ARRAY(typ: Type): Type   = ArrayClass TYPE_OF typ
     def TYPE_LIST(typ: Type): Type    = ListClass TYPE_OF typ
     def TYPE_SEQ(typ: Type): Type     = SeqClass TYPE_OF typ
@@ -793,8 +802,8 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkTreeMethodsFromSelectStart(ss: SelectStart): TreeMethods = mkTreeMethods(ss.tree)
     
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
-    implicit def mkTypeFromSymbol(sym: Symbol): Type = sym.toType
-    implicit def myTypeFromString(str: String): Type = RootClass.newClass(str).toType
+    implicit def mkTypeFromSymbol(sym: Symbol): Type = TYPE_REF(sym)
+    implicit def mkTypeFromString(str: String): Type = TYPE_REF(RootClass.newClass(str))
     implicit def mkImportSelectorFromString(name: String): ImportSelector = ImportSelector(name, -1, name, -1)
     implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator = ifs.enumerator
     implicit def mkEnumeratorFromValDef(tree: ValDef): Enumerator =

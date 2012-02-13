@@ -1,3 +1,7 @@
+---
+out:concepts.html
+---
+
   [1]: typelevelexp.html
   [2]: stdtypecon.html
 
@@ -57,6 +61,7 @@ Types can also be created using [type-level expressions][1] and [built-in type c
 
 ```scala
 TYPE_ARRAY(StringClass)
+TYPE_REF(REF("board") DOT "Coord")
 ```
 
 ### Tree

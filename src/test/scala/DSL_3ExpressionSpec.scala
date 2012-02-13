@@ -112,6 +112,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   "Types projections are written as"                                          ^
       """`typ TYPE_#("C")`."""                                                ! proj1^
                                                                               p^
+  "Type paths are written as"                                                 ^
+      """`TYPE_REF(tree)`."""                                                 ! type3^
+                                                                              p^
                                                                               end
   
   import treehugger.forest._
@@ -348,4 +351,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     sym.foo withType(TYPE_STRUCT(
       TYPEVAR("L") withTypeParams(TYPEVAR("A")) := REF("Const") APPLYTYPE ("M", "A")
     ) TYPE_#("L")) must print_as("(foo: ({ type L[A] = Const[M, A] })#L)")
+
+  def type3 =
+    VAL("x", TYPE_REF(REF("A") DOT "B")).tree must print_as("val x: A.B")
 }

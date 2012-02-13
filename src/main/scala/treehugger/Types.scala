@@ -323,6 +323,24 @@ trait Types extends api.Types { self: Forest =>
         clazz: Symbol, customToString0: String): RefinedType =
       new RefinedType0(parents, decls, clazz, customToString0)
   }
+
+  /** A class representing a path dependent type
+   */
+  case class PathType(tree: Tree) extends Type {
+    def customToString: String = ""
+    override def safeToString: String =
+      if (customToString != "") customToString
+      else "<path>"
+  }
+
+  final class PathType0(tree: Tree, customToString0: String) extends PathType(tree) {
+    override def customToString = customToString0
+  }
+
+  object PathType {
+    def apply(tree: Tree, customToString0: String): PathType =
+      new PathType0(tree, customToString0)    
+  }
   
   /** A class representing a class info
    */

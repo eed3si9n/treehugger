@@ -7,6 +7,20 @@ out: typelevelexp.html
 Type-Level Expressions
 ----------------------
 
+### Type references
+
+Use `TYPE_REF(tree|sym|"C")` to explicitly convert symbols, names, and trees into types:
+
+```
+(VAL("pos", TYPE_REF(REF("board") DOT "Coord")): Tree)
+```
+
+This prints as:
+
+```
+val pos: board.Coord
+```
+
 ### Structural types
 
 Structural types are written using `TYPE_STRUCT(tree, ...)`:
