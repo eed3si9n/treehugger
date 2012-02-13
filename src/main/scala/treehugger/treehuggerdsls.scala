@@ -653,8 +653,8 @@ trait TreehuggerDSLs { self: Forest =>
     def PACKAGEHEADER(name: Name): PackageDefStart  = new PackageDefStart(name, true)
     def PACKAGEHEADER(sym: Symbol): PackageSymStart = new PackageSymStart(sym, true)
     
-    def TYPE(name: Name): TypeDefTreeStart          = new TypeDefTreeStart(name)
-    def TYPE(sym: Symbol): TypeDefSymStart          = new TypeDefSymStart(sym)
+    def TYPEVAR(name: Name): TypeDefTreeStart       = new TypeDefTreeStart(name)
+    def TYPEVAR(sym: Symbol): TypeDefSymStart       = new TypeDefSymStart(sym)
     
     def LAMBDA(param: ValDef*): AnonFuncStart       = new AnonFuncStart() withParams(param: _*)
     

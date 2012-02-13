@@ -10,7 +10,7 @@ class DSL_2ClassSpec extends DSLSpec { def is = sequential                    ^
 where `PARAM(...)` declares a parameter while 
 `VAL(...)` and `VAR(...)` declare parameters with an accessor."""             ! class3^
       """Polymorphic classes are written as
-`CLASSDEF(sym|"C") withTypeParams(TYPE(typ))`."""                             ! class4^
+`CLASSDEF(sym|"C") withTypeParams(TYPEVAR(typ|"C"))`."""                      ! class4^
       """Classes with base classes are written as
 `CLASSDEF(sym|"C") withParents(typ|"B", ...)`."""                             ! class5^
       """Using `withFlags(flag, ...)`, classes with access modifier can be written as
@@ -67,7 +67,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   }
   
   def class4 =
-    (CLASSDEF("Queue") withTypeParams(TYPE("T"))
+    (CLASSDEF("Queue") withTypeParams(TYPEVAR("T"))
       withParams(VAL("leading", listType("T")), VAL("trailing", listType("T"))): Tree) must print_as("class Queue[T](val leading: List[T], val trailing: List[T])")
   
   def class5 = (CLASSDEF("C") withParents(sym.Addressable): Tree) must print_as("class C extends Addressable")

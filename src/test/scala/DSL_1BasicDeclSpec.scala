@@ -39,17 +39,17 @@ Also, `[typ|"Int"]` denotes that the type is optional."""                     ! 
 the default value of the type (for example `0` for Int)."""                   ! variable3^
                                                                               p^
   "Type declarations are written as"                                          ^
-    """`TYPE(sym|"T") LOWER(lo)` where `lo` is a lower bound Type,"""         ! type1^
-    """`TYPE(sym|"T") UPPER(hi)` where `hi` is a uppper bound Type,"""        ! type2^
-    """`TYPE(sym|"T") LOWER(lo) UPPER(hi)` specifying both lower and upper bounds,""" ! type3^
+    """`TYPEVAR(sym|"T") LOWER(lo)` where `lo` is a lower bound Type,"""      ! type1^
+    """`TYPEVAR(sym|"T") UPPER(hi)` where `hi` is a uppper bound Type,"""     ! type2^
+    """`TYPEVAR(sym|"T") LOWER(lo) UPPER(hi)` specifying both lower and upper bounds,""" ! type3^
                                                                               end^
   "Type definitions are written as"                                           ^
-    """`TYPE(sym|"T") := typ` or"""                                           ! type4^
-    """`TYPE(sym|"T") withTypeParams(TYPE(typ1)) := typ2`."""                 ! type5^    
+    """`TYPEVAR(sym|"T") := typ` or"""                                        ! type4^
+    """`TYPEVAR(sym|"T") withTypeParams(TYPEVAR(typ1)) := typ2`."""           ! type5^    
                                                                               p^
   "Variance annotions are written as"                                         ^
-    """`withTypeParams(TYPE(COVARIANT(sym|"T")))` or
-`withTypeParams(TYPE(CONTRAVARIANT(sym|"T")))`."""                            ! variance1^    
+    """`withTypeParams(TYPEVAR(COVARIANT(sym|"T")))` or
+`withTypeParams(TYPEVAR(CONTRAVARIANT(sym|"T")))`."""                         ! variance1^    
                                                                               p^
   "Function declarations are written as"                                      ^
      """`DEF(sym|"get", typ|"Int")` where `sym` is the name of the function
@@ -57,14 +57,14 @@ and `typ` is the result type."""                                              ! 
      """Parameter lists may be added to the declaration as
 `DEF(sym|"put", typ|"Int") withParams(PARAM("x", typ1)), ...`."""             ! function2^
      """Type parameter lists may be added as
-`DEF(sym|"get", typ|"Int") withTypeParams(TYPE(typ1)), ...`."""               ! function3^
+`DEF(sym|"get", typ|"Int") withTypeParams(TYPEVAR(typ1)), ...`."""            ! function3^
                                                                               end^
   "View bound type parameters are written as"                                 ^
-    """`DEF(sym|"get", typ|"Int") withTypeParams(TYPE(typ) VIEWBOUNDS(trg))`
+    """`DEF(sym|"get", typ|"Int") withTypeParams(TYPEVAR(typ) VIEWBOUNDS(trg))`
 where `trg` is a target Type,"""                                              ! bounds1^
                                                                               end^
   "Context bound type parameters are written as"                                 ^                                                                            
-    """`DEF(sym|"get", typ|"Int") withTypeParams(TYPE(typ) CONTEXTBOUNDS(tycon))`
+    """`DEF(sym|"get", typ|"Int") withTypeParams(TYPEVAR(typ) CONTEXTBOUNDS(tycon))`
 where `tycon` is the type constructor Type."""                                ! bounds2^
                                                                               end^
   "Function definitions are written as"                                       ^
@@ -162,27 +162,27 @@ limit them to some members."""                                                ! 
   def variable3 = ((VAR(sym.foo, IntClass) := WILDCARD) must print_as("var foo: Int = _"))
   
   def type1 =
-    ((TYPE("T"): Tree) must print_as("type T")) and
-    ((TYPE("T") LOWER(IntClass): Tree) must print_as("type T >: Int"))
+    ((TYPEVAR("T"): Tree) must print_as("type T")) and
+    ((TYPEVAR("T") LOWER(IntClass): Tree) must print_as("type T >: Int"))
   
   def type2 = {
     val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T) 
     val X = RootClass.newAliasType("X")
 
-    ((TYPE("T") UPPER(ComparableTClass): Tree) must print_as("type T <: Comparable[T]")) and
-    ((TYPE("MyCollection") withTypeParams(TYPE(COVARIANT(X))) UPPER(iterableType(X)): Tree) must print_as("type MyCollection[+X] <: Iterable[X]"))
+    ((TYPEVAR("T") UPPER(ComparableTClass): Tree) must print_as("type T <: Comparable[T]")) and
+    ((TYPEVAR("MyCollection") withTypeParams(TYPEVAR(COVARIANT(X))) UPPER(iterableType(X)): Tree) must print_as("type MyCollection[+X] <: Iterable[X]"))
   }
   
-  def type3 = (TYPE("T") LOWER(IntClass) UPPER(sym.Addressable): Tree) must print_as("type T >: Int <: Addressable")
+  def type3 = (TYPEVAR("T") LOWER(IntClass) UPPER(sym.Addressable): Tree) must print_as("type T >: Int <: Addressable")
   
-  def type4 = (TYPE("IntList") := listType(IntClass)) must print_as("type IntList = List[Int]")
+  def type4 = (TYPEVAR("IntList") := listType(IntClass)) must print_as("type IntList = List[Int]")
   
-  def type5 = (TYPE("Two") withTypeParams(TYPE(sym.A)) := tupleType(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
+  def type5 = (TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := tupleType(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
   
   def variance1 = {
     val A = RootClass.newTypeParameter("A")
-    ((TYPE("M") withTypeParams(TYPE(COVARIANT(A))): Tree) must print_as("type M[+A]")) and
-    ((TYPE("M") withTypeParams(TYPE(CONTRAVARIANT(A))): Tree) must print_as("type M[-A]")) 
+    ((TYPEVAR("M") withTypeParams(TYPEVAR(COVARIANT(A))): Tree) must print_as("type M[+A]")) and
+    ((TYPEVAR("M") withTypeParams(TYPEVAR(CONTRAVARIANT(A))): Tree) must print_as("type M[-A]")) 
   }
 
   def function1 =
@@ -194,14 +194,14 @@ limit them to some members."""                                                ! 
 
   def function3 =
     (DEF("compare", BooleanClass)
-      withTypeParams(TYPE(sym.T))
+      withTypeParams(TYPEVAR(sym.T))
       withParams(PARAM("a", sym.T) := LIT(0))
       withParams(PARAM("b", sym.T) := LIT(0)): Tree) must print_as(
         "def compare[T](a: T = 0)(b: T = 0): Boolean")
 
   def bounds1 = {
     val tree: Tree = DEF("maxList", "T").
-      withTypeParams(TYPE("T") VIEWBOUNDS(orderedType("T"))).
+      withTypeParams(TYPEVAR("T") VIEWBOUNDS orderedType("T")).
       withParams(PARAM("elements", listType("T")))
     
     tree must print_as("def maxList[T <% Ordered[T]](elements: List[T]): T")
@@ -209,7 +209,7 @@ limit them to some members."""                                                ! 
     
   def bounds2 = {
     val tree: Tree = DEF("put", UnitClass).
-      withTypeParams(TYPE(sym.A) CONTEXTBOUNDS(FullManifestClass)).
+      withTypeParams(TYPEVAR(sym.A) CONTEXTBOUNDS FullManifestClass).
       withParams(PARAM("x", sym.A))
     
     tree must print_as("def put[A : Manifest](x: A): Unit")

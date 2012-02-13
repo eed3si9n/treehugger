@@ -3,13 +3,13 @@ Functions
 
 ### Abstract function declarations
 
-Abstract function declarations are written using `DEF(...)`. Optionally, parameter lists can be specified using `withParams(PARAM(...), ...)` and type parameters can be specified using `withTypeParams(TYPE(...), ...)`:
+Abstract function declarations are written using `DEF(...)`. Optionally, parameter lists can be specified using `withParams(PARAM(...), ...)` and type parameters can be specified using `withTypeParams(TYPEVAR(...), ...)`:
 
 ```scala
 (DEF("get", IntClass): Tree)
 (DEF("put") withParams(PARAM("x", IntClass)): Tree)
 (DEF("compare", BooleanClass)
-  withTypeParams(TYPE(sym.T))
+  withTypeParams(TYPEVAR(sym.T))
   withParams(PARAM("a", sym.T) := LIT(0))
   withParams(PARAM("b", sym.T) := LIT(0)): Tree)
 ```
@@ -27,7 +27,7 @@ In genral:
 ```scala
 (DEF("get"|sym, [typ])
   [withParams(PARAM("x"|sym, typ|"C")[ := arg], ...)]*
-  [withTypeParams(TYPE(...), ...)]).tree
+  [withTypeParams(TYPEVAR(...), ...)]).tree
 ```
 
 ### Function definition
@@ -74,7 +74,7 @@ Note `withParams(...)` clause may be added multiple times, each forming a parame
 
 ```scala
 (DEF("compare")
-  withTypeParams(TYPE(sym.T))
+  withTypeParams(TYPEVAR(sym.T))
   withParams(PARAM("a", sym.T))
   withParams(PARAM("b", sym.T))) := FALSE
 ```
@@ -85,7 +85,7 @@ Similar to `VAL(...)`, `PARAM(...)` can be followed by `:=` and rhs to specify t
 
 ```scala
 (DEF("compare")
-  withTypeParams(TYPE(sym.T))
+  withTypeParams(TYPEVAR(sym.T))
   withParams(PARAM("a", sym.T) := LIT(0))
   withParams(PARAM("b", sym.T) := LIT(0))) := FALSE
 ```

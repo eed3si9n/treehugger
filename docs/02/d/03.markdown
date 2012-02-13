@@ -4,7 +4,7 @@ Polymorphic Classes
 Polymorphic classes are defined using `withTypeParams(...)`:
 
 ```scala
-(CLASSDEF("Queue") withTypeParams(TYPE("T"))
+(CLASSDEF("Queue") withTypeParams(TYPEVAR("T"))
   withParams(VAL("leading", "T"), VAL("trailing", "T")): Tree)
 ```
 

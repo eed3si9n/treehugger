@@ -159,13 +159,13 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     
     val tree =
       (OBJECTDEF(PredefModule) := BLOCK(
-        (CLASSDEF(ArrowAssocClass) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) := BLOCK(
-          DEF(arrow.name, tuple2AB) withTypeParams(TYPE(B)) withParams(PARAM("y", B)) :=
+        (CLASSDEF(ArrowAssocClass) withTypeParams(TYPEVAR(A)) withParams(PARAM("x", A)) := BLOCK(
+          DEF(arrow.name, tuple2AB) withTypeParams(TYPEVAR(B)) withParams(PARAM("y", B)) :=
             TUPLE(REF("x"), REF("y"))
         )),
         
         DEF("any2ArrowAssoc", ArrowAssocA)
-            withFlags(Flags.IMPLICIT) withTypeParams(TYPE(A)) withParams(PARAM("x", A)) :=
+            withFlags(Flags.IMPLICIT) withTypeParams(TYPEVAR(A)) withParams(PARAM("x", A)) :=
           NEW(ArrowAssocA, REF("x"))
       )) inPackage(ScalaPackageClass)
     
@@ -188,7 +188,8 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     
     val trees =
       (DEF(maxListUpBound.name, T)
-          withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=
+          withTypeParams(TYPEVAR(T) UPPER orderedType(T))
+          withParams(PARAM("elements", listType(T))) :=
         REF("elements") MATCH(
           CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
           CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
@@ -222,7 +223,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     
     val tree: Tree =
       (CASECLASSDEF(Address)
-          withTypeParams(TYPE(T) VIEWBOUNDS listType(T))
+          withTypeParams(TYPEVAR(T) VIEWBOUNDS listType(T))
           withParams(PARAM("name", optionType(T)) := REF(NoneModule)) := BLOCK(
         DEF("stringOnly", Address) withParams(PARAM("ev", tpEqualsType(T, StringClass)) withFlags(Flags.IMPLICIT)) :=
           Address APPLY(THIS DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
@@ -274,12 +275,12 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val tree: Tree =
       (DEF(sym.mkPointed)
           withFlags(Flags.IMPLICIT)
-          withTypeParams(TYPE("M") CONTEXTBOUNDS sym.Monoid) :=
+          withTypeParams(TYPEVAR("M") CONTEXTBOUNDS sym.Monoid) :=
             NEW(ANONDEF(sym.Pointed TYPE_OF (TYPE_STRUCT(
-              TYPE("L") withTypeParams(TYPE("A")) := sym.Const APPLYTYPE ("M", "A")
+              TYPEVAR("L") withTypeParams(TYPEVAR("A")) := sym.Const APPLYTYPE ("M", "A")
             ) TYPE_#("L"))) := BLOCK(
         DEF("point")
-            withTypeParams(TYPE("A"))
+            withTypeParams(TYPEVAR("A"))
             withParams(PARAM("a", BYNAME("A"))) :=
           (sym.Const APPLYTYPE ("M", "A") APPLY(
             Predef_implicitly APPLYTYPE(sym.Monoid TYPE_OF "M") DOT "z"))

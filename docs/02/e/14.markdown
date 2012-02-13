@@ -23,7 +23,7 @@ Type projections are written by calling `TYPE_# (typ|"C")` on a type:
 
 ```scala
 REF("x") withType(TYPE_STRUCT(
-  TYPE("L") withTypeParams(TYPE("A")) :=
+  TYPEVAR("L") withTypeParams(TYPEVAR("A")) :=
     REF("Const") APPLYTYPE ("M", "A")
 ) TYPE_#("L"))
 ```

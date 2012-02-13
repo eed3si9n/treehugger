@@ -5,7 +5,7 @@ class DSL_7AnnotationSpec extends DSLSpec { def is = sequential               ^
                                                                               p^
   "Declaration annotations are written as"                                    ^
       """`CLASSDEF("C") withAnnots(ANNOT(typ|"C", arg, ...), ...)`, or"""     ! declannot1^
-      """`TYPE("T") withAnnots(ANNOT(typ|"C", arg, ...), ...)`."""            ! declannot2^
+      """`TYPEVAR(typ|"T") withAnnots(ANNOT(typ|"C", arg, ...), ...)`."""     ! declannot2^
                                                                               p^
   "Expression annotations are written as"                                     ^
       """`tree withAnnots(ANNOT(typ), ...)`."""                               ! exp1^
@@ -27,7 +27,7 @@ class DSL_7AnnotationSpec extends DSLSpec { def is = sequential               ^
 
   def declannot2 =
     (TRAITDEF("Function0")
-        withTypeParams(TYPE("T") withAnnots(ANNOT("specialized", REF(IntClass)))) := BLOCK(
+        withTypeParams(TYPEVAR("T") withAnnots(ANNOT("specialized", REF(IntClass)))) := BLOCK(
       DEF("apply", "T")
     )) must print_as(
       "trait Function0[@specialized(Int) T] {",

@@ -39,11 +39,11 @@ def greet(name: String)(implicit config: Config) {
 
 ### View bounds
 
-View bounds are written by calling `VIEWBOUNDS(typ|"T")` on `TYPE(...)`:
+View bounds are written by calling `VIEWBOUNDS(typ|"T")` on `TYPEVAR(...)`:
 
 ```scala
 (DEF("maxList", "T")
-  withTypeParams(TYPE("T") VIEWBOUNDS orderedType("T"))
+  withTypeParams(TYPEVAR("T") VIEWBOUNDS orderedType("T"))
   withParams(PARAM("elements", listType("T"))): Tree)
 ```
 
@@ -55,11 +55,11 @@ def maxList[T <% Ordered[T]](elements: List[T]): T
 
 ### Context bounds
 
-Context bounds are written by calling `CONTEXTBOUNDS(typ|"T")` on `TYPE(...)`:
+Context bounds are written by calling `CONTEXTBOUNDS(typ|"T")` on `TYPEVAR(...)`:
 
 ```scala
 (DEF("put", UnitClass)
-  withTypeParams(TYPE(sym.A) CONTEXTBOUNDS FullManifestClass)
+  withTypeParams(TYPEVAR(sym.A) CONTEXTBOUNDS FullManifestClass)
   withParams(PARAM("x", sym.A)): Tree)
 ```
 

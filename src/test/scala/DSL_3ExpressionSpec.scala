@@ -346,6 +346,6 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 
   def proj1 =
     sym.foo withType(TYPE_STRUCT(
-      TYPE("L") withTypeParams(TYPE("A")) := REF("Const") APPLYTYPE ("M", "A")
+      TYPEVAR("L") withTypeParams(TYPEVAR("A")) := REF("Const") APPLYTYPE ("M", "A")
     ) TYPE_#("L")) must print_as("(foo: ({ type L[A] = Const[M, A] })#L)")
 }

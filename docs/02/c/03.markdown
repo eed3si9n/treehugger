@@ -3,38 +3,36 @@ Type members
 
 ### Abstract type declarations
 
-Abstract type declarations are written using `TYPE(...)`. Optionally, lower bounds and higher bounds can be specified:
+Abstract type declarations are written using `TYPEVAR(...)`. Optionally, lower bounds and higher bounds can be specified:
 
 ```scala
-(TYPE("T"): Tree)
-(TYPE("T") LOWER(IntClass): Tree)
+(TYPEVAR("T"): Tree)
+(TYPEVAR("T") LOWER(IntClass): Tree)
 
-val ComparableTClass =
-  appliedType(ComparableClass.typeConstructor, sym.T) 
-(TYPE(sym.T) UPPER(ComparableTClass): Tree)
+(TYPEVAR(sym.T) UPPER(ComparableClass TYPE_OF sym.T): Tree)
 ```
 
 or in general:
 
 ```scala
-(TYPE(sym|"T") [LOWER(lo|"C")] [UPPER(hi|"D")]).tree
+(TYPEVAR(sym|"T") [LOWER(lo|"C")] [UPPER(hi|"D")]).tree
 ```
 
 where `lo` denotes an optional lower bound type and `hi` upper bound type.
 
 ### Type alias definitions
 
-Type alias definitions are written by appending `:=` and right-hand side `Type`. The alias may accompany type parameters given by `withTypeParams(TYPE(...))`:
+Type alias definitions are written by appending `:=` and right-hand side `Type`. The alias may accompany type parameters given by `withTypeParams(TYPEVAR(...))`:
 
 ```scala
-TYPE("IntList") := listType(IntClass)
-TYPE("Two") withTypeParams(TYPE(sym.A)) := tupleType(sym.A, sym.A)
+TYPEVAR("IntList") := listType(IntClass)
+TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := tupleType(sym.A, sym.A)
 ```
 
 or in general:
 
 ```scala
-TYPE(sym|"T") [withTypeParams(TYPE(typ1), ...)] := typ2
+TYPEVAR(sym|"T") [withTypeParams(TYPEVAR(typ1), ...)] := typ2
 ```
 
 ### Variance annotations
@@ -43,8 +41,8 @@ Variance annotations for the type parameters are set using `COVARIANT(...)` and 
 
 ```scala
 val A = RootClass.newTypeParameter("A")
-(TYPE("M") withTypeParams(TYPE(COVARIANT(A))): Tree)
-(TYPE("M") withTypeParams(TYPE(CONTRAVARIANT(A))): Tree)
+(TYPEVAR("M") withTypeParams(TYPEVAR(COVARIANT(A))): Tree)
+(TYPEVAR("M") withTypeParams(TYPEVAR(CONTRAVARIANT(A))): Tree)
 ```
 
 The above examples print as:

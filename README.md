@@ -117,7 +117,7 @@ val maxListUpBound = RootClass.newMethod("maxListUpBound")
 val T = maxListUpBound.newTypeParameter("T")
 
 DEF(maxListUpBound.name, T)
-    withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=
+    withTypeParams(TYPEVAR(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=
   REF("elements") MATCH(
     CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
     CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),

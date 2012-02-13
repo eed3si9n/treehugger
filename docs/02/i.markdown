@@ -24,13 +24,13 @@ This prints as:
 
 ### Type annotations
 
-Type annotations are written by calling `withAnnots(annot, ...)` on `TYPE(...)`.
+Type annotations are written by calling `withAnnots(annot, ...)` on `TYPEVAR(...)`.
 
 ```scala
 val annot = ANNOT(SpecializedClass, REF(IntClass))
 
 TRAITDEF("Function0")
-    withTypeParams(TYPE("T") withAnnots(annot)) := BLOCK(
+    withTypeParams(TYPEVAR("T") withAnnots(annot)) := BLOCK(
   DEF("apply", "T")
 )
 ```
