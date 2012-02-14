@@ -113,15 +113,6 @@ trait NameManglers { self: Forest =>
       } else name
     }
 
-    /** Return the original name and the types on which this name
-     *  is specialized. For example,
-     *  {{{
-     *     splitSpecializedName("foo$mIcD$sp") == ('foo', "I", "D")
-     *  }}}
-     *  `foo$mIcD$sp` is the name of a method specialized on two type
-     *  parameters, the first one belonging to the method itself, on Int,
-     *  and another one belonging to the enclosing class, on Double.
-     */
     def splitSpecializedName(name: Name): (Name, String, String) =
       if (name.endsWith("$sp")) {
         val name1 = name stripEnd "$sp"
@@ -157,16 +148,6 @@ trait NameManglers { self: Forest =>
       else name
     }
 
-    /** !!! I'm putting this logic in place because I can witness
-     *  trait impls get lifted and acquiring names like 'Foo$class$1'
-     *  while clearly still being what they were. It's only being used on
-     *  isImplClassName. However, it's anyone's guess how much more
-     *  widely this logic actually ought to be applied. Anything which
-     *  tests for how a name ends is a candidate for breaking down once
-     *  something is lifted from a method.
-     *
-     *  TODO: resolve this significant problem.
-     */
     def stripAnonNumberSuffix(name: Name): Name = {
       val str = "" + name
       if (str == "" || !str.endChar.isDigit) name

@@ -153,14 +153,6 @@ trait Symbols extends api.Symbols { self: Forest =>
     final def newExistential(pos: Position, name: Name): Symbol =
       newAbstractType(pos, name.toTypeName).setFlag(EXISTENTIAL)
     
-    /** Get type. The type of a symbol is:
-     *  for a type symbol, the type corresponding to the symbol itself,
-     *    @M you should use tpeHK for a type symbol with type parameters if
-     *       the kind of the type need not be *, as tpe introduces dummy arguments
-     *       to generate a type of kind *
-     *  for a term symbol, its usual type.
-     *  See the tpe/tpeHK overrides in TypeSymbol for more.
-     */
     def tpe: Type = NoType
     def tpeHK: Type = tpe
     
@@ -255,7 +247,7 @@ trait Symbols extends api.Symbols { self: Forest =>
     final def skipPackageObject: Symbol = if (isPackageObjectOrClass) owner else this
     
     /** Conditions where we omit the prefix when printing a symbol, to avoid
-     *  unpleasantries like Predef.String, $iw.$iw.Foo and <empty>.Bippy.
+     *  unpleasantries like Predef.String.
      */
     final def isOmittablePrefix = (
          UnqualifiedOwners(skipPackageObject)
@@ -343,9 +335,6 @@ trait Symbols extends api.Symbols { self: Forest =>
     def decodedName: String = stripNameString(NameTransformer.decode(encodedName))
     
     /** String representation of symbol's simple name.
-     *  If !settings.debug translates expansions of operators back to operator symbol.
-     *  E.g. $eq => =.
-     *  If settings.uniqid, adds id.
      */
     def nameString = decodedName
         
@@ -585,7 +574,7 @@ trait Symbols extends api.Symbols { self: Forest =>
       tyconCache
     }
         
-    override def tpeHK = typeConstructor // @M! used in memberType
+    override def tpeHK = typeConstructor // used in memberType
   }
   
   /** A class for class symbols */

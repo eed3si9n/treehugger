@@ -1,5 +1,5 @@
 ---
-object.html
+out: object.html
 ---
 
 Object Definitions

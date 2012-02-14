@@ -75,20 +75,7 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
     }
 
     /** Annotations annotating annotations are confusing so I drew
-     *  an example.  Given the following code:
-     *
-     *  class A {
-     *    @(deprecated @setter) @(inline @getter)
-     *    var x: Int = 0
-     *  }
-     *
-     *  For the setter `x_=` in A, annotations contains one AnnotationInfo =
-     *    List(deprecated @setter)
-     *  The single AnnotationInfo in that list, i.e. `@(deprecated @setter)`, has metaAnnotations =
-     *    List(setter)
-     *
-     *  Similarly, the getter `x` in A has an @inline annotation, which has
-     *  metaAnnotations = List(getter).
+     *  an example.
      */
     def symbol = atp.typeSymbol
 

@@ -94,7 +94,7 @@ trait Trees { self: Universe =>
     /** Like `setType`, but if this is a previously empty TypeTree that
      *  fact is remembered so that resetAllAttrs will snap back.
      *
-     *  @PP: Attempting to elaborate on the above, I find: If defineType
+     *  Attempting to elaborate on the above, I find: If defineType
      *  is called on a TypeTree whose type field is null or NoType,
      *  this is recorded as "wasEmpty = true". That value is used in
      *  ResetAttrsTraverser, which nulls out the type field of TypeTrees
@@ -536,7 +536,7 @@ trait Trees { self: Universe =>
   }
 
   /** Explicit type application.
-   *  @PP: All signs point toward it being a requirement that args.nonEmpty,
+   *  All signs point toward it being a requirement that args.nonEmpty,
    *  but I can't find that explicitly stated anywhere.  Unless your last name
    *  is odersky, you should probably treat it as true.
    */

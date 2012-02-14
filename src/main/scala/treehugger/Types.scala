@@ -10,7 +10,7 @@ trait Types extends api.Types { self: Forest =>
   
   /** The base class for all types */
   abstract class Type extends AbsTypeImpl {
-    /** Is this type higher-kinded, i.e., is it a type constructor @M */
+    /** Is this type higher-kinded, i.e., is it a type constructor */
     def isHigherKinded: Boolean = false    
     
     protected def objectPrefix = "object "
@@ -378,9 +378,8 @@ trait Types extends api.Types { self: Forest =>
   /** A class for named types of the form
    *  `<prefix>.<sym.name>[args]`
    *  Cannot be created directly; one should always use `typeRef`
-   *  for creation. (@M: Otherwise hashing breaks)
+   *  for creation.
    *
-   * @M: a higher-kinded type is represented as a TypeRef with sym.info.typeParams.nonEmpty, but args.isEmpty
    *  @param pre  ...
    *  @param sym  ...
    *  @param args ...
