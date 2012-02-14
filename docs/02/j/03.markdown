@@ -8,6 +8,7 @@ Here are built-in type constructors:
 
 ```scala
 TYPE_ITERATOR(typ)           // Iterator[A]
+TYPE_TUPLE(typ, ...)         // Tuple2[A, B, ...]
 TYPE_ARRAY(typ)              // Array[A]
 TYPE_LIST(typ)               // List[A]
 TYPE_SEQ(typ)                // Seq[A]

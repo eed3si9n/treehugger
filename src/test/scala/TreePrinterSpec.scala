@@ -156,24 +156,23 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val A = ArrowAssocClass.newTypeParameter("A")
     val arrow = ArrowAssocClass.newMethod("->")
     val B = arrow.newTypeParameter("B")
-    val tuple2AB = tupleType(A.toType :: B.toType :: Nil)
-    val ArrowAssocA = appliedType(ArrowAssocClass, A.toType)
     
     val tree =
       (OBJECTDEF(PredefModule) := BLOCK(
         (CLASSDEF(ArrowAssocClass) withTypeParams(TYPEVAR(A)) withParams(PARAM("x", A)) := BLOCK(
-          DEF(arrow.name, tuple2AB) withTypeParams(TYPEVAR(B)) withParams(PARAM("y", B)) :=
+          DEF(arrow.name, TYPE_TUPLE(A, B)) withTypeParams(TYPEVAR(B)) withParams(PARAM("y", B)) :=
             TUPLE(REF("x"), REF("y"))
         )),
         
-        DEF("any2ArrowAssoc", ArrowAssocA)
+        DEF("any2ArrowAssoc", ArrowAssocClass TYPE_OF A)
             withFlags(Flags.IMPLICIT) withTypeParams(TYPEVAR(A)) withParams(PARAM("x", A)) :=
-          NEW(ArrowAssocA, REF("x"))
+          NEW(ArrowAssocClass TYPE_OF A, REF("x"))
       )) inPackage(ScalaPackageClass)
     
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
       """package scala""",
+      """""",
       """object Predef {""",
       """  class ArrowAssoc[A](x: A) {""",
       """    def ->[B](y: B): (A, B) = (x, y)""",

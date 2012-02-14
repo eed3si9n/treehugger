@@ -177,7 +177,7 @@ limit them to some members."""                                                ! 
   
   def type4 = (TYPEVAR("IntList") := listType(IntClass)) must print_as("type IntList = List[Int]")
   
-  def type5 = (TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := tupleType(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
+  def type5 = (TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := TYPE_TUPLE(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
   
   def variance1 = {
     val A = RootClass.newTypeParameter("A")

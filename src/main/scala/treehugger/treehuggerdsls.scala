@@ -761,6 +761,7 @@ trait TreehuggerDSLs { self: Forest =>
       PathType(tree, customString)      
     }
 
+    def TYPE_TUPLE(typs: Type*): Type = tupleType(typs.toList)
     def TYPE_ARRAY(typ: Type): Type   = ArrayClass TYPE_OF typ
     def TYPE_LIST(typ: Type): Type    = ListClass TYPE_OF typ
     def TYPE_SEQ(typ: Type): Type     = SeqClass TYPE_OF typ

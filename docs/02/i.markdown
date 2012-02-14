@@ -17,7 +17,7 @@ CLASSDEF("C")
 This prints as:
 
 ```scala
-@scala.annotation.serializable class C {
+@serializable class C {
   def get: Int = 0
 }
 ```

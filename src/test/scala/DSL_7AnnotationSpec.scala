@@ -20,7 +20,7 @@ class DSL_7AnnotationSpec extends DSLSpec { def is = sequential               ^
     (CLASSDEF("C") withAnnots(ANNOT(SerializableAttr)) := BLOCK(
       DEF("get", IntClass)
     )) must print_as(
-      """@scala.annotation.serializable class C {""",
+      """@serializable class C {""",
       """  def get: Int""",
       """}"""
     )

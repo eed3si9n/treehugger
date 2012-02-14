@@ -26,7 +26,7 @@ Type alias definitions are written by appending `:=` and right-hand side `Type`.
 
 ```scala
 TYPEVAR("IntList") := TYPE_LIST(IntClass)
-TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := tupleType(sym.A, sym.A)
+TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := TYPE_TUPLE(sym.A, sym.A)
 ```
 
 or in general:
