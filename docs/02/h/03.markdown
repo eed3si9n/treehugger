@@ -1,3 +1,7 @@
+---
+out: package_object.html
+---
+
 Package Objects
 ---------------
 

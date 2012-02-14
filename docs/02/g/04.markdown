@@ -1,3 +1,7 @@
+---
+out: pattern_values.html
+---
+
 Pattern Values
 --------------
 

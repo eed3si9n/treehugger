@@ -1,3 +1,7 @@
+---
+out: new.html
+---
+
 Instance Creation Expressions
 -----------------------------
 

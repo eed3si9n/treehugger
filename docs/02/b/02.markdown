@@ -1,3 +1,7 @@
+---
+out: comments.html
+---
+
 Comments
 --------
 

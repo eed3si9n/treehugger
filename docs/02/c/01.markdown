@@ -1,3 +1,7 @@
+---
+out: val.html
+---
+
 Values
 ------
 

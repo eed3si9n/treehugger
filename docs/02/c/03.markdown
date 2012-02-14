@@ -1,3 +1,7 @@
+---
+out: typevar.html
+---
+
 Type members
 ------------
 

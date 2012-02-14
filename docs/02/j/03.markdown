@@ -1,6 +1,7 @@
 ---
 out: stdtypcon.html
 ---
+
 Type Constructors
 -----------------
 

@@ -1,3 +1,7 @@
+---
+out: caseseq.html
+---
+
 Case Sequence Functions
 -----------------------
 

@@ -1,3 +1,7 @@
+---
+out: package.html
+---
+
 Packaging
 ---------
 

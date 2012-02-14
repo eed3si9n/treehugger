@@ -1,3 +1,7 @@
+---
+out: decl.html
+---
+
 Basic Declarations and Definitions
 ----------------------------------
 

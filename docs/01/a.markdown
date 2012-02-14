@@ -1,3 +1,7 @@
+---
+out: compilers.html
+---
+
 Compilers 101
 -------------
 

@@ -1,3 +1,7 @@
+---
+out: implicit.html
+---
+
 Implicits
 ---------
 

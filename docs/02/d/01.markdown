@@ -1,3 +1,7 @@
+---
+out: class.html
+---
+
 Classes
 -------
 

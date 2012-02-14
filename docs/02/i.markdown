@@ -1,3 +1,7 @@
+---
+out: annotations.html
+---
+
 Annotations
 -----------
 

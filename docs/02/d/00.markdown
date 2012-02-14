@@ -1,3 +1,7 @@
+---
+out: classes_and_objects.html
+---
+
 Classes and Objects
 -------------------
 

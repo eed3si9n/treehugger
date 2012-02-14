@@ -1,5 +1,5 @@
 ---
-out: treehugger_DSL.html
+out: dsl.html
 ---
 
 treehugger DSL

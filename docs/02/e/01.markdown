@@ -1,3 +1,7 @@
+---
+out: basicexp.html
+---
+
 Basic Expressions
 -----------------
 

@@ -1,3 +1,7 @@
+---
+out: prefix_infix_postfix.html
+---
+
 Prefix, Infix, and Postfix Operations
 -------------------------------------
 

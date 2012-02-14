@@ -21,6 +21,35 @@ This prints as:
 val pos: board.Coord
 ```
 
+### Applied types
+
+Applied types are written by calling `TYPE_OF(typ|"C", ...)` on a type:
+
+```scala
+REF("x") withType(ListClass TYPE_OF IntClass)
+```
+
+This prints as:
+
+```scala
+(x: List[Int])
+```
+
+### Type constructors
+
+treehugger DSL provides built-in type constructors, which will be covered [later][1]:
+
+```
+REF("x") withType(TYPE_LIST(IntClass))
+```
+
+This also prints as:
+
+```scala
+(x: List[Int])
+```
+
+
 ### Structural types
 
 Structural types are written using `TYPE_STRUCT(tree, ...)`:
@@ -54,30 +83,21 @@ This prints as:
 (foo: ({ type L[A] = Const[M, A] })#L)
 ```
 
-### Applied types
+### Existential types
 
-Applied types are written by calling `TYPE_OF(typ|"C", ...)` on a type:
+Existential types are written by calling `TYPE_FORSOME(tree, ...)` on a type:
 
 ```scala
-REF("x") withType(ListClass TYPE_OF IntClass)
+(DEF("foo")
+  withParams(PARAM("arg", TYPE_LIST(
+    TYPE_REF(REF("x") DOT "T")) TYPE_FORSOME(
+    VAL("x", "Outer")
+)))).tree
 ```
 
 This prints as:
 
 ```scala
-(x: List[Int])
+def foo(arg: List[x.T] forSome { val x: Outer })
 ```
 
-### Type constructors
-
-treehugger DSL provides built-in type constructors, which will be covered [later][1]:
-
-```
-REF("x") withType(TYPE_LIST(IntClass))
-```
-
-This also prints as:
-
-```scala
-(x: List[Int])
-```

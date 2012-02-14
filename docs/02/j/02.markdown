@@ -1,3 +1,7 @@
+---
+out: stdcollectionclass.html
+---
+
 Collection Class Operators
 --------------------------
 

@@ -1,3 +1,7 @@
+---
+out: stdvalclass.html
+---
+
 Value Class Operators
 ---------------------
 

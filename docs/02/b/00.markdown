@@ -1,3 +1,7 @@
+---
+out: lexical.html
+---
+
 Literals and Comments
 ---------------------
 

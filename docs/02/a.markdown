@@ -1,3 +1,7 @@
+---
+out: forest.html
+---
+
 Forest
 ------
 

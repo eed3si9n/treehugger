@@ -1,3 +1,7 @@
+---
+out: caseclass.html
+---
+
 Case Classes
 ------------
 

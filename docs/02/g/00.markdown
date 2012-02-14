@@ -1,3 +1,7 @@
+---
+out: pattern_matching.html
+---
+
 Pattern Matching
 ----------------
 

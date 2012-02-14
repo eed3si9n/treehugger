@@ -1,3 +1,7 @@
+---
+out: import.html
+---
+
 Import Clauses
 --------------
 

@@ -1,3 +1,7 @@
+---
+out: var.html
+---
+
 Variables
 ---------
 

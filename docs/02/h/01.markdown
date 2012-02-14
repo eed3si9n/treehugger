@@ -1,3 +1,7 @@
+---
+out: compunit.html
+---
+
 Compilation Units
 -----------------
 

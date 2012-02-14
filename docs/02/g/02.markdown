@@ -1,3 +1,7 @@
+---
+out: match.html
+---
+
 Pattern Matching Expressions
 ----------------------------
 

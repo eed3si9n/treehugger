@@ -1,3 +1,7 @@
+---
+out: types_annots_assign.html
+---
+
 Types, Annotations, and Assignments
 -----------------------------------
 

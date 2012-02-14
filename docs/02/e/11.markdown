@@ -1,3 +1,7 @@
+---
+out: for.html
+---
+
 For expressions
 ---------------
 

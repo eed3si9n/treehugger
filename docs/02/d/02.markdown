@@ -1,3 +1,7 @@
+---
+out: modifiers.html
+---
+
 Modifiers
 ---------
 
