@@ -1,4 +1,4 @@
-This is the initial release of [treehugger][th].
+This is the initial release of [treehugger.scala][th].
 
 It's a library for generating Scala code by constructing Scala abstract syntax tree.
 

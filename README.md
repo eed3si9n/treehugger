@@ -1,10 +1,12 @@
-## treehugger
+treehugger.scala
+================
 
-treehugger is a library to code Scala source code programmatically. It's also an implementation of Scala AST based on Reflection API.
+treehugger.scala is a library to code Scala programmatically. It's also an implementation of Scala AST based on Reflection API.
 
-[See treehugger's pamflet for the full story.](http://eed3si9n.com/treehugger/)
+[See treehugger.scala's pamflet for the full story.](http://eed3si9n.com/treehugger/)
 
-## Licensing
+Licensing
+---------
 
 Any code taken from scalac is covered by SCALA LICENSE. Copyright LAMP/EPFL.
 
