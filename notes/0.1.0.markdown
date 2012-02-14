@@ -1,0 +1,5 @@
+This is the initial release of [treehugger][th].
+
+It's a library for generating Scala code by constructing Scala abstract syntax tree.
+
+  [th]: http://eed3si9n.com/treehugger

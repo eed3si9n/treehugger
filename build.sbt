@@ -1,14 +1,20 @@
+import ls.Plugin.LsKeys._
+
 organization := "com.eed3si9n"
 
 name := "treehugger"
 
-version := "0.1.0-SNAPSHOT"
+version := "0.1.0"
+
+scalaVersion := "2.9.1"
+
+crossScalaVersions := Seq("2.9.1", "2.8.1")
 
 homepage := Some(url("http://eed3si9n.com/treehugger"))
 
 licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php"))
 
-description := "a library to write Scala source code programmatically."
+description := "a library to code Scala programmatically."
 
 initialCommands in console := """import treehugger.forest._
                                 |import definitions._
@@ -19,14 +25,15 @@ libraryDependencies <++= (scalaVersion) { (sv) => sv match {
                         "org.specs2" %% "specs2-scalaz-core" % "5.1-SNAPSHOT" % "test")
   case "2.9.0-1" => Seq("org.specs2" %% "specs2" % "1.6.1" % "test",
                         "org.specs2" %% "specs2-scalaz-core" % "6.0.RC2" % "test")
-  case _ =>         Seq("org.specs2" %% "specs2" % "1.7.1" % "test",
-                        "org.pegdown" % "pegdown" % "1.0.2")
+  case _ =>         Seq("org.specs2" %% "specs2" % "1.7.1" % "test")
 }}
 
 parallelExecution in Test := false
 
 resolvers ++= Seq("scala-tools snapshots" at "http://scala-tools.org/repo-snapshots",
                   "scala-tools releases"  at "http://scala-tools.org/repo-releases")
+
+seq(lsSettings :_*)
 
 pomExtra <<= (homepage) { (h) =>
   (<url>{h.get.toString}</url>
