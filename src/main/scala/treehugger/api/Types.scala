@@ -306,8 +306,8 @@ trait Types { self: Universe =>
   }
 
   abstract class ExistentialTypeExtractor {
-    def apply(quantified: List[Symbol], underlying: Type): ExistentialType
-    def unapply(tpe: ExistentialType): Option[(List[Symbol], Type)]
+    def apply(quantified: List[Tree], underlying: Type): ExistentialType
+    def unapply(tpe: ExistentialType): Option[(List[Tree], Type)]
   }
 
   abstract class AnnotatedTypeExtractor {

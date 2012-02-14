@@ -115,6 +115,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   "Type paths are written as"                                                 ^
       """`TYPE_REF(tree)`."""                                                 ! type3^
                                                                               p^
+  "Existential types written as"                                              ^
+      """`typ TYPE_FORSOME(tree)`."""                                         ! type4^
+                                                                              p^
                                                                               end
   
   import treehugger.forest._
@@ -354,4 +357,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 
   def type3 =
     VAL("x", TYPE_REF(REF("A") DOT "B")).tree must print_as("val x: A.B")
+
+  def type4 =
+    (DEF("exists") withParams(PARAM("arg", TYPE_LIST(TYPE_REF(REF("x") DOT "T")) TYPE_FORSOME(
+      VAL("x", "Outer")
+    )))).tree must print_as("def exists(arg: List[x.T] forSome { val x: Outer })")
 }

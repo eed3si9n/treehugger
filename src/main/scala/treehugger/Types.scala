@@ -545,12 +545,12 @@ trait Types extends api.Types { self: Forest =>
   
   object PolyType extends PolyTypeExtractor
   
-  case class ExistentialType(quantified: List[Symbol],
+  case class ExistentialType(quantified: List[Tree],
                              override val underlying: Type) extends Type {
     override def isHigherKinded = false
     
     override def safeToString: String = {
-      if (!(quantified exists (_.isSingletonExistential)))
+      if (quantified.isEmpty)
         // try to represent with wildcards first
         underlying match {
           case TypeRef(pre, sym, args) if args.nonEmpty =>
@@ -565,7 +565,7 @@ trait Types extends api.Types { self: Forest =>
         case _ =>
       }
       val str =
-        ustr+(quantified map (_.existentialToString) mkString(" forSome { ", "; ", " }"))
+        ustr+(quantified map (treeToString(_)) mkString(" forSome { ", "; ", " }"))
       str
     }
   }

@@ -69,7 +69,7 @@ trait TreehuggerDSLs { self: Forest =>
       def TYPE_#(name: Name, args: Type*): Type =
         TYPE_#(RootClass.newClass(name), args: _*)
       def TYPE_OF(args: Type*) = appliedType(target, args: _*)
-
+      def TYPE_FORSOME(trees: Tree*) = ExistentialType(trees.toList, target)
     }
 
     class TreeMethods(target: Tree) {
