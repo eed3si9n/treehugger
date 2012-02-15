@@ -2,10 +2,10 @@
 out: index.html
 ---
 
-treehugger
-==========
+treehugger.scala
+================
 
-_treehugger_ is a library to write Scala source code programmatically. It's also an implementation of Scala abstract syntax tree based on Reflection API.
+_treehugger.scala_ is a library to write Scala source code programmatically. It's also an implementation of Scala abstract syntax tree based on Reflection API.
 
 ### Setup
 
