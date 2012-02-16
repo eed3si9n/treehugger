@@ -26,13 +26,13 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       """`tree INT_TO tree` for RichInt to method,"""                         ! int13^
       """`tree LIST_:: tree` for List :: method,"""                           ! list1^
       """`tree LIST_::: tree` for List ::: method,"""                         ! list2^
-      """`tree FOREACH LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+      """`tree FOREACH LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
   for collection foreach method,"""                                           ! traversable1^
-      """`tree MAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+      """`tree MAP LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
   for collection map method,"""                                               ! traversable2^
-      """`tree FILTER LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+      """`tree FILTER LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
   for collection filter method,"""                                            ! traversable3^
-      """`tree FLATMAP LAMBDA(VAL("x")) ===> BLOCK(stat, ...)`
+      """`tree FLATMAP LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
   for collection flatMap method,"""                                           ! traversable4^
       """`tree COLLECT BLOCK(CASE(pattern) ===> tree, ...)`
   for collection collect method,"""                                           ! traversable5^
@@ -103,7 +103,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
   def list2 = (REF("x") LIST_::: NIL) must print_as("x ::: Nil")
 
   def traversable1 =
-    (REF("foo") FOREACH LAMBDA(VAL("x")) ==> BLOCK(
+    (REF("foo") FOREACH LAMBDA(PARAM("x")) ==> BLOCK(
       REF("x") APPLY())) must print_as(
       "foo foreach { x =>",
       "  x()",
@@ -111,7 +111,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
     )
   
   def traversable2 =
-    ((REF("foo") MAP LAMBDA(VAL("x")) ==> BLOCK(
+    ((REF("foo") MAP LAMBDA(PARAM("x")) ==> BLOCK(
       REF("x") INT_+ LIT(1))) must print_as(
       "foo map { x =>",
       "  x + 1",
@@ -122,7 +122,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
     ))
 
   def traversable3 =
-    (REF("foo") FILTER LAMBDA(VAL("x")) ==> BLOCK(
+    (REF("foo") FILTER LAMBDA(PARAM("x")) ==> BLOCK(
       REF("x"))) must print_as(
       "foo filter { x =>",
       "  x",
@@ -130,7 +130,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
     )
 
   def traversable4 =
-    (REF("foo") FLATMAP LAMBDA(VAL("x")) ==> BLOCK(
+    (REF("foo") FLATMAP LAMBDA(PARAM("x")) ==> BLOCK(
       SOME(REF("x")))) must print_as(
       "foo flatMap { x =>",
       "  Some(x)",

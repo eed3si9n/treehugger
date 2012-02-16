@@ -226,9 +226,9 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
           withTypeParams(TYPEVAR(T) VIEWBOUNDS TYPE_LIST(T))
           withParams(PARAM("name", TYPE_OPTION(T)) := REF(NoneModule)) := BLOCK(
         DEF("stringOnly", Address) withParams(PARAM("ev", TYPE_=:=(T, StringClass)) withFlags(Flags.IMPLICIT)) :=
-          Address APPLY(THIS DOT "name" MAP LAMBDA(VAL("nm", StringClass)) ==> BLOCK(
+          Address APPLY(THIS DOT "name" MAP LAMBDA(PARAM("nm", StringClass)) ==> BLOCK(
             VAL(list, TYPE_LIST(T)) := REF("nm"),
-            (list MAP LAMBDA(VAL("x")) ==>
+            (list MAP LAMBDA(PARAM("x")) ==>
               (REF("x") INFIX(StringAdd_+) APPLY LIT("x"))) DOT "mkString" APPLY LIT(" ")
           )),
         DEF("star") withParams(PARAM("n", TYPE_*(IntClass))) :=
