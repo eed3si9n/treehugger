@@ -1,5 +1,6 @@
 ---
 out: index.html
+toc: show
 ---
 
 treehugger.scala
