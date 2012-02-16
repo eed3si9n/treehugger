@@ -427,8 +427,12 @@ trait TreehuggerDSLs { self: Forest =>
       private var _earlydefs: Option[Block] = None
       private var _ctormods: Modifiers = NoMods
 
-      def withParents(parent: Type*): this.type = {
-        _parents = _parents ::: (parent.toList map {TypeTree(_)})
+      def withParents(parent0: Type, parents: Type*): this.type = {
+        _parents = _parents ::: ((parent0 :: parents.toList) map {TypeTree(_)})
+        this
+      }
+      def withParents(trees: Tree*): this.type = {
+        _parents = _parents ::: trees.toList
         this
       }
 
@@ -622,7 +626,10 @@ trait TreehuggerDSLs { self: Forest =>
     def CASECLASSDEF(name: Name): ClassDefStart     = CLASSDEF(name) withFlags Flags.CASE
     def CASECLASSDEF(sym: Symbol): ClassDefStart    = CLASSDEF(sym) withFlags Flags.CASE
     
-    def ANONDEF(parent: Type*): ClassDefStart       = CLASSDEF(tpnme.ANON_CLASS_NAME) withParents(parent: _*)
+    def ANONDEF(parent0: Type, parents: Type*): ClassDefStart =
+      ANONDEF((parent0 :: parents.toList) map {TypeTree(_)}: _*)
+    def ANONDEF(trees: Tree*): ClassDefStart =
+      CLASSDEF(tpnme.ANON_CLASS_NAME) withParents(trees: _*)
 
     def TRAITDEF(name: Name): ClassDefStart         = new TraitDefStart(name.toTypeName)
     def TRAITDEF(sym: Symbol): ClassDefStart        = new TraitDefStart(sym.name.toTypeName)

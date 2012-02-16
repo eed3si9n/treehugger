@@ -56,7 +56,7 @@ class C(x: Int, val y: String, var z: List[String]) {
 
 ### Extending classes
 
-To define classes by extending super classes use `withParents(...)`:
+To define classes by extending super classes use `withParents(tree|typ|"T")`:
 
 ```scala
 CLASSDEF("C") withParents("B") := BLOCK(
@@ -74,7 +74,7 @@ class C extends B {
 
 ### Early denifitions
 
-To define field values before supertype constructor is called add early definitions using `withEarlyDefs(...)`:
+To define field values before supertype constructor is called add early definitions using `withEarlyDefs(tree, ...)`:
 
 ```scala
 CLASSDEF("C") withEarlyDefs(
