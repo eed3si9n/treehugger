@@ -15,7 +15,7 @@ _Scanning_ phase, or Lexical Analysis, is responsible for throwing out the white
 
 ### Parse
 
-_Parsing_ phase, or Ayntactic Analysis, is responsible for construcuting an abstract syntax tree (AST) from the linear sequence of tokens according to the rules of the grammar of the language.
+_Parsing_ phase, or Syntactic Analysis, is responsible for constructing an abstract syntax tree (AST) from the linear sequence of tokens according to the rules of the grammar of the language.
 
 ### Semantic Analysis
 
