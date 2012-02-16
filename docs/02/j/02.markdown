@@ -17,10 +17,10 @@ lhs SEQ_:\ rhs               // :\
 
 ### Collection operators
 
-The collection operators form infix application trees only when the right-hand side is an anonymous function block or a case sequence function. Otherwise, they form selection and application trees:
+When the right-hand side expression is an anonymous function block or a case sequence function, the collection operators form an infix application tree. Otherwise, they form a selection or an application tree:
 
 ```scala
-REF("list") MAP LAMBDA(VAL("x")) ==> BLOCK(
+REF("list") MAP LAMBDA(PARAM("x")) ==> BLOCK(
   REF("x") INT_+ LIT(1)
 )
 

@@ -5,7 +5,7 @@ out: annotations.html
 Annotations
 -----------
 
-Annotations are applied to definitions or declarations, types, or expressions.
+Annotations are applied to definitions, declarations, types, or expressions.
 
 ### Declaration annotations
 

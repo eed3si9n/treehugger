@@ -5,7 +5,7 @@ out: patterns.html
 Patterns
 --------
 
-Let's look into the pattern expresions.
+Let's look into the pattern expressions.
 
 ### Variable patterns
 

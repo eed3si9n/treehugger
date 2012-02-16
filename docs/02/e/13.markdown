@@ -5,12 +5,12 @@ out: lambda.html
 Anonymous Functions
 -------------------
 
-Anonymous functions are written using `LDAMBDA(VAL(...), ...) ===> rhs`:
+Anonymous functions are written using `LAMBDA(PARAM(...), ...) ===> rhs`:
 
 ```scala
-LAMBDA(VAL("x")) ==> (REF("x") INT_+ LIT(1))
+LAMBDA(PARAM("x")) ==> (REF("x") INT_+ LIT(1))
 
-LAMBDA(VAL("x", IntClass)) ==> BLOCK(
+LAMBDA(PARAM("x", IntClass)) ==> BLOCK(
   REF("x") INT_+ LIT(1))
 ```
 
@@ -31,7 +31,7 @@ As the second example shows, when the right-hand side tree is a block, the entir
 The parameter list of anonymous functions may be `WILDCARD`:
 
 ```scala
-LAMBDA(VAL(WILDCARD)) ==> (REF("x") INT_+ LIT(1))
+LAMBDA(PARAM(WILDCARD)) ==> (REF("x") INT_+ LIT(1))
 ```
 
 This prints as:
