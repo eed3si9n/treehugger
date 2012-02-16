@@ -12,6 +12,7 @@ trait DSLSpec extends Specification {
     val B = RootClass.newAliasType("B")
     val C = RootClass.newClass("C")
     val T = RootClass.newAliasType("T")
+    val run = RootClass.newMethod("run")
   }
   
   def print_as(expected: String*): matcher.Matcher[Tree] =

@@ -190,7 +190,7 @@ limit them to some members."""                                                ! 
     
   def function2 =
     ((DEF("put", UnitClass) withParams(PARAM("x", IntClass)): Tree) must print_as("def put(x: Int): Unit")) and
-    ((DEF("put", UnitClass) withParams(PARAM("x", IntClass) := LIT(0)): Tree) must print_as("def put(x: Int = 0): Unit"))
+    ((DEF(sym.run, UnitClass) withParams(PARAM("x", IntClass) := LIT(0)): Tree) must print_as("def run(x: Int = 0): Unit"))
 
   def function3 =
     (DEF("compare", BooleanClass)
