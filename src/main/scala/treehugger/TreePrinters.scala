@@ -106,6 +106,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case ValDef(mods, lhs, rhs) =>
           printPosition(tree)
           if (isclass && !mods.hasFlag(Flags.PARAM)) {
+            printFlags(mods.flags, "")
+
             if (mods.hasFlag(Flags.MUTABLE)) print("var ")
             else print("val ")
           } // if

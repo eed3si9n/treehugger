@@ -86,11 +86,11 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
 
   def caseclass1 =
     ((CASECLASSDEF("C"): Tree) must print_as("case class C")) and
-    ((CASECLASSDEF("C") withParams(PARAM("x", IntClass)) withParents(sym.Addressable) := BLOCK(
+    ((CASECLASSDEF("C") withParams(VAL("x", IntClass) withFlags(Flags.OVERRIDE)) withParents(sym.Addressable) := BLOCK(
       DEF("y") := LIT(0)
     ))
       must print_as(
-        """case class C(x: Int) extends Addressable {""",
+        """case class C(override val x: Int) extends Addressable {""",
         """  def y = 0""",
         """}"""
       ))
