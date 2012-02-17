@@ -52,6 +52,9 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
                                                                               p^
   "Built-in type constructors are written as"                                 ^
       """`TYPE_LIST(typ)` for List"""                                         ! listtype1^
+      """`TYPE_TUPLE(typ, ...)` for Tuple"""                                  ! tupletype1^
+      """`TYPE_FUNCTION(typ, ...)` or `typ1 TYPE_=> typ2` for function."""    ! functype1^
+                                                                              p^      
                                                                               end
   
   import treehugger.forest._
@@ -175,4 +178,11 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
 
   def listtype1 =
     VAL("x", TYPE_LIST(IntClass)).tree must print_as("val x: List[Int]")
+
+  def tupletype1 =
+    VAL("x", TYPE_TUPLE(IntClass, IntClass)).tree must print_as("val x: (Int, Int)")
+
+  def functype1 =
+    (VAL("x", TYPE_FUNCTION(IntClass, IntClass)).tree must print_as("val x: Int => Int")) and
+    (VAL("y", IntClass TYPE_=> IntClass).tree must print_as("val y: Int => Int")) 
 }

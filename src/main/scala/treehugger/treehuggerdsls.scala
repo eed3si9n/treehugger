@@ -70,6 +70,7 @@ trait TreehuggerDSLs { self: Forest =>
         TYPE_#(RootClass.newClass(name), args: _*)
       def TYPE_OF(args: Type*) = appliedType(target, args: _*)
       def TYPE_FORSOME(trees: Tree*) = ExistentialType(trees.toList, target)
+      def TYPE_=>(typ: Type) = TYPE_FUNCTION(target, typ)
     }
 
     class TreeMethods(target: Tree) {
@@ -611,6 +612,7 @@ trait TreehuggerDSLs { self: Forest =>
     def PARAM(name: Name): ValNameStart             = VAL(name) withFlags Flags.PARAM
     def PARAM(sym: Symbol, tp: Type): ValSymStart   = VAL(sym, tp) withFlags Flags.PARAM
     def PARAM(sym: Symbol): ValSymStart             = VAL(sym) withFlags Flags.PARAM
+    def PARAM(tree: Tree): ValTreeStart             = VAL(tree) withFlags Flags.PARAM
     
     def LAZYVAL(name: Name, tp: Type): ValNameStart = VAL(name, tp) withFlags Flags.LAZY
     def LAZYVAL(name: Name): ValNameStart           = VAL(name) withFlags Flags.LAZY
@@ -770,7 +772,12 @@ trait TreehuggerDSLs { self: Forest =>
     def TYPE_=:=(arg1: Type, arg2: Type) = tpEqualsType(arg1, arg2)
     def TYPE_<:<(arg1: Type, arg2: Type) = conformsType(arg1, arg2)
     def TYPE_<%<(arg1: Type, arg2: Type) = conformsOrViewAsType(arg1, arg2)
-    
+    def TYPE_FUNCTION(typs: Type*): Type =
+      typs.toList match {
+        case Nil => error("TYPE_FUNCTION must take at least one Type.")
+        case x => functionType(x.init, x.last)
+      }
+      
     implicit def stringToTermName(s: String): TermName = newTermName(s)
 
 

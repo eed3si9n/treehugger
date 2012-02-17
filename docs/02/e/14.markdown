@@ -37,18 +37,21 @@ This prints as:
 
 ### Type constructors
 
-treehugger DSL provides built-in type constructors, which will be covered [later][1]:
+treehugger DSL provides built-in type constructors, which will be covered more [later][1]:
 
 ```
 REF("x") withType(TYPE_LIST(IntClass))
+REF("y") withType(TYPE_TUPLE(IntClass, IntClass))
+REF("z") withType(IntClass TYPE_=> IntClass)
 ```
 
-This also prints as:
+These examples print as:
 
 ```scala
 (x: List[Int])
+(y: (Int, Int))
+(z: Int => Int)
 ```
-
 
 ### Structural types
 
