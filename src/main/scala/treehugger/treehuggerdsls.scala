@@ -613,7 +613,7 @@ trait TreehuggerDSLs { self: Forest =>
     def PARAM(sym: Symbol, tp: Type): ValSymStart   = VAL(sym, tp) withFlags Flags.PARAM
     def PARAM(sym: Symbol): ValSymStart             = VAL(sym) withFlags Flags.PARAM
     def PARAM(tree: Tree): ValTreeStart             = VAL(tree) withFlags Flags.PARAM
-    
+
     def LAZYVAL(name: Name, tp: Type): ValNameStart = VAL(name, tp) withFlags Flags.LAZY
     def LAZYVAL(name: Name): ValNameStart           = VAL(name) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol, tp: Type): ValSymStart = VAL(sym, tp) withFlags Flags.LAZY
@@ -791,26 +791,46 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkTreeMethodsFromSuperStart(target: SuperStart): TreeMethods = new TreeMethods(target.tree)
     implicit def mkSymbolMethodsFromSymbol(target: Symbol): SymbolMethods = new SymbolMethods(target)
 
+    implicit def mkTreeFromTypeDefStart(tds: TypeDefStart): TypeDef = tds.tree
+    implicit def mkSeqTypeDefFromCandidates[A <% TypeDef](in: Seq[A]): Seq[TypeDef] =
+      in map { x: A => (x: TypeDef)}
+    
     implicit def mkTreeFromType(typ: Type): TypeTree =TypeTree(typ)
-
+    implicit def mkSeqTypeTreeFromCandidates[A <% TypeTree](in: Seq[A]): Seq[TypeTree] =
+      in map { x: A => (x: TypeTree)}
+    
+    implicit def mkSeqTreeFromCandidates[A <% Tree](in: Seq[A]): Seq[Tree] = in map { x: A => (x: Tree)}
+    
     /** (foo DOT bar) might be simply a Select, but more likely it is to be immediately
      *  followed by an Apply.  We don't want to add an actual apply method to arbitrary
      *  trees, so SelectStart is created with an apply - and if apply is not the next
      *  thing called, the implicit from SelectStart -> Tree will provide the tree.
      */
     implicit def mkTreeFromSelectStart(ss: SelectStart): Select = ss.tree
-    
+    implicit def mkSeqSelectFromCandidates[A <% Select](in: Seq[A]): Seq[Select] =
+      in map { x: A => (x: Select)}
+
     /** (SUPER) might be simply a Super.
      */
     implicit def mkTreeFromSuperStart(ss: SuperStart): Super = ss.tree
+    implicit def mkSeqSuperFromCandidates[A <% Super](in: Seq[A]): Seq[Super] =
+      in map { x: A => (x: Super)}
+    
     implicit def mkTreeMethodsFromSelectStart(ss: SelectStart): TreeMethods = mkTreeMethods(ss.tree)
     
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
     implicit def mkTypeFromSymbol(sym: Symbol): Type = TYPE_REF(sym)
     implicit def mkTypeFromString(str: String): Type = TYPE_REF(RootClass.newClass(str))
+    implicit def mkSeqTypeFromCandidates[A <% Type](in: Seq[A]): Seq[Type] = in map { x: A => (x: Type)}
+    
     implicit def mkImportSelectorFromString(name: String): ImportSelector = ImportSelector(name, -1, name, -1)
+    implicit def mkSeqImportSelectorFromCandidates[A <% ImportSelector](in: Seq[A]): Seq[ImportSelector] =
+      in map { x: A => (x: ImportSelector)}
+
     implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator = ifs.enumerator
     implicit def mkEnumeratorFromValDef(tree: ValDef): Enumerator =
       ForValDef(tree.name, tree.tpt, tree.rhs)
+    implicit def mkSeqEnumeratorFromCandidates[A <% Enumerator](in: Seq[A]): Seq[Enumerator] =
+      in map { x: A => (x: Enumerator)}
   }
 }
