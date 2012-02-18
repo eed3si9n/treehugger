@@ -120,12 +120,12 @@ trait TreehuggerDSLs { self: Forest =>
 
       /** Apply, Select, Match **/
       def APPLY(params: Tree*)      = Apply(target, params.toList)
-      def APPLY(params: List[Tree]) = Apply(target, params)
+      def APPLY(params: Iterable[Tree]) = Apply(target, params.toList)
       def MATCH(cases: CaseDef*)    = Match(target, cases.toList)
       def UNAPPLY(params: Tree*)    = UnApply(target, params.toList)
       
       def APPLYTYPE(typs: Type*)      = TypeApply(target, typs.toList map {TypeTree(_)})
-      def APPLYTYPE(typs: List[Type]) = TypeApply(target, typs map {TypeTree(_)})
+      def APPLYTYPE(typs: Iterable[Type]) = TypeApply(target, typs.toList map {TypeTree(_)})
       
       def DOT(member: Name)         = SelectStart(Select(target, member))
       def DOT(sym: Symbol)          = SelectStart(Select(target, sym))
@@ -719,10 +719,10 @@ trait TreehuggerDSLs { self: Forest =>
 
     def TUPLE(trees: Tree*): Tree = TUPLE(trees.toList)
 
-    def TUPLE(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
+    def TUPLE(trees: Iterable[Tree], flattenUnary: Boolean = false): Tree = trees.toList match {
       case Nil                        => UNIT
       case List(tree) if flattenUnary => tree
-      case _                          => mkTuple(trees) // Apply(TupleClass(trees.length).companionModule, trees: _*)
+      case _                          => mkTuple(trees.toList) // Apply(TupleClass(trees.length).companionModule, trees: _*)
     }
     
     def makeTupleType(trees: List[Tree], flattenUnary: Boolean = false): Tree = trees match {
@@ -772,6 +772,7 @@ trait TreehuggerDSLs { self: Forest =>
     def TYPE_=:=(arg1: Type, arg2: Type) = tpEqualsType(arg1, arg2)
     def TYPE_<:<(arg1: Type, arg2: Type) = conformsType(arg1, arg2)
     def TYPE_<%<(arg1: Type, arg2: Type) = conformsOrViewAsType(arg1, arg2)
+    def TYPE_FUNCTION(args: Iterable[Type], result: Type) = functionType(args.toList, result)
     def TYPE_FUNCTION(typs: Type*): Type =
       typs.toList match {
         case Nil => error("TYPE_FUNCTION must take at least one Type.")
@@ -792,14 +793,15 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkSymbolMethodsFromSymbol(target: Symbol): SymbolMethods = new SymbolMethods(target)
 
     implicit def mkTreeFromTypeDefStart(tds: TypeDefStart): TypeDef = tds.tree
-    implicit def mkSeqTypeDefFromCandidates[A <% TypeDef](in: Seq[A]): Seq[TypeDef] =
-      in map { x: A => (x: TypeDef)}
+    implicit def mkSeqTypeDefFromCandidates[A <: TypeDefStart, M[A] <: Iterable[A]](in: M[A]): Seq[TypeDef] =
+      in.toSeq map { x => (x: TypeDef) }
     
     implicit def mkTreeFromType(typ: Type): TypeTree =TypeTree(typ)
-    implicit def mkSeqTypeTreeFromCandidates[A <% TypeTree](in: Seq[A]): Seq[TypeTree] =
-      in map { x: A => (x: TypeTree)}
+    implicit def mkSeqTypeTreeFromCandidates[M[A] <: Iterable[A]](in: M[Type]): Seq[TypeTree] =
+      in.toSeq map { x => (x: TypeTree) }
     
-    implicit def mkSeqTreeFromCandidates[A <% Tree](in: Seq[A]): Seq[Tree] = in map { x: A => (x: Tree)}
+    implicit def mkSeqTreeFromCandidates[A <% Tree, M[A] <: Iterable[A]](in: M[A]): Seq[Tree] =
+      in.toSeq map { x: A => (x: Tree)}
     
     /** (foo DOT bar) might be simply a Select, but more likely it is to be immediately
      *  followed by an Apply.  We don't want to add an actual apply method to arbitrary
@@ -807,30 +809,34 @@ trait TreehuggerDSLs { self: Forest =>
      *  thing called, the implicit from SelectStart -> Tree will provide the tree.
      */
     implicit def mkTreeFromSelectStart(ss: SelectStart): Select = ss.tree
-    implicit def mkSeqSelectFromCandidates[A <% Select](in: Seq[A]): Seq[Select] =
-      in map { x: A => (x: Select)}
-
+    implicit def mkSeqTreeFromSelectStarts[M[A] <: Iterable[A]](in: M[SelectStart]): Seq[Select] =
+      in.toSeq map { x => (x: Select)}
+    
     /** (SUPER) might be simply a Super.
      */
     implicit def mkTreeFromSuperStart(ss: SuperStart): Super = ss.tree
-    implicit def mkSeqSuperFromCandidates[A <% Super](in: Seq[A]): Seq[Super] =
-      in map { x: A => (x: Super)}
-    
+    implicit def mkSeqTreeFromSuperStarts[M[A] <: Iterable[A]](in: M[SuperStart]): Seq[Super] =
+      in.toSeq map { x => (x: Super)}
+
     implicit def mkTreeMethodsFromSelectStart(ss: SelectStart): TreeMethods = mkTreeMethods(ss.tree)
     
     implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
+    implicit def mkSeqTreeFromDefStarts[A <: Tree, M[A] <: Iterable[A]](in: M[DefStart[A]]): Seq[A] =
+      in.toSeq map { x: DefStart[A] => (x: A)}
+
     implicit def mkTypeFromSymbol(sym: Symbol): Type = TYPE_REF(sym)
     implicit def mkTypeFromString(str: String): Type = TYPE_REF(RootClass.newClass(str))
-    implicit def mkSeqTypeFromCandidates[A <% Type](in: Seq[A]): Seq[Type] = in map { x: A => (x: Type)}
+    implicit def mkSeqTypeFromCandidates[A <% Type, M[A] <: Iterable[A]](in: M[A]): Seq[Type] =
+      in.toSeq map { x: A => (x: Type)}
     
     implicit def mkImportSelectorFromString(name: String): ImportSelector = ImportSelector(name, -1, name, -1)
-    implicit def mkSeqImportSelectorFromCandidates[A <% ImportSelector](in: Seq[A]): Seq[ImportSelector] =
-      in map { x: A => (x: ImportSelector)}
+    implicit def mkSeqImportSelectorFromCandidates[A <% ImportSelector, M[A] <: Iterable[A]](in: M[A]): Seq[ImportSelector] =
+      in.toSeq map { x: A => (x: ImportSelector)}
 
     implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator = ifs.enumerator
     implicit def mkEnumeratorFromValDef(tree: ValDef): Enumerator =
       ForValDef(tree.name, tree.tpt, tree.rhs)
-    implicit def mkSeqEnumeratorFromCandidates[A <% Enumerator](in: Seq[A]): Seq[Enumerator] =
-      in map { x: A => (x: Enumerator)}
+    implicit def mkSeqEnumeratorFromCandidates[A <% Enumerator, M[A] <: Iterable[A]](in: M[A]): Seq[Enumerator] =
+      in.toSeq map { x: A => (x: Enumerator)}
   }
 }

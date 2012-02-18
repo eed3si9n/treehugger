@@ -20,9 +20,10 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
                                                                               p^
   "Function applications are written as"                                      ^
       """`sym APPLY (arg, ...)` where `arg` is a tree,"""                     ! apply1^
-      """`tree APPLY (arg, ...)`, or"""                                       ! apply2^
+      """`tree APPLY (arg, ...)`,"""                                          ! apply2^
+      """`tree APPLY (arg :: Nil)`, or"""                                     ! apply3^
       """as a shorthand for application on a selection
-`(sym1 DOT sym2)(arg, ...)`."""                                               ! apply3^
+`(sym1 DOT sym2)(arg, ...)`."""                                               ! apply4^
                                                                               end^
   "Sequence arguments are written as"                                         ^
       """`sym APPLY SEQARG(arg)"` to pass a sequence into vararg."""          ! seqarg1^
@@ -153,7 +154,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   
   def apply2 = (REF("x") DOT "y" APPLY (LIT(0), LIT(1)))  must print_as("""x.y(0, 1)""")
   
-  def apply3 = {
+  def apply3 = (REF("x") DOT "y" APPLY ((REF("w") DOT "t") :: Nil))  must print_as("""x.y(w.t)""")
+
+  def apply4 = {
     val sym1 = RootClass.newValue("x")
     val sym2 = sym.Addressable.newValue("y")
     
