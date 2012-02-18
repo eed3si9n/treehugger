@@ -1,0 +1,23 @@
+## Function type contructors
+
+Several ways were added to create function types.
+
+    typ1 TYPE_=> typ2
+    TYPE_FUNCTION(typ, ..., r)
+    TYPE_FUNCTION(typ :: Nil, r)
+
+## Now accepting Iterables
+
+DSL was expanded to accept `Iterable[A]` where it accepted vararg of `A`. Also implicit conversions were expanded to handle iterables. These changes should minimize explicit conversions that were necessary in the previous version:
+
+    withTypeParams(sym.pipeParams map {TYPEVAR(_)})
+
+## Bug fixes and minor enhancements
+
+- Fixes param modifiers not printing. [#1][1]
+- Fixes passing args to parent constructors. [#2][2]
+- Adds `withParams(...)` to `DEF(sym)`. [#3][3]
+
+ [1]: https://github.com/eed3si9n/treehugger/issues/1
+ [2]: https://github.com/eed3si9n/treehugger/issues/2
+ [3]: https://github.com/eed3si9n/treehugger/issues/3
