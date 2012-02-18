@@ -66,10 +66,17 @@ trait TreehuggerDSLs { self: Forest =>
     
     class TypeMethods(target: Type) {
       def TYPE_#(sym: Symbol, args: Type*): Type = typeRef(target, sym, args: _*)
+      def TYPE_#(sym: Symbol, args: Iterable[Type]): Type = TYPE_#(sym, args.toList: _*)
       def TYPE_#(name: Name, args: Type*): Type =
         TYPE_#(RootClass.newClass(name), args: _*)
-      def TYPE_OF(args: Type*) = appliedType(target, args: _*)
-      def TYPE_FORSOME(trees: Tree*) = ExistentialType(trees.toList, target)
+      def TYPE_#(name: Name, args: Iterable[Type]): Type = TYPE_#(name, args.toList: _*)
+
+      def TYPE_OF(args: Type*): Type = appliedType(target, args: _*)
+      def TYPE_OF(args: Iterable[Type]): Type = TYPE_OF(args.toList: _*)
+      
+      def TYPE_FORSOME(trees: Tree*): Type = ExistentialType(trees.toList, target)
+      def TYPE_FORSOME(trees: Iterable[Tree]): Type = TYPE_FORSOME(trees.toList)
+
       def TYPE_=>(typ: Type) = TYPE_FUNCTION(target, typ)
     }
 
@@ -119,11 +126,14 @@ trait TreehuggerDSLs { self: Forest =>
       def OR_PATTERN(other: Tree)   = INFIXUNAPPLY("|", other)
 
       /** Apply, Select, Match **/
-      def APPLY(params: Tree*)      = Apply(target, params.toList)
-      def APPLY(params: Iterable[Tree]) = Apply(target, params.toList)
-      def MATCH(cases: CaseDef*)    = Match(target, cases.toList)
-      def UNAPPLY(params: Tree*)    = UnApply(target, params.toList)
-      
+      def APPLY(params: Tree*): Apply          = Apply(target, params.toList)
+      def APPLY(params: Iterable[Tree]): Apply = Apply(target, params.toList)
+      def MATCH(cases: CaseDef*): Match        = Match(target, cases.toList)
+      def MATCH(cases: Iterable[CaseDef]): Match = Match(target, cases.toList)
+
+      def UNAPPLY(params: Tree*): UnApply      = UnApply(target, params.toList)
+      def UNAPPLY(params: Iterable[Tree]): UnApply = UnApply(target, params.toList)
+       
       def APPLYTYPE(typs: Type*)      = TypeApply(target, typs.toList map {TypeTree(_)})
       def APPLYTYPE(typs: Iterable[Type]) = TypeApply(target, typs.toList map {TypeTree(_)})
       
@@ -148,14 +158,18 @@ trait TreehuggerDSLs { self: Forest =>
       def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
       def withoutPackage: PackageDef = PACKAGEHEADER(NoSymbol) := target
       
-      def withComment(comment: String*): Commented = Commented(comment.toList, target)
-      def withType(tp: Type) = Typed(target, TypeTree(tp))
+      def withComment(comments: String*): Commented = withComments(comments.toList)
+      def withComments(comments: String*): Commented = withComments(comments.toList)
+      def withComments(comments: Iterable[String]): Commented = Commented(comments.toList, target)
+
+      def withType(tp: Type): Typed = Typed(target, TypeTree(tp))
 
       def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
       def withBinder(sym: Symbol) = Bind(sym, target)
       def withBinder(name: Name)  = Bind(name, target)
-      def withAnnots(anno: AnnotationInfo*) =
-        withType(annotatedType(anno.toList, NoType))
+      def withAnnots(annots: AnnotationInfo*): Typed = withAnnots(annots.toList)
+      def withAnnots(annots: Iterable[AnnotationInfo]): Typed =
+        withType(annotatedType(annots.toList, NoType))
       
       /** Assignment */
       def :=(rhs: Tree)            = Assign(target, rhs)
@@ -217,17 +231,24 @@ trait TreehuggerDSLs { self: Forest =>
     }
 
     case class InfixStart(target: Tree, name: Name) {
-      def APPLY(args: Tree*)   = Infix(target, name, args.toList)
-      def UNAPPLY(args: Tree*) = InfixUnApply(target, name, args.toList)
+      def APPLY(args: Tree*): Infix            = APPLY(args.toList)
+      def APPLY(args: Iterable[Tree]): Infix   = Infix(target, name, args.toList)
+      def UNAPPLY(args: Tree*): InfixUnApply   = UNAPPLY(args.toList)
+      def UNAPPLY(args: Iterable[Tree]): InfixUnApply = InfixUnApply(target, name, args.toList)
     }
     
     case class InfixSymStart(target: Tree, sym: Symbol) {
-      def APPLY(args: Tree*) = Infix(target, sym, args.toList)
-      def UNAPPLY(args: Tree*) = InfixUnApply(target, sym, args.toList)
+      def APPLY(args: Tree*): Infix          = APPLY(args.toList)
+      def APPLY(args: Iterable[Tree]): Infix = Infix(target, sym, args.toList)
+
+      def UNAPPLY(args: Tree*): InfixUnApply = UNAPPLY(args.toList)
+      def UNAPPLY(args: Iterable[Tree]): InfixUnApply = InfixUnApply(target, sym, args.toList)
     }
 
     case class SelectStart(tree: Select) {
-      def apply(args: Tree*) = Apply(tree, args.toList)
+      def apply(args: Tree*): Apply = apply(args.toList)
+      def apply(args: Iterable[Tree]): Apply = Apply(tree, args.toList)
+
       def empty = tree
     }
     
@@ -272,7 +293,8 @@ trait TreehuggerDSLs { self: Forest =>
         _mods = Modifiers(_mods.flags, pin.name, _mods.annotations)
         this
       }
-      def withAnnots(annot: AnnotationInfo*): this.type = {
+      def withAnnots(annot: AnnotationInfo*): this.type = withAnnots(annot.toList)
+      def withAnnots(annot: Iterable[AnnotationInfo]): this.type = {
         if (_mods == null)
           _mods = defaultMods
         _mods = Modifiers(_mods.flags, _mods.privateWithin, _mods.annotations ::: annot.toList)
@@ -303,8 +325,9 @@ trait TreehuggerDSLs { self: Forest =>
     
     trait TparamsStart {
       private var _tparams: List[TypeDef] = Nil
-            
-      def withTypeParams(tparam: TypeDef*): this.type = {
+      
+      def withTypeParams(tparam: TypeDef*): this.type = withTypeParams(tparam.toList)
+      def withTypeParams(tparam: Iterable[TypeDef]): this.type = {
         _tparams = _tparams ::: tparam.toList
         this
       }
@@ -315,7 +338,8 @@ trait TreehuggerDSLs { self: Forest =>
     trait VparamssStart {
       private var _vparamss: List[List[ValDef]] = List(Nil)
       
-      def withParams(param: ValDef*): this.type = {
+      def withParams(param: ValDef*): this.type = withParams(param.toList)
+      def withParams(param: Iterable[ValDef]): this.type = {
         if (_vparamss == List(Nil))
           _vparamss = List(param.toList)
         else 
@@ -390,7 +414,9 @@ trait TreehuggerDSLs { self: Forest =>
       def enumerator = ForFilter(cond)
     }
     case class TryStart(body: Tree, catches: List[CaseDef], fin: Tree) {
-      def CATCH(xs: CaseDef*) = TryStart(body, xs.toList, fin)
+      def CATCH(xs: CaseDef*): TryStart = CATCH(xs.toList)
+      def CATCH(xs: Iterable[CaseDef]): TryStart = TryStart(body, xs.toList, fin)
+      
       def FINALLY(x: Tree)    = Try(body, catches, x)
       def ENDTRY              = Try(body, catches, fin)
     }
@@ -428,23 +454,27 @@ trait TreehuggerDSLs { self: Forest =>
       private var _earlydefs: Option[Block] = None
       private var _ctormods: Modifiers = NoMods
 
-      def withParents(parent0: Type, parents: Type*): this.type = {
-        _parents = _parents ::: ((parent0 :: parents.toList) map {TypeTree(_)})
-        this
+      
+      def withParents(parent0: Type, parents: Type*): this.type = withParents(parent0 :: parents.toList)
+      def withParents(parents: Iterable[Type]): this.type = {
+        _parents = _parents ::: (parents.toList map {TypeTree(_)})
+        this 
       }
       def withParents(trees: Tree*): this.type = {
         _parents = _parents ::: trees.toList
         this
       }
 
-      def withEarlyDefs(trees: Tree*): this.type = {
+      def withEarlyDefs(trees: Tree*): this.type = withEarlyDefs(trees.toList)
+      def withEarlyDefs(trees: Iterable[Tree]): this.type = {
         trees.toList match {
           case List(b: Block) => _earlydefs = Some(b)
           case _ => _earlydefs = Some(Block(trees.toList: _*))
         }
         this        
       }
-      def withParams(param: ValDef*): this.type = {
+      def withParams(param: ValDef*): this.type = withParams(param.toList)
+      def withParams(param: Iterable[ValDef]): this.type = {
         _vparams = param.toList
         this
       }
@@ -629,10 +659,12 @@ trait TreehuggerDSLs { self: Forest =>
     def CASECLASSDEF(sym: Symbol): ClassDefStart    = CLASSDEF(sym) withFlags Flags.CASE
     
     def ANONDEF(parent0: Type, parents: Type*): ClassDefStart =
-      ANONDEF((parent0 :: parents.toList) map {TypeTree(_)}: _*)
+      ANONDEF(parent0 :: parents.toList)
+    def ANONDEF(parents: Iterable[Type]): ClassDefStart =
+      ANONDEF(parents.toList map {TypeTree(_)}: _*)
     def ANONDEF(trees: Tree*): ClassDefStart =
       CLASSDEF(tpnme.ANON_CLASS_NAME) withParents(trees: _*)
-
+    
     def TRAITDEF(name: Name): ClassDefStart         = new TraitDefStart(name.toTypeName)
     def TRAITDEF(sym: Symbol): ClassDefStart        = new TraitDefStart(sym.name.toTypeName)
 
@@ -655,27 +687,35 @@ trait TreehuggerDSLs { self: Forest =>
     def TYPEVAR(name: Name): TypeDefTreeStart       = new TypeDefTreeStart(name)
     def TYPEVAR(sym: Symbol): TypeDefSymStart       = new TypeDefSymStart(sym)
     
-    def LAMBDA(param: ValDef*): AnonFuncStart       = new AnonFuncStart() withParams(param: _*)
+    def LAMBDA(param: ValDef*): AnonFuncStart       = LAMBDA(param.toList)
+    def LAMBDA(param: Iterable[ValDef]): AnonFuncStart = new AnonFuncStart() withParams(param)
     
     def RENAME(name: TermName): ImportSelectorStart = new ImportSelectorStart(name)
     
-    def AND(guards: Tree*) =
+    def AND(guards: Tree*): Tree = AND(guards.toList)
+    def AND(guards: Iterable[Tree]): Tree =
       if (guards.isEmpty) EmptyTree
       else guards reduceLeft mkInfixAnd
 
-    def OR(guards: Tree*) =
+    def OR(guards: Tree*): Tree = OR(guards.toList)
+    def OR(guards: Iterable[Tree]): Tree =
       if (guards.isEmpty) EmptyTree
       else guards reduceLeft mkInfixOr
 
     def IF(tree: Tree)    = new IfStart(tree, EmptyTree)
-    def TRY(xs: Tree*)    =
+    
+    def TRY(xs: Tree*): TryStart = TRY(xs.toList)
+    def TRY(xs: Iterable[Tree]): TryStart =
       new TryStart(xs.toList match {
         case List(b: Block) => b
         case _ => Block(xs.toList: _*)
       }, Nil, EmptyTree)
-    def FOR(xs: Enumerator*) = new ForStart(xs.toList)
+    
+    def FOR(xs: Enumerator*): ForStart = FOR(xs.toList) 
+    def FOR(xs: Iterable[Enumerator]): ForStart = new ForStart(xs.toList)
     def WHILE(tree: Tree) = new WhileStart(tree)
 
+    def BLOCK(xs: Iterable[Tree]) = Block(xs.toList: _*)
     def BLOCK(xs: Tree*)  = Block(xs: _*)
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
 
@@ -683,9 +723,14 @@ trait TreehuggerDSLs { self: Forest =>
     def MINUS(tree: Tree)  = Select(tree, Int_minus)
     def TILDE(tree: Tree)  = Select(tree, Int_tilde)
     
-    def IMPORT(pck: Name, selectors: ImportSelector*)   = Import(REF(definitions.getClass(pck)), selectors.toList)
-    def IMPORT(sym: Symbol, selectors: ImportSelector*) = Import(REF(sym), selectors.toList)
-    def IMPORT(expr: Tree, selectors: ImportSelector*)  = Import(expr, selectors.toList)
+    def IMPORT(pck: Name, selectors: ImportSelector*): Import   = IMPORT(pck, selectors.toList)
+    def IMPORT(pck: Name, selectors: Iterable[ImportSelector]): Import =
+      Import(REF(definitions.getClass(pck)), selectors.toList)
+    def IMPORT(sym: Symbol, selectors: ImportSelector*): Import = IMPORT(sym, selectors.toList)
+    def IMPORT(sym: Symbol, selectors: Iterable[ImportSelector]): Import =
+      Import(REF(sym), selectors.toList)
+    def IMPORT(expr: Tree, selectors: ImportSelector*): Import  = IMPORT(expr, selectors.toList)
+    def IMPORT(expr: Tree, selectors: Iterable[ImportSelector]): Import = Import(expr, selectors.toList)
     def SEQARG(tree: Tree) = Typed(tree, SEQ_WILDCARD)
     def RETURN(tree: Tree) = Return(tree)
 
@@ -716,9 +761,9 @@ trait TreehuggerDSLs { self: Forest =>
     case class PRIVATEWITHIN(name: Name)
     
     def PAREN(trees: Tree*): Tree = TUPLE(trees.toList)
+    def PAREN(trees: Iterable[Tree]): Tree = TUPLE(trees)
 
     def TUPLE(trees: Tree*): Tree = TUPLE(trees.toList)
-
     def TUPLE(trees: Iterable[Tree], flattenUnary: Boolean = false): Tree = trees.toList match {
       case Nil                        => UNIT
       case List(tree) if flattenUnary => tree
@@ -731,18 +776,27 @@ trait TreehuggerDSLs { self: Forest =>
       case _                          => AppliedTypeTree(REF(TupleClass(trees.length)), trees)
     }
 
-    def ANNOT(typ: Type, args: Tree*) = AnnotationInfo(typ, args.toList, Nil)
+    def ANNOT(typ: Type, args: Tree*): AnnotationInfo = ANNOT(typ, args.toList)
+    def ANNOT(typ: Type, args: Iterable[Tree]): AnnotationInfo =
+      AnnotationInfo(typ, args.toList, Nil)
 
-    def LIST(xs: Tree*): Tree    = ID("List") APPLY(xs.toList: _*)
-    def SOME(xs: Tree*): Tree    = Apply(SomeModule, TUPLE(xs.toList, true))
-    def ARRAY(xs: Tree*): Tree   = ID("Array") APPLY(xs.toList: _*)
-    def SEQ(xs: Tree*): Tree     = ID("Seq") APPLY(xs.toList: _*)
-    def VECTOR(xs: Tree*): Tree  = ID("Vector") APPLY(xs.toList: _*)
-    def MAKE_MAP(xs: Tree*): Tree = ID("Map") APPLY(xs.toList: _*)
+    def LIST(xs: Tree*): Tree             = LIST(xs.toList)
+    def LIST(xs: Iterable[Tree]): Tree    = ID("List") APPLY xs
+    def SOME(xs: Tree*): Tree             = SOME(xs.toList)
+    def SOME(xs: Iterable[Tree]): Tree    = Apply(SomeModule, TUPLE(xs, true))
+    def ARRAY(xs: Tree*): Tree            = ARRAY(xs.toList)
+    def ARRAY(xs: Iterable[Tree]): Tree   = ID("Array") APPLY xs
+    def SEQ(xs: Tree*): Tree              = SEQ(xs.toList)
+    def SEQ(xs: Iterable[Tree]): Tree     = ID("Seq") APPLY xs
+    def VECTOR(xs: Tree*): Tree           = VECTOR(xs.toList)
+    def VECTOR(xs: Iterable[Tree]): Tree  = ID("Vector") APPLY xs
+    def MAKE_MAP(xs: Tree*): Tree         = MAKE_MAP(xs.toList)
+    def MAKE_MAP(xs: Iterable[Tree]): Tree = ID("Map") APPLY xs
 
     def TYPE_*(typ: Type): Type       = repeatedParamType(typ)
     def TYPE_BYNAME(typ: Type): Type  = byNameParamType(typ)
-    def TYPE_STRUCT(tree: Tree*)      = 
+    def TYPE_STRUCT(tree: Tree*): Type = TYPE_STRUCT(tree.toList)
+    def TYPE_STRUCT(tree: Iterable[Tree]): Type = 
       tree.toList match {
         case List(Block(xs, x)) => makeStructuralType(xs ::: List(x))
         case _ => makeStructuralType(tree.toList)
@@ -760,6 +814,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
 
     def TYPE_TUPLE(typs: Type*): Type = tupleType(typs.toList)
+    def TYPE_TUPLE(typs: Iterable[Type]): Type = tupleType(typs.toList)
     def TYPE_ARRAY(typ: Type): Type   = ArrayClass TYPE_OF typ
     def TYPE_LIST(typ: Type): Type    = ListClass TYPE_OF typ
     def TYPE_SEQ(typ: Type): Type     = SeqClass TYPE_OF typ
@@ -773,7 +828,8 @@ trait TreehuggerDSLs { self: Forest =>
     def TYPE_<:<(arg1: Type, arg2: Type) = conformsType(arg1, arg2)
     def TYPE_<%<(arg1: Type, arg2: Type) = conformsOrViewAsType(arg1, arg2)
     def TYPE_FUNCTION(args: Iterable[Type], result: Type) = functionType(args.toList, result)
-    def TYPE_FUNCTION(typs: Type*): Type =
+    def TYPE_FUNCTION(typs: Type*): Type = TYPE_FUNCTION(typs.toList)
+    def TYPE_FUNCTION(typs: Iterable[Type]): Type =
       typs.toList match {
         case Nil => error("TYPE_FUNCTION must take at least one Type.")
         case x => functionType(x.init, x.last)

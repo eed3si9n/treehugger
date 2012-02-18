@@ -70,7 +70,7 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   def class4 =
     ((CLASSDEF("Queue") withTypeParams(TYPEVAR("T"))
       withParams(VAL("leading", TYPE_LIST("T")), VAL("trailing", TYPE_LIST("T"))): Tree) must print_as("class Queue[T](val leading: List[T], val trailing: List[T])")) and
-    ((CLASSDEF("C") withTypeParams(TYPEVAR("A") :: TYPEVAR("B") :: Nil: _*)).tree must print_as("class C[A, B]"))
+    ((CLASSDEF("C") withTypeParams(TYPEVAR("A") :: TYPEVAR("B") :: Nil)).tree must print_as("class C[A, B]"))
   
   def class5 = (CLASSDEF("C") withParents(sym.Addressable): Tree) must print_as("class C extends Addressable")
     

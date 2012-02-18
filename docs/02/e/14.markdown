@@ -11,7 +11,7 @@ Type-Level Expressions
 
 Use `TYPE_REF(tree|sym|"C")` to explicitly convert symbols, names, and trees into types:
 
-```
+```scala
 (VAL("pos", TYPE_REF(REF("board") DOT "Coord")): Tree)
 ```
 
@@ -39,7 +39,7 @@ This prints as:
 
 treehugger DSL provides built-in type constructors, which will be covered more [later][1]:
 
-```
+```scala
 REF("x") withType(TYPE_LIST(IntClass))
 REF("y") withType(TYPE_TUPLE(IntClass, IntClass))
 REF("z") withType(IntClass TYPE_=> IntClass)

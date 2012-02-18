@@ -6,3 +6,33 @@ treehugger DSL
 --------------
 
 treehugger DSL is an expanded version of TreeDSL in `scalac` to build Scala AST in code-like fashion. It is able to write all legal Scala expressions except for XML literals.
+
+### Conventions used in examples
+
+There are several conventions used throughout this document.
+
+```scala
+VAL(sym|"x")
+```
+
+In the above, `sym|"x"` denotes that either a `Symbol` or a `String` is accepted as a parameter to `VAL(...)`.
+
+```scala
+TYPE_LIST(typ)
+```
+
+In the above, `typ` indicates that `TYPE_LIST(...)` accepts a `Type`.
+
+```scala
+DEF("x"|sym) withTypeParams(TYPEVAR(...), ...)
+```
+
+In the above, `TYPEVAR(...), ...` denotes that `withTypeParams(...)` can accept either a vararg list or an `Iterable` of `TYPEVAR(...)`.
+
+```scala
+(DEF("get"|sym, [typ])
+  [withParams(PARAM("x"|sym, typ|"C")[ := arg], ...)]*
+  [withTypeParams(TYPEVAR(...), ...)]).tree
+```
+
+In the above, `[typ]` indicates that `typ` is optional; and `[withParams(PARAM("x"|sym, typ|"C")[ := arg], ...)]*` indicates that the `withParams` clause is optional and may be repeated.

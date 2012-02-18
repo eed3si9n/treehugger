@@ -11,8 +11,6 @@ Single line comments are added to an arbitrary tree as follows:
 tree withComment("comments here", ...)
 ```
 
-In the above, `...` indicates that the method takes a vararg.
-
 For example,
 
 ```scala
