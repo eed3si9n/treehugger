@@ -4,7 +4,7 @@ organization := "com.eed3si9n"
 
 name := "treehugger"
 
-version := "0.1.1-SNAPSHOT"
+version := "0.1.1"
 
 scalaVersion := "2.9.1"
 
@@ -27,11 +27,11 @@ unmanagedClasspath in Compile += Attributed.blank(new java.io.File("doesnotexist
 // scaladoc for 2.8.1 keeps failing, so run package-doc manually, copy it to `scaladoc` folder
 // and uncomment the following
 // packageDoc in Compile <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
-//  base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
+//   base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
 // }
-// 
+
 // packageDoc in Test <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
-//  base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
+//   base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
 // }
 
 libraryDependencies <++= (scalaVersion) { (sv) => sv match {
