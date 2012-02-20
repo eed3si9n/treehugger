@@ -45,13 +45,13 @@ Defining symbols for every identifiers would double the size of the code, and wo
 
 ### Type
 
-A _Type_ represents a Scala type. Unlike symbols, type information cannot be supplied as `String`. However, `ClassSymbol`s and `TypeSymbol`s can automatically be promoted to a `Type` and many of the built-in symbols represent built-in classes.
+A _Type_ represents a Scala type. Symbols of class `ClassSymbol`s and `TypeSymbol`s can automatically be promoted to a `Type` and many of the built-in symbols represent built-in classes.
 
 ```scala
 VAL("foo", IntClass)
 ```
 
-In the above code, `IntClass` is a symbol, but it is automatically promoted to a `Type`. Similarly, a string can also be promoted to a `Type`.
+In the above code, `IntClass` is a symbol, but it is automatically promoted to a `Type`. Similarly, a `String` can also be promoted to a `Type`.
 
 ```scala
 VAL("foo", "Int")
