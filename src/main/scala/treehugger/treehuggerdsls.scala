@@ -888,11 +888,9 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkImportSelectorFromString(name: String): ImportSelector = ImportSelector(name, -1, name, -1)
     implicit def mkSeqImportSelectorFromCandidates[A <% ImportSelector, M[A] <: Iterable[A]](in: M[A]): Seq[ImportSelector] =
       in.toSeq map { x: A => (x: ImportSelector)}
-
+    
     implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator = ifs.enumerator
     implicit def mkEnumeratorFromValDef(tree: ValDef): Enumerator =
       ForValDef(tree.name, tree.tpt, tree.rhs)
-    implicit def mkSeqEnumeratorFromCandidates[A <% Enumerator, M[A] <: Iterable[A]](in: M[A]): Seq[Enumerator] =
-      in.toSeq map { x: A => (x: Enumerator)}
   }
 }
