@@ -52,6 +52,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
                                                                               p^
   "Built-in type constructors are written as"                                 ^
       """`TYPE_LIST(typ)` for List"""                                         ! listtype1^
+      """`TYPE_SEQ(typ)` for Seq"""                                           ! seqtype1^
       """`TYPE_TUPLE(typ, ...)` for Tuple"""                                  ! tupletype1^
       """`TYPE_FUNCTION(typ, ...)` or `typ1 TYPE_=> typ2` for function."""    ! functype1^
                                                                               p^      
@@ -179,6 +180,9 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
   def listtype1 =
     VAL("x", TYPE_LIST(IntClass)).tree must print_as("val x: List[Int]")
 
+  def seqtype1 =
+    VAL("x", TYPE_SEQ(NodeClass)).tree must print_as("val x: Seq[scala.xml.Node]")
+  
   def tupletype1 =
     VAL("x", TYPE_TUPLE(IntClass, IntClass)).tree must print_as("val x: (Int, Int)")
 

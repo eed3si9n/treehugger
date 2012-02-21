@@ -414,25 +414,30 @@ trait Types extends api.Types { self: Forest =>
     )
     
     // TODO: test case that is compiled  in a specific order and in different runs
-     override def normalize: Type = {
-       if (normalized == null) {
-         normalized = normalize0
-       }
-       normalized
-     }
+    override def normalize: Type = {
+      if (normalized == null) {
+        normalized = normalize0
+      }
+      normalized
+    }
 
-     private def preString = (
-       // ensure that symbol is not a local copy with a name coincidence
-       if (builtins(sym.fullName)) ""
-       else if (shorthands(sym.fullName)) ""
-       else pre.prefixString
-     )
-     private def argsString = if (args.isEmpty) "" else args.mkString("[", ",", "]")
-     private def refinementString =
-       if (sym.isStructuralRefinement)
-         decls map (_.toString) mkString(" {", "; ", "}")
-       else ""
-     
+    private def preString = (
+      // ensure that symbol is not a local copy with a name coincidence
+      if (builtins(sym.fullName)) ""
+      else if (shorthands(sym.fullName)) ""
+      else if (sym.isType && sym.isNonClassType) ""
+      else if (sym.ownerNames('.') != "") sym.ownerNames('.')
+      else pre.prefixString
+    )
+    private def argsString =
+      if (args.isEmpty) ""
+      else args.map(_.safeToString).mkString("[", ",", "]")
+    
+    private def refinementString =
+      if (sym.isStructuralRefinement)
+        decls map (_.toString) mkString(" {", "; ", "}")
+      else ""
+    
     private def finishPrefix(rest: String) = (
       if (sym.isPackageClass) packagePrefix + rest
       else if (sym.isModuleClass) objectPrefix + rest
@@ -474,14 +479,12 @@ trait Types extends api.Types { self: Forest =>
     }
     
     override def prefixString = "" + (
-      if (sym.isOmittablePrefix)
-        ""
-      else if (sym.isPackageClass || sym.isPackageObjectOrClass)
-        sym.skipPackageObject.fullName + "."
-      else if (nme.isSingletonName(sym.name))
-        nme.dropSingletonName(sym.name) + "."
-      else
-        super.prefixString
+      if (sym.isOmittablePrefix) ""
+      // else if (sym.isPackageClass || sym.isPackageObjectOrClass)
+      //   sym.skipPackageObject.fullName + "."
+      // else if (nme.isSingletonName(sym.name))
+      //   nme.dropSingletonName(sym.name) + "."
+      else super.prefixString
     )
   }
   
@@ -760,9 +763,27 @@ trait Types extends api.Types { self: Forest =>
   final def hasLength(xs: List[_], len: Int) = xs.lengthCompare(len) == 0
 
   val builtins = Set(
+    "scala.Any",
+    "scala.AnyRef",
+    "scala.AnyVal",
     "scala.Array",
+    "scala.App",
+    "scala.Boolean",
+    "scala.Byte",
+    "scala.Char",
+    "scala.Double",
+    "scala.Dynamic",
+    "scala.Either",
+    "scala.Equals",
+    "scala.Flaot",
+    "scala.Function",
+    "scala.Int",
+    "scala.Long",
+    "scala.Short",
+    "scala.Option",
     "scala.Ordered",
     "scala.Ordering",
+    "scala.Unit",
     "java.lang.Comparable",
     "java.lang.String",
     "java.lang.IllegalArgumentException",

@@ -265,6 +265,23 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       // clazz setInfo polyType(List(newTypeParam(clazz, 0)), ClassInfoType(anyparam, new Scope, clazz))
       clazz
     }
+
+    // Scala library packages
+    lazy val ActorsPackage      = ScalaPackageClass.newPackage("actors")
+    lazy val ActorsPackageClass = ActorsPackage.moduleClass
+    lazy val SysPackage         = ScalaPackageClass.newPackage("sys")
+    lazy val SysPackageClass    = SysPackage.moduleClass
+    lazy val UtilPackage        = ScalaPackageClass.newPackage("util")
+    lazy val UtilPackageClass   = UtilPackage.moduleClass
+
+    // xml classes
+    lazy val XmlPackage         = ScalaPackageClass.newPackage("xml")
+    lazy val XmlPackageClass    = XmlPackage.moduleClass
+
+    lazy val NodeClass          = getClass("scala.xml.Node")
+    lazy val NodeSeqClass       = getClass("scala.xml.NodeSeq")
+    lazy val TextClass          = getClass("scala.xml.Text")
+    lazy val ElemClass          = getClass("scala.xml.Elem")
     
     // collections classes
     lazy val CollectionPackage  = ScalaPackageClass.newPackage("collection")

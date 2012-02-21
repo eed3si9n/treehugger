@@ -208,11 +208,13 @@ trait Symbols extends api.Symbols { self: Forest =>
     final def isPackage           = isModule && hasFlag(PACKAGE)
     final def isPackageClass      = isClass && hasFlag(PACKAGE)
     final def isRoot              = isPackageClass && owner == NoSymbol
-    final def isRootPackage       = isPackage && owner == NoSymbol    
+    final def isRootPackage       = isPackage && owner == NoSymbol
+    final def isPredefPackageClass =
+      isPackageClass && name == "Predef" && owner.name == "scala"
     
     /** Is this symbol an effective root for fullname string?
      */
-    def isEffectiveRoot = isRoot || isEmptyPackageClass
+    def isEffectiveRoot = isRoot || isEmptyPackageClass || isPredefPackageClass
     
     /** Term symbols with the exception of static parts of Java classes and packages.
      */
@@ -274,7 +276,13 @@ trait Symbols extends api.Symbols { self: Forest =>
     private def fullNameInternal(separator: Char): String = (
       if (isRoot || isRootPackage || this == NoSymbol) this.toString
       else if (owner.isEffectiveRoot) decodedName
-      else effectiveOwner.enclClass.fullName(separator) + separator + decodedName
+      else ownerNames(separator) + decodedName
+    )
+
+    final def ownerNames(separator: Char): String = (
+      if (isRoot || isRootPackage || this == NoSymbol || isEffectiveRoot) ""
+      else if (owner.isEffectiveRoot || owner.isRoot) ""
+      else effectiveOwner.enclClass.fullName(separator) + separator
     )
     
     /** Is this symbol effectively final? I.e, it cannot be overridden */
