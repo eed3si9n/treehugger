@@ -423,8 +423,7 @@ trait Types extends api.Types { self: Forest =>
 
     private def preString = (
       // ensure that symbol is not a local copy with a name coincidence
-      if (builtins(sym.fullName)) ""
-      else if (shorthands(sym.fullName)) ""
+      if (builtinFullNames(sym.fullName)) ""
       else if (sym.isType && sym.isNonClassType) ""
       else if (sym.ownerNames('.') != "") sym.ownerNames('.')
       else pre.prefixString
@@ -762,7 +761,7 @@ trait Types extends api.Types { self: Forest =>
    */
   final def hasLength(xs: List[_], len: Int) = xs.lengthCompare(len) == 0
 
-  val builtins = Set(
+  val builtinFullNames = Set(
     "scala.Any",
     "scala.AnyRef",
     "scala.AnyVal",
@@ -779,7 +778,9 @@ trait Types extends api.Types { self: Forest =>
     "scala.Function",
     "scala.Int",
     "scala.Long",
+    "scala.None",
     "scala.Short",
+    "scala.Some",
     "scala.Option",
     "scala.Ordered",
     "scala.Ordering",
@@ -787,21 +788,19 @@ trait Types extends api.Types { self: Forest =>
     "java.lang.Comparable",
     "java.lang.String",
     "java.lang.IllegalArgumentException",
-    "scala.collection.immutable.List",
-    "scala.reflect.Manifest",
-    "scala.unchecked",
-    "scala.annotation.serializable")
-
-  val shorthands = Set(
-    "scala.collection.immutable.List",
-    "scala.collection.immutable.Nil",
     "scala.collection.Seq",
     "scala.collection.Traversable",
     "scala.collection.Iterable",
     "scala.collection.mutable.StringBuilder",
     "scala.collection.IndexedSeq",
-    "scala.collection.Iterator")
-  
+    "scala.collection.Iterator",
+    "scala.collection.immutable.::",
+    "scala.collection.immutable.List",
+    "scala.collection.immutable.Nil",
+    "scala.reflect.Manifest",
+    "scala.unchecked",
+    "scala.annotation.serializable")
+    
   /** The maximum number of recursions allowed in toString
    */
   final val maxTostringRecursions = 50

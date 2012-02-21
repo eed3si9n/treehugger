@@ -167,7 +167,7 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     // Those modules and their module classes
     lazy val UnqualifiedOwners  = UnqualifiedModules.toSet ++ UnqualifiedModules.map(_.moduleClass)
     
-    lazy val PredefModule: Symbol = getModule("scala.Predef")
+    lazy val PredefModule: Symbol = ScalaPackageClass.newModule(nme.Predef)
     lazy val PredefModuleClass = PredefModule.moduleClass
       lazy val Predef_assert   = PredefModuleClass.newMethod("assert")
       lazy val Predef_assume   = PredefModuleClass.newMethod("assume")

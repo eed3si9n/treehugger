@@ -209,12 +209,12 @@ trait Symbols extends api.Symbols { self: Forest =>
     final def isPackageClass      = isClass && hasFlag(PACKAGE)
     final def isRoot              = isPackageClass && owner == NoSymbol
     final def isRootPackage       = isPackage && owner == NoSymbol
-    final def isPredefPackageClass =
-      isPackageClass && name == "Predef" && owner.name == "scala"
+    final def isPredefModuleClass =
+      isModuleClass && (name.toString == "Predef") && (owner.name.toString == "scala")
     
     /** Is this symbol an effective root for fullname string?
      */
-    def isEffectiveRoot = isRoot || isEmptyPackageClass || isPredefPackageClass
+    def isEffectiveRoot = isRoot || isEmptyPackageClass || isPredefModuleClass
     
     /** Term symbols with the exception of static parts of Java classes and packages.
      */
@@ -278,6 +278,8 @@ trait Symbols extends api.Symbols { self: Forest =>
       else if (owner.isEffectiveRoot) decodedName
       else ownerNames(separator) + decodedName
     )
+
+    final def ownerNames: String = ownerNames('.')
 
     final def ownerNames(separator: Char): String = (
       if (isRoot || isRootPackage || this == NoSymbol || isEffectiveRoot) ""

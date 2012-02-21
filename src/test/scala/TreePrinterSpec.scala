@@ -177,7 +177,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       """  class ArrowAssoc[A](x: A) {""",
       """    def ->[B](y: B): (A, B) = (x, y)""",
       """  }""",
-      """  implicit def any2ArrowAssoc[A](x: A): scala.Predef.ArrowAssoc[A] = new scala.Predef.ArrowAssoc[A](x)""",
+      """  implicit def any2ArrowAssoc[A](x: A): ArrowAssoc[A] = new ArrowAssoc[A](x)""",
       """}"""
     ).inOrder  
   }
