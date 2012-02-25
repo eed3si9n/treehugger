@@ -86,7 +86,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     out.lines.toList must contain(
       """// In file ChecksumAccumulator.scala""",
       """object ChecksumAccumulator {""",
-      """  private val cache = scala.collection.mutable.Map[String,Int]()""",
+      """  private val cache = scala.collection.mutable.Map[String, Int]()""",
       """  def calculate(s: String): Int =""",
       """    if (cache.contains(s)) cache(s)""",
       """    else {""",
@@ -238,7 +238,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val out = treeToString(tree); println(out)
     out.lines.toList must contain(
       """case class Address[T <% List[T]](name: Option[T] = None) {""",
-      """  def stringOnly(implicit ev: =:=[T,String]): Address = Address(this.name map { (nm: String) =>""",
+      """  def stringOnly(implicit ev: =:=[T, String]): Address = Address(this.name map { (nm: String) =>""",
       """    val list: List[T] = nm""",
       """    list.map(x => x + "x").mkString(" ")""",
       """  })""",

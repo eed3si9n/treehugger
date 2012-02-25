@@ -185,7 +185,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
     VAL("x", TYPE_SEQ(NodeClass)).tree must print_as("val x: Seq[scala.xml.Node]")
 
   def maptype1 =
-    VAL("x", TYPE_MAP(BigIntClass, URIClass)).tree must print_as("val x: Map[BigInt,java.net.URI]")
+    VAL("x", TYPE_MAP(BigIntClass, URIClass)).tree must print_as("val x: Map[BigInt, java.net.URI]")
   
   def tupletype1 =
     VAL("x", TYPE_TUPLE(IntClass, IntClass)).tree must print_as("val x: (Int, Int)")

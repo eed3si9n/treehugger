@@ -432,7 +432,7 @@ trait Types extends api.Types { self: Forest =>
     )
     private def argsString =
       if (args.isEmpty) ""
-      else args.map(_.safeToString).mkString("[", ",", "]")
+      else args.map(_.safeToString).mkString("[", ", ", "]")
     
     private def refinementString =
       if (sym.isStructuralRefinement)
@@ -743,8 +743,8 @@ trait Types extends api.Types { self: Forest =>
       var inst: Type = NoType // @M reduce visibility?
       
       override def toString =
-        (loBounds map (_.safeToString)).mkString("[ _>:(", ",", ") ") +
-        (hiBounds map (_.safeToString)).mkString("| _<:(", ",", ") ] _= ") +
+        (loBounds map (_.safeToString)).mkString("[ _>:(", ", ", ") ") +
+        (hiBounds map (_.safeToString)).mkString("| _<:(", ", ", ") ] _= ") +
         inst.safeToString
     }
     
