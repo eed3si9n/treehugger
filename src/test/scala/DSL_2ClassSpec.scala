@@ -19,7 +19,9 @@ where `PARAM(...)` declares a parameter while
 final classes `withFlags(Flags.FINAL)`,
 sealed classes `withFlags(Flags.SEALED)`."""                                  ! class7^
       """Private constructors are written as
-`CLASSDEF(sym|"C") withCtorFlags(Flags.PRIVATE)`"""                           ! class8^
+`CLASSDEF(sym|"C") withCtorFlags(Flags.PRIVATE)`."""                          ! class8^
+      """Self type annotations are written as
+`CLASSDEF(sym|"C") withSelf(sym|"self",typ)`."""                              ! class9^
                                                                               end^
   "Case class definitions are written as"                                     ^
       """`CASECLASSDEF(sym|"C")`, or with the class body, parameters, and parents as
@@ -84,6 +86,15 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   def class8 =
     (CLASSDEF("C") withCtorFlags(Flags.PRIVATE)
       withParams(PARAM("x", IntClass)): Tree) must print_as("class C private (x: Int)")
+
+  def class9 =
+    (CLASSDEF("C") withSelf("self", "T1", "T2") := BLOCK(
+      VAL("x") := REF("self")
+    )) must print_as(
+      "class C { self: T1 with T2 => ",
+      "  val x = self",
+      "}"
+    )
 
   def caseclass1 =
     ((CASECLASSDEF("C"): Tree) must print_as("case class C")) and

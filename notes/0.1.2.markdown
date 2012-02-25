@@ -1,3 +1,17 @@
+## Self type annotations
+
+Adds `withSelf(...)` to define self type annotations:
+
+    CLASSDEF("C") withSelf("self", "T1", "T2") := BLOCK(
+      VAL("x") := REF("self")
+    )
+
+## Type expressions
+
+Adds `TYPE_WITH(typ, ...)` to define refined types.
+
+    VAL("x", TYPE_REF("A") TYPE_WITH "B")
+
 ## Bug fixes and minor enhancements
 
 - Fixes symbol and type name printing. [#8][8]

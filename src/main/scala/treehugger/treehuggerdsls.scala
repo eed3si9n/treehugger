@@ -78,6 +78,7 @@ trait TreehuggerDSLs { self: Forest =>
       def TYPE_FORSOME(trees: Iterable[Tree]): Type = TYPE_FORSOME(trees.toList)
 
       def TYPE_=>(typ: Type) = TYPE_FUNCTION(target, typ)
+      def TYPE_WITH(args: Type*): Type = makeRefinedType(target :: args.toList)
     }
 
     class TreeMethods(target: Tree) {
@@ -451,6 +452,7 @@ trait TreehuggerDSLs { self: Forest =>
     trait ParentsStart {
       private var _parents: List[Tree] = Nil
       private var _earlydefs: Option[Block] = None
+      private var _selfDef: ValDef = emptyValDef
 
       def withParents(parent0: Type, parents: Type*): this.type = withParents(parent0 :: parents.toList)
       def withParents(parents: Iterable[Type]): this.type = {
@@ -471,7 +473,26 @@ trait TreehuggerDSLs { self: Forest =>
         this        
       }
       
-      def parents: List[Tree] = _earlydefs.toList ::: _parents
+      def withSelf(param: ValDef): this.type = {
+        _selfDef = param
+        this
+      }
+      def withSelf(name: Name, tps: Type*): this.type =
+        withSelf(tps.toList match {
+          case Nil => VAL(name)
+          case List(tp) => VAL(name, tp)
+          case tps => VAL(name, makeRefinedType(tps))
+        })
+
+      def withSelf(sym: Symbol, tps: Type*): this.type =
+        withSelf(tps.toList match {
+          case Nil => VAL(sym)
+          case List(tp) => VAL(sym, tp)
+          case tps => VAL(sym, makeRefinedType(tps))
+        })
+      
+      final def parents: List[Tree] = _earlydefs.toList ::: _parents
+      final def selfDef: ValDef = _selfDef
     }
 
     class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] with TparamsStart with ParentsStart {
@@ -494,7 +515,6 @@ trait TreehuggerDSLs { self: Forest =>
       }
 
       def vparams: List[ValDef] = _vparams
-      val selfDef: ValDef = emptyValDef
       def ctormods: Modifiers = _ctormods
       
       def mkTree(rhs: Tree): ClassDef = rhs match {
@@ -512,7 +532,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
     
     class ModuleDefStart(val name: TermName) extends TreeDefStart[ModuleDef] with ParentsStart {
-      val selfDef: ValDef = emptyValDef
+
       
       def mkTree(rhs: Tree): ModuleDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
@@ -808,6 +828,8 @@ trait TreehuggerDSLs { self: Forest =>
       val customString = trees map { tree => treeToString(tree) } mkString("({ ", ", ", " })")
       refinedType(Nil, NoSymbol, trees, customString)
     }
+    def makeRefinedType(args: List[Type]): Type =
+      refinedType(args, NoSymbol, Nil, "")
     def TYPE_REF(sym: Symbol): Type   = typeRef(sym)
     def TYPE_REF(name: Name): Type    = TYPE_REF(RootClass.newClass(name))
     def TYPE_REF(tree: Tree): Type    = makePathType(tree)   

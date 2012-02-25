@@ -72,6 +72,24 @@ class C extends B {
 }
 ```
 
+### Self type annotations
+
+To define self type annotations use `withSelf(sym|"self", [typ1, ...])`:
+
+```scala
+CLASSDEF("C") withSelf("self", "T1", "T2") := BLOCK(
+  VAL("x") := REF("self")
+)
+```
+
+This prints as:
+
+```scala
+class C { self: T1 with T2 => 
+  val x = self
+}
+```
+
 ### Early denifitions
 
 To define field values before supertype constructor is called add early definitions using `withEarlyDefs(tree, ...)`:

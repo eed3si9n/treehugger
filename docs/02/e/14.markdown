@@ -53,6 +53,20 @@ These examples print as:
 (z: Int => Int)
 ```
 
+### Refined types
+
+Refined types are written by calling `TYPE_WITH (typ|"C", ...)` on a type:
+
+```scala
+(VAL("x", TYPE_REF("A") TYPE_WITH "B"): Tree)
+```
+
+This prints as:
+
+```scala
+val x: A with B
+```
+
 ### Structural types
 
 Structural types are written using `TYPE_STRUCT(tree, ...)`:

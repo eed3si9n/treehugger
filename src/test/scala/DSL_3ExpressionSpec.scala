@@ -116,8 +116,11 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   "Type paths are written as"                                                 ^
       """`TYPE_REF(tree)`."""                                                 ! type3^
                                                                               p^
-  "Existential types written as"                                              ^
+  "Existential types are written as"                                          ^
       """`typ TYPE_FORSOME(tree)`."""                                         ! type4^
+                                                                              p^
+  "Refined types are written as"                                              ^
+      """`typ TYPE_WITH(typ, ...)`."""                                        ! type5^
                                                                               p^
                                                                               end
   
@@ -365,4 +368,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
     (DEF("exists") withParams(PARAM("arg", TYPE_LIST(TYPE_REF(REF("x") DOT "T")) TYPE_FORSOME(
       VAL("x", "Outer")
     )))).tree must print_as("def exists(arg: List[x.T] forSome { val x: Outer })")
+
+  def type5 =
+    VAL("x", TYPE_REF("A") TYPE_WITH "B").tree must print_as("val x: A with B")
 }
