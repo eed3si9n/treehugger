@@ -135,7 +135,22 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
         || (that ne NothingClass) && (that isSubClass ObjectClass)
       )      
     }
-    
+
+    lazy val JavaPackage         = RootClass.newPackage("java")
+    lazy val JavaPackageClass    = JavaPackage.moduleClass
+    lazy val JavaNetPackage      = JavaPackageClass.newPackage("net")
+    lazy val JavaNetPackageClass = JavaNetPackage.moduleClass
+    lazy val JavaIOPackage       = JavaPackageClass.newPackage("io")
+    lazy val JavaIOPackageClass  = JavaIOPackage.moduleClass
+    lazy val JavaUtilPackage     = JavaPackageClass.newPackage("util")
+    lazy val JavaUtilPackageClass = JavaUtilPackage.moduleClass
+    lazy val JavaxPackage        = RootClass.newPackage("javax")
+    lazy val JavaxPackageClass   = JavaxPackage.moduleClass
+    lazy val JavaxXmlPackage     = JavaxPackageClass.newPackage("xml")
+    lazy val JavaxXmlPackageClass = JavaxXmlPackage.moduleClass
+
+    lazy val URIClass            = JavaNetPackageClass.newClass("URI")
+
     // exceptions and other throwables
     lazy val ClassCastExceptionClass        = getClass("java.lang.ClassCastException")
     lazy val IllegalArgumentExceptionClass  = getClass("java.lang.IllegalArgumentException")
