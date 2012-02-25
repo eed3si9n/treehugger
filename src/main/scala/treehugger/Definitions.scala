@@ -159,6 +159,9 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     //  def Class_getMethod               = getMember(ClassClass, nme.getMethod_)
     lazy val DynamicClass               = getClass("scala.Dynamic")
     
+    lazy val BigIntClass                = getClass("scala.BigInt")
+    lazy val BigDecimalClass            = getClass("scala.BigDecimal")
+
     // fundamental modules
     // lazy val SysPackage = getPackageObject("scala.sys")
     

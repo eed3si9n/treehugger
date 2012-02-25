@@ -356,8 +356,8 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 
   def struc1 =
     (sym.foo withType(TYPE_STRUCT(
-      DEF("x", IntClass)
-    ))) must print_as("(foo: ({ def x: Int }))")
+      DEF("x", BigDecimalClass)
+    ))) must print_as("(foo: ({ def x: BigDecimal }))")
 
   def proj1 =
     sym.foo withType(TYPE_STRUCT(
