@@ -1,0 +1,7 @@
+## Bug fixes and minor enhancements
+
+- Fixes symbol and type name printing. [#8][8]
+- Adds `withParents(...)` to `OBJECTDEF(...)` and `CASEOBJECTDEF(...)`. [#10][10]
+
+  [8]: https://github.com/eed3si9n/treehugger/issues/8
+  [10]: https://github.com/eed3si9n/treehugger/issues/10

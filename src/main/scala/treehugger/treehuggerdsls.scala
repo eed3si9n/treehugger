@@ -448,13 +448,10 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(rhs: Tree): ForValFrom = ForValFrom(name, tpt, rhs)
     }
     
-    class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] with TparamsStart {
+    trait ParentsStart {
       private var _parents: List[Tree] = Nil
-      private var _vparams: List[ValDef] = Nil
       private var _earlydefs: Option[Block] = None
-      private var _ctormods: Modifiers = NoMods
 
-      
       def withParents(parent0: Type, parents: Type*): this.type = withParents(parent0 :: parents.toList)
       def withParents(parents: Iterable[Type]): this.type = {
         _parents = _parents ::: (parents.toList map {TypeTree(_)})
@@ -473,6 +470,14 @@ trait TreehuggerDSLs { self: Forest =>
         }
         this        
       }
+      
+      def parents: List[Tree] = _earlydefs.toList ::: _parents
+    }
+
+    class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] with TparamsStart with ParentsStart {
+      private var _vparams: List[ValDef] = Nil
+      private var _ctormods: Modifiers = NoMods
+
       def withParams(param: ValDef*): this.type = withParams(param.toList)
       def withParams(param: Iterable[ValDef]): this.type = {
         _vparams = param.toList
@@ -489,7 +494,6 @@ trait TreehuggerDSLs { self: Forest =>
       }
 
       def vparams: List[ValDef] = _vparams
-      def parents: List[Tree] = _earlydefs.toList ::: _parents
       val selfDef: ValDef = emptyValDef
       def ctormods: Modifiers = _ctormods
       
@@ -507,8 +511,7 @@ trait TreehuggerDSLs { self: Forest =>
         ClassDef(mods | Flags.TRAIT, ctormods, name, tparams, vparams, Template(parents, selfDef, body))
     }
     
-    class ModuleDefStart(val name: TermName) extends TreeDefStart[ModuleDef] {
-      val parents: List[Tree] = Nil
+    class ModuleDefStart(val name: TermName) extends TreeDefStart[ModuleDef] with ParentsStart {
       val selfDef: ValDef = emptyValDef
       
       def mkTree(rhs: Tree): ModuleDef = rhs match {

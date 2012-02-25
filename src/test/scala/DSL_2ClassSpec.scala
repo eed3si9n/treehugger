@@ -98,10 +98,14 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
   
   def trait1 = (TRAITDEF("D"): Tree) must print_as("trait D")
   
-  def object1 = (OBJECTDEF("E"): Tree) must print_as("object E")
+  def object1 =
+    ((OBJECTDEF("E"): Tree) must print_as("object E")) and
+    ((OBJECTDEF("E") withParents("T"): Tree) must print_as("object E extends T"))
 
-  def object2 = (CASEOBJECTDEF("E"): Tree) must print_as("case object E")
-  
+  def object2 =
+    ((CASEOBJECTDEF("E"): Tree) must print_as("case object E")) and
+    ((CASEOBJECTDEF("E") withParents("T"): Tree) must print_as("case object E extends T"))
+
   def member1 =
     (CLASSDEF("C") := BLOCK(
       DEF("get") := LIT(0)
