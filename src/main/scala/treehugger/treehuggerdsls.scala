@@ -490,7 +490,7 @@ trait TreehuggerDSLs { self: Forest =>
           case List(tp) => VAL(sym, tp)
           case tps => VAL(sym, makeRefinedType(tps))
         })
-      
+
       final def parents: List[Tree] = _earlydefs.toList ::: _parents
       final def selfDef: ValDef = _selfDef
     }
@@ -859,7 +859,8 @@ trait TreehuggerDSLs { self: Forest =>
         case Nil => error("TYPE_FUNCTION must take at least one Type.")
         case x => functionType(x.init, x.last)
       }
-      
+    def TYPE_SINGLETON(tree: Tree) = singleType(TYPE_REF(tree), NoSymbol)
+
     implicit def stringToTermName(s: String): TermName = newTermName(s)
 
 

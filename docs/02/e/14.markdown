@@ -67,6 +67,20 @@ This prints as:
 val x: A with B
 ```
 
+### Singleton types
+
+Singleton type are written using `TYPE_SINGLETON(tree)`:
+
+```scala
+(VAL("x", TYPE_SINGLETON(THIS)): Tree)
+```
+
+This prints as:
+
+```scala
+val x: this.type
+```
+
 ### Structural types
 
 Structural types are written using `TYPE_STRUCT(tree, ...)`:

@@ -122,6 +122,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   "Refined types are written as"                                              ^
       """`typ TYPE_WITH(typ, ...)`."""                                        ! type5^
                                                                               p^
+  "Singleton types are written as"                                            ^
+      """`TYPE_SINGLETON(tree)`."""                                           ! type6^
+                                                                              p^
                                                                               end
   
   import treehugger.forest._
@@ -371,4 +374,7 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
 
   def type5 =
     VAL("x", TYPE_REF("A") TYPE_WITH "B").tree must print_as("val x: A with B")
+
+  def type6 =
+    VAL("x", TYPE_SINGLETON(THIS)).tree must print_as("val x: this.type")
 }

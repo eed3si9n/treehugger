@@ -217,10 +217,12 @@ trait Types extends api.Types { self: Forest =>
    *  Cannot be created directly; one should always use `singleType` for creation.
    */
   abstract case class SingleType(pre: Type, sym: Symbol) extends SingletonType {
+    override def underlying = pre
     override def termSymbol = sym
     override def prefix: Type = pre
     override def prefixString = (
-      if (sym.skipPackageObject.isOmittablePrefix) ""
+      if (sym == NoSymbol) pre.toString + "."
+      else if (sym.skipPackageObject.isOmittablePrefix) ""
       else if (sym.isPackageObjectOrClass) pre.prefixString
       else pre.prefixString + sym.nameString + "."
     )
