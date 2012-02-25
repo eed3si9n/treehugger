@@ -351,7 +351,10 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       
     lazy val ArrayBufferClass   = getClass("scala.collection.mutable.ArrayBuffer")
     lazy val MutableMapClass    = getClass("scala.collection.mutable.Map")
-     
+    lazy val ImmutableMapClass  = getClass("scala.collection.immutable.Map")
+    lazy val MutableSetClass    = getClass("scala.collection.mutable.Set")
+    lazy val ImmutableSetClass  = getClass("scala.collection.immutable.Set")
+    
     lazy val ListModule       = getModule("scala.collection.immutable.List")
     //  lazy val List_apply = getMember(ListModule, nme.apply)
     lazy val NilModule        = getModule("scala.collection.immutable.Nil")
@@ -470,9 +473,11 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     def arrayType(arg: Type)  = appliedType(ArrayClass.typeConstructor, List(arg))
     def listType(arg: Type)   = appliedType(ListClass.typeConstructor, List(arg))
     def byNameType(arg: Type) = appliedType(ByNameParamClass.typeConstructor, List(arg))
-    def mapType(arg1: Type, arg2: Type) = appliedType(MapClass.typeConstructor, List(arg1, arg2))
+    def immutableMapType(arg1: Type, arg2: Type) = appliedType(ImmutableMapClass.typeConstructor, List(arg1, arg2))
     def mutableMapType(arg1: Type, arg2: Type) = appliedType(MutableMapClass.typeConstructor, List(arg1, arg2))
-    
+    def immutableSetType(arg: Type) = appliedType(ImmutableSetClass.typeConstructor, List(arg))
+    def mutableSetType(arg: Type) = appliedType(MutableSetClass.typeConstructor, List(arg))
+
     // def ClassType(arg: Type) = appliedType(ClassClass.typeConstructor, List(arg))
     
     // generalized type constraints
