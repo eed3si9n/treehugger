@@ -805,6 +805,7 @@ trait Types extends api.Types { self: Forest =>
     "scala.collection.immutable.Nil",
     "scala.collection.immutable.Map",
     "scala.collection.immutable.Set",
+    "scala.collection.immutable.Vector",
     "scala.reflect.Manifest",
     "scala.unchecked",
     "scala.annotation.serializable")

@@ -361,7 +361,7 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       lazy val Traversable_isEmpty   = getMember(TraversableClass, "isEmpty")
       
     lazy val ImmutableMapClass  = getClass("scala.collection.immutable.Map")
-    lazy val ImmutableListMapClass = getClass("scala.collection.immutable.ListMap")
+    lazy val ListMapClass = getClass("scala.collection.immutable.ListMap")
     lazy val ImmutableSetClass  = getClass("scala.collection.immutable.Set")
 
     lazy val ArrayBufferClass   = getClass("scala.collection.mutable.ArrayBuffer")
@@ -382,12 +382,12 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     lazy val ConcurrentMapClass = getClass("scala.collection.mutable.ConcurrentMap")
     lazy val MutableBitSetClass = getClass("scala.collection.mutable.BitSet")
 
-    lazy val ListModule       = getModule("scala.collection.immutable.List")
+    lazy val ListModule       = ListClass.module
     //  lazy val List_apply = getMember(ListModule, nme.apply)
     lazy val NilModule        = getModule("scala.collection.immutable.Nil")
-    lazy val SeqModule        = getModule("scala.collection.Seq")
-    lazy val MapModule        = getModule("scala.collection.Map")
-    lazy val VectorModule     = getModule("scala.collection.immutable.Vector")
+    lazy val SeqModule        = SeqClass.module
+    lazy val MapModule        = MapClass.module
+    lazy val VectorModule     = VectorClass.module
 
     // arrays and their members
     lazy val ArrayModule  = getModule("scala.Array")

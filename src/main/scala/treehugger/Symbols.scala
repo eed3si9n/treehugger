@@ -347,7 +347,9 @@ trait Symbols extends api.Symbols { self: Forest =>
     /** String representation of symbol's simple name.
      */
     def nameString = decodedName
-        
+    
+    def module: Symbol = NoSymbol 
+
     /** The module class corresponding to this module.
      */
     def moduleClass: Symbol = NoSymbol
@@ -604,6 +606,8 @@ trait Symbols extends api.Symbols { self: Forest =>
       
       thisTypeCache
     }
+
+    override lazy val module = new ModuleSymbol(initOwner, initPos, initName)
   }
   
   /** A class for module class symbols

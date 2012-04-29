@@ -39,13 +39,13 @@ libraryDependencies <++= (scalaVersion) { (sv) => sv match {
                         "org.specs2" %% "specs2-scalaz-core" % "5.1-SNAPSHOT" % "test")
   case "2.9.0-1" => Seq("org.specs2" %% "specs2" % "1.6.1" % "test",
                         "org.specs2" %% "specs2-scalaz-core" % "6.0.RC2" % "test")
-  case _ =>         Seq("org.specs2" %% "specs2" % "1.7.1" % "test")
+  case _ =>         Seq("org.specs2" %% "specs2" % "1.9" % "test")
 }}
 
 parallelExecution in Test := false
 
-resolvers ++= Seq("scala-tools snapshots" at "http://scala-tools.org/repo-snapshots",
-                  "scala-tools releases"  at "http://scala-tools.org/repo-releases")
+resolvers ++= Seq("snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
+                  "releases"  at "http://oss.sonatype.org/content/repositories/releases")
 
 seq(lsSettings :_*)
 
