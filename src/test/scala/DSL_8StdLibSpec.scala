@@ -49,13 +49,15 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
       """`SEQ(tree, ...)` for Seq"""                                          ! seqctor1^
       """`VECTOR(tree, ...)` for Vector"""                                    ! vectorctor1^
       """`MAKE_MAP(key ANY_-> value, ...)` for Map"""                         ! mapctor1^
+      """`RIGHT(tree)` for Right"""                                           ! rightctor1^
                                                                               p^
   "Built-in type constructors are written as"                                 ^
       """`TYPE_LIST(typ)` for List"""                                         ! listtype1^
       """`TYPE_SEQ(typ)` for Seq"""                                           ! seqtype1^
       """`TYPE_Map(k, v)` for Map"""                                          ! maptype1^
       """`TYPE_TUPLE(typ, ...)` for Tuple"""                                  ! tupletype1^
-      """`TYPE_FUNCTION(typ, ...)` or `typ1 TYPE_=> typ2` for function."""    ! functype1^
+      """`TYPE_FUNCTION(typ, ...)` or `typ1 TYPE_=> typ2` for function"""     ! functype1^
+      """`TYPE_EITHER(typ1, typ2)` for Either"""                              ! eithertype1^
                                                                               p^      
                                                                               end
   
@@ -178,6 +180,10 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
 
   def mapctor1 = MAKE_MAP(LIT(0) ANY_-> LIT(1)) must print_as("Map(0 -> 1)")
 
+  def rightctor1 =
+    (RIGHT(LIT(0)) must print_as("Right(0)")) and
+    (LEFT(LIT(0)) must print_as("Left(0)"))
+
   def listtype1 =
     VAL("x", TYPE_LIST(IntClass)).tree must print_as("val x: List[Int]")
 
@@ -192,5 +198,10 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
 
   def functype1 =
     (VAL("x", TYPE_FUNCTION(IntClass, IntClass)).tree must print_as("val x: Int => Int")) and
-    (VAL("y", IntClass TYPE_=> IntClass).tree must print_as("val y: Int => Int")) 
+    (VAL("y", IntClass TYPE_=> IntClass).tree must print_as("val y: Int => Int"))
+
+  def eithertype1 =
+    (VAL("x", TYPE_EITHER(IntClass, StringClass)).tree must print_as("val x: Either[Int, String]")) and
+    (VAL("y", TYPE_RIGHT(IntClass, StringClass)).tree must print_as("val y: Right[Int, String]")) and
+    (VAL("z", TYPE_LEFT(IntClass, StringClass)).tree must print_as("val z: Left[Int, String]"))
 }

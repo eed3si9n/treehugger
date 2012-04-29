@@ -310,11 +310,22 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     lazy val ConsClass          = getClass("scala.collection.immutable.$colon$colon")
     lazy val IterableClass      = getClass("scala.collection.Iterable")
     lazy val IteratorClass      = getClass("scala.collection.Iterator")
-    lazy val ListClass          = getClass("scala.collection.immutable.List")
     lazy val SeqClass           = getClass("scala.collection.Seq")
+    lazy val LinearSeqClass     = getClass("scala.collection.LinearSeq")
+    lazy val IndexedSeqClass    = getClass("scala.collection.IndexedSeq")
+    lazy val BitSetClass        = getClass("scala.collection.BitSet")
+
+    lazy val ListClass          = getClass("scala.collection.immutable.List")
+    lazy val StreamClass        = getClass("scala.collection.immutable.Stream")
     lazy val VectorClass        = getClass("scala.collection.immutable.Vector")
+    lazy val StackClass         = getClass("scala.collection.immutable.Stack")
+    lazy val QueueClass         = getClass("scala.collection.immutable.Queue")
+    lazy val RangeClass         = getClass("scala.collection.immutable.Range")
+    lazy val HashMapClass       = getClass("scala.collection.immutable.HashMap")
+    lazy val TreeSetClass       = getClass("scala.collection.immutable.TreeSet")
+    lazy val TreeMapClass       = getClass("scala.collection.immutable.TreeMap")
+
     lazy val MapClass           = getClass("scala.collection.Map")
-    lazy val StringBuilderClass = getClass("scala.collection.mutable.StringBuilder")
     lazy val TraversableClass   = getClass("scala.collection.Traversable")
       lazy val Traversable_++        = getMember(TraversableClass, "++")
       lazy val Traversable_collect   = getMember(TraversableClass, "collect")
@@ -349,12 +360,28 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
       lazy val Traversable_size      = getMember(TraversableClass, "size")
       lazy val Traversable_isEmpty   = getMember(TraversableClass, "isEmpty")
       
-    lazy val ArrayBufferClass   = getClass("scala.collection.mutable.ArrayBuffer")
-    lazy val MutableMapClass    = getClass("scala.collection.mutable.Map")
     lazy val ImmutableMapClass  = getClass("scala.collection.immutable.Map")
-    lazy val MutableSetClass    = getClass("scala.collection.mutable.Set")
+    lazy val ImmutableListMapClass = getClass("scala.collection.immutable.ListMap")
     lazy val ImmutableSetClass  = getClass("scala.collection.immutable.Set")
-    
+
+    lazy val ArrayBufferClass   = getClass("scala.collection.mutable.ArrayBuffer")
+    lazy val ListBufferClass    = getClass("scala.collection.mutable.ListBuffer")
+    lazy val StringBuilderClass = getClass("scala.collection.mutable.StringBuilder")
+    lazy val LinkedListClass    = getClass("scala.collection.mutable.LinkedList")
+    lazy val DoubledLinkedListClass = getClass("scala.collection.mutable.DoubledLinkedList")
+    lazy val MutableListClass   = getClass("scala.collection.mutable.MutableList")
+    lazy val ArraySeqClass      = getClass("scala.collection.mutable.ArraySeq")
+    lazy val MutableQueueClass  = getClass("scala.collection.mutable.Queue")
+    lazy val MutableStackClass  = getClass("scala.collection.mutable.Stack")
+    lazy val ArrayStackClass    = getClass("scala.collection.mutable.ArrayStack")
+    lazy val MutableMapClass    = getClass("scala.collection.mutable.Map")
+    lazy val MutableSetClass    = getClass("scala.collection.mutable.Set")
+    lazy val MutableHashSetClass = getClass("scala.collection.mutable.HashSet")
+    lazy val MutableHashMapClass = getClass("scala.collection.mutable.HashMap")
+    lazy val WeakHashMapClass   = getClass("scala.collection.mutable.WeakHashMap")
+    lazy val ConcurrentMapClass = getClass("scala.collection.mutable.ConcurrentMap")
+    lazy val MutableBitSetClass = getClass("scala.collection.mutable.BitSet")
+
     lazy val ListModule       = getModule("scala.collection.immutable.List")
     //  lazy val List_apply = getMember(ListModule, nme.apply)
     lazy val NilModule        = getModule("scala.collection.immutable.Nil")
@@ -378,15 +405,21 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     // Option classes
     lazy val OptionClass: Symbol = getClass("scala.Option")
     lazy val SomeClass: Symbol   = getClass("scala.Some")
-    lazy val NoneModule: Symbol  = getModule("scala.None")
     lazy val SomeModule: Symbol  = getModule("scala.Some")
+    lazy val NoneModule: Symbol  = getModule("scala.None")
+    lazy val EitherClass: Symbol = getClass("scala.Either")
+    lazy val RightClass: Symbol  = getClass("scala.Right")
+    lazy val LeftClass: Symbol   = getClass("scala.Left")
     
     def isOptionType(tp: Type)  = cond(tp.normalize) { case TypeRef(_, OptionClass, List(_)) => true }
     def isSomeType(tp: Type)    = cond(tp.normalize) { case TypeRef(_,   SomeClass, List(_)) => true }
     def isNoneType(tp: Type)    = cond(tp.normalize) { case TypeRef(_,   NoneModule, List(_)) => true }
 
-    def optionType(tp: Type)    = typeRef(NoPrefix, OptionClass, List(tp))
-    def someType(tp: Type)      = typeRef(NoPrefix, SomeClass, List(tp))
+    def optionType(tp: Type)    = appliedType(OptionClass.typeConstructor, List(tp))
+    def someType(tp: Type)      = appliedType(SomeClass.typeConstructor, List(tp))
+    def eitherType(arg1: Type, arg2: Type): Type = typeRef(NoPrefix, EitherClass, List(arg1, arg2))
+    def rightType(arg1: Type, arg2: Type): Type = typeRef(NoPrefix, RightClass, List(arg1, arg2))
+    def leftType(arg1: Type, arg2: Type): Type = typeRef(NoPrefix, LeftClass, List(arg1, arg2))
     def symbolType              = typeRef(SymbolClass.typeConstructor.prefix, SymbolClass, List())
     def longType                = typeRef(LongClass.typeConstructor.prefix, LongClass, List())
     

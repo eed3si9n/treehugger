@@ -1,0 +1,4 @@
+## minor enhancements
+
+- Adds `TYPE_EITHER(typ1, typ2)`, `TYPE_LEFT(typ1, typ2)`, `TYPE_RIGHT(typ1, typ2)`.
+- Adds `RIGHT(tree)` and `LEFT(tree)`.
