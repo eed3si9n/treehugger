@@ -458,7 +458,8 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     
     def tupleType(elems: List[Type]): Type = {
       val len = elems.length
-      if (len <= MaxTupleArity) {
+      if (len == 1) elems.head
+      else if (len <= MaxTupleArity) {
         val sym = TupleClass(len)
         typeRef(sym.typeConstructor.prefix, sym, elems)
       } else NoType

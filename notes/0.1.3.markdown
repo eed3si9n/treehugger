@@ -1,4 +1,8 @@
-## minor enhancements
+## bug fixes and minor enhancements
 
+- Fixes when `TYPE_TUPLE(type)` is called with one element. [#14][14] reported by [@psnively][@psnively]
 - Adds `TYPE_EITHER(typ1, typ2)`, `TYPE_LEFT(typ1, typ2)`, `TYPE_RIGHT(typ1, typ2)`.
 - Adds `RIGHT(tree)` and `LEFT(tree)`.
+
+  [14]: https://github.com/eed3si9n/treehugger/issues/14
+  [@psnively]: https://twitter.com/#!/psnively/status/196445688538742784
