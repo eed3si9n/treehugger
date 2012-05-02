@@ -76,6 +76,8 @@ NIL                          // Nil
 pat1 UNLIST_:: pat2          // ::
 SOME(arg, ...)               // Some
 NONE                         // None
+RIGHT(arg)                   // Right
+LEFT(arg)                    // Left
 ARRAY(arg, ...)              // Array
 SEQ(arg, ...)                // Seq
 VECTOR(arg, ...)             // Vector

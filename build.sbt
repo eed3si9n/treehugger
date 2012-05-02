@@ -4,7 +4,7 @@ organization := "com.eed3si9n"
 
 name := "treehugger"
 
-version := "0.1.3-SNAPSHOT"
+version := "0.1.3"
 
 scalaVersion := "2.9.1"
 
@@ -26,13 +26,13 @@ unmanagedClasspath in Compile += Attributed.blank(new java.io.File("doesnotexist
 
 // scaladoc for 2.8.1 keeps failing, so run package-doc manually, copy it to `scaladoc` folder
 // and uncomment the following
-//packageDoc in Compile <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
-//  base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
-//}
+packageDoc in Compile <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
+ base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
+}
 
-//packageDoc in Test <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
-//  base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
-//}
+packageDoc in Test <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
+ base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
+}
 
 libraryDependencies <++= (scalaVersion) { (sv) => sv match {
   case "2.8.1"   => Seq("org.specs2" %% "specs2" % "1.5" % "test",
@@ -44,8 +44,8 @@ libraryDependencies <++= (scalaVersion) { (sv) => sv match {
 
 parallelExecution in Test := false
 
-resolvers ++= Seq("snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-                  "releases"  at "http://oss.sonatype.org/content/repositories/releases")
+resolvers ++= Seq("sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
+                  "sonatype releases"  at "http://oss.sonatype.org/content/repositories/releases")
 
 seq(lsSettings :_*)
 
@@ -75,7 +75,7 @@ publishTo <<= version { (v: String) =>
   if (v.trim.endsWith("SNAPSHOT")) 
     Some("snapshots" at nexus + "content/repositories/snapshots") 
   else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    Some("staging"  at nexus + "service/local/staging/deploy/maven2")
 }
 
 pomIncludeRepository := { x => false }
