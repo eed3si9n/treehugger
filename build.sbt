@@ -6,9 +6,9 @@ name := "treehugger"
 
 version := "0.1.3"
 
-scalaVersion := "2.9.1"
+scalaVersion := "2.9.2"
 
-crossScalaVersions := Seq("2.9.1", "2.8.1")
+crossScalaVersions := Seq("2.9.2", "2.9.1", "2.8.1")
 
 homepage := Some(url("http://eed3si9n.com/treehugger"))
 
@@ -26,13 +26,13 @@ unmanagedClasspath in Compile += Attributed.blank(new java.io.File("doesnotexist
 
 // scaladoc for 2.8.1 keeps failing, so run package-doc manually, copy it to `scaladoc` folder
 // and uncomment the following
-packageDoc in Compile <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
- base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
-}
+// packageDoc in Compile <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
+//  base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
+// }
 
-packageDoc in Test <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
- base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
-}
+// packageDoc in Test <<= (scalaVersion, baseDirectory, name, version) map { (sv, base, name, v) =>
+//  base / "javadoc" / (name + "_" + sv + "-" + v + "-javadoc.jar")
+// }
 
 libraryDependencies <++= (scalaVersion) { (sv) => sv match {
   case "2.8.1"   => Seq("org.specs2" %% "specs2" % "1.5" % "test",
