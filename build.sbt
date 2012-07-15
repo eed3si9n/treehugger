@@ -4,7 +4,7 @@ organization := "com.eed3si9n"
 
 name := "treehugger"
 
-version := "0.1.3"
+version := "0.1.4-SNAPSHOT"
 
 scalaVersion := "2.9.2"
 
