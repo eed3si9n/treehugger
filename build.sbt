@@ -6,7 +6,7 @@ name := "treehugger"
 
 version := "0.1.4-SNAPSHOT"
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.9.1"
 
 crossScalaVersions := Seq("2.9.2", "2.9.1", "2.8.1")
 
