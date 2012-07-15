@@ -222,11 +222,9 @@ trait TreehuggerDSLs { self: Forest =>
        *  See ticket #2168 for one illustration of AS vs. AS_ANY.
        */
       def AS(tpe: Type)       = mkAsInstanceOf(target, tpe, any = true, wrapInApply = false)
-      def IS(tpe: Type)       = mkIsInstanceOf(target, tpe, true)
-      def IS_OBJ(tpe: Type)   = mkIsInstanceOf(target, tpe, false)
+      def IS(tpe: Type)       = mkIsInstanceOf(target, tpe, true, wrapInApply = false)
+      // def IS_OBJ(tpe: Type)   = mkIsInstanceOf(target, tpe, false)
 
-      // XXX having some difficulty expressing nullSafe in a way that doesn't freak out value types
-      // def TOSTRING()          = nullSafe(fn(_: Tree, nme.toString_), LIT("null"))(target)
       def TOSTRING            = fn(target, nme.toString_)
       def GETCLASS            = fn(target, Object_getClass)
     }

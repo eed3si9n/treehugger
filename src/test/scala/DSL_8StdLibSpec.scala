@@ -3,6 +3,12 @@ import org.specs2._
 class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
   "This is a specification to check Treehugger DSL"                           ^
                                                                               p^
+  "Built-in methods are written as"                                           ^
+      """`tree TOSTRING` for Any toString method,"""                          ! root1^
+      """`tree GETCLASS` for Object getClass method,"""                       ! root2^
+      """`tree IS typ` for Any isInstanceOf method,"""                        ! root3^
+      """`tree AS typ` for Any asInstanceOf method,"""                        ! root4^
+                                                                              p^
   "Built-in operators are written as"                                         ^
       """`tree OR tree` for Boolean || method,"""                             ! boolean1^
       """`tree AND tree` for Boolean && method,"""                            ! boolean2^
@@ -64,7 +70,15 @@ class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
   import treehugger.forest._
   import definitions._
   import treehuggerDSL._
-                                                                             
+  
+  def root1 = (REF("x") TOSTRING) must print_as("x.toString")
+
+  def root2 = (REF("x") GETCLASS) must print_as("x.getClass")
+
+  def root3 = (REF("x") IS IntClass) must print_as("x.isInstanceOf[Int]")
+  
+  def root4 = (REF("x") AS IntClass) must print_as("x.asInstanceOf[Int]")
+
   def boolean1 = (REF("x") OR REF("y")) must print_as("(x) || (y)")
 
   def boolean2 = (REF("x") AND REF("y")) must print_as("(x) && (y)")

@@ -14,21 +14,6 @@ lhs OR rhs                   // ||
 lhs AND rhs                  // &&
 ```
 
-### Any operators
-
-```scala
-lhs ANY_== rhs               // ==
-lhs ANY_!= rhs               // !=
-lhs ANY_-> rhs               // ->
-```
-
-### AnyRef operators
-
-```scala
-lhs OBJ_EQ rhs               // eq
-lhs OBJ_NE rhs               // ne
-```
-
 ### Numeric operators
 
 ```scala

@@ -1,0 +1,30 @@
+---
+out: stdroot.html
+---
+
+Root Class
+----------
+
+### Any methods
+
+```scala
+tree TOSTRING                // x.toString
+tree GETCLASS                // x.getClass
+tree IS typ                  // x.isInstanceOf[Int]
+tree AS typ                  // x.asInstanceOf[Int]
+```
+
+### Any operators
+
+```scala
+lhs ANY_== rhs               // ==
+lhs ANY_!= rhs               // !=
+lhs ANY_-> rhs               // ->
+```
+
+### AnyRef operators
+
+```scala
+lhs OBJ_EQ rhs               // eq
+lhs OBJ_NE rhs               // ne
+```
