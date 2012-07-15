@@ -227,8 +227,8 @@ trait TreehuggerDSLs { self: Forest =>
 
       // XXX having some difficulty expressing nullSafe in a way that doesn't freak out value types
       // def TOSTRING()          = nullSafe(fn(_: Tree, nme.toString_), LIT("null"))(target)
-      def TOSTRING()          = fn(target, nme.toString_)
-      def GETCLASS()          = fn(target, Object_getClass)
+      def TOSTRING            = fn(target, nme.toString_)
+      def GETCLASS            = fn(target, Object_getClass)
     }
 
     case class InfixStart(target: Tree, name: Name) {
@@ -636,7 +636,7 @@ trait TreehuggerDSLs { self: Forest =>
     /** !!! should generalize null guard from match error here. */
     def THROW(typ: Type): Throw = Throw(New(TypeTree(typ), List(Nil)))
     def THROW(typ: Type, msg: String): Throw = Throw(New(TypeTree(typ), List(List(LIT(msg)))))
-    def THROW(typ: Type, msg: Tree): Throw = Throw(New(TypeTree(typ), List(List(msg.TOSTRING()))))
+    def THROW(typ: Type, msg: Tree): Throw = Throw(New(TypeTree(typ), List(List(msg.TOSTRING))))
 
     def NEW(tp: Type, args: Tree*): Tree = NEW(TypeTree(tp), args: _*)
     def NEW(tpt: Tree, args: Tree*): Tree   =
@@ -648,6 +648,8 @@ trait TreehuggerDSLs { self: Forest =>
     def DEF(name: Name): DefTreeStart               = new DefTreeStart(name)
     def DEF(sym: Symbol, tp: Type): DefSymStart     = DEF(sym) withType tp
     def DEF(sym: Symbol): DefSymStart               = new DefSymStart(sym)
+
+    def DEFTHIS: DefTreeStart                       = DEF(nme.THIS)
 
     def VAL(name: Name, tp: Type): ValNameStart     = VAL(name) withType tp
     def VAL(name: Name): ValNameStart               = new ValNameStart(name)

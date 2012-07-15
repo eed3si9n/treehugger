@@ -54,6 +54,29 @@ class C(x: Int, val y: String, var z: List[String]) {
 }
 ```
 
+### Constructor definitions
+
+Auxiliary constructors are defined using `DEFTHIS := BLOCK(stat, ...)`. Optionally, `DEFTHIS` may take `withParams(...)`:
+
+```scala
+CLASSDEF("C")
+  withParams(PARAM("s", StringClass)) := BLOCK(
+  DEFTHIS withParams(PARAM("x", IntClass)) := BLOCK(
+    THIS APPLY(REF("x") TOSTRING)
+  )
+)
+```
+
+This prints as:
+
+```scala
+class C(s: String) {
+  def this(x: Int) = {
+    this(x.toString)
+  }
+}
+```
+
 ### Extending classes
 
 To define classes by extending super classes use `withParents(tree|typ|"T")`:

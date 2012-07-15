@@ -23,6 +23,9 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
       """Self type annotations are written as
 `CLASSDEF(sym|"C") withSelf(sym|"self",typ)`."""                              ! class9^
                                                                               end^
+  "Constructor definitions are written as"                                    ^
+      """`DEFTHIS withParams(PARAM("x", typ1), ...) := tree`"""               ! constructor1^
+                                                                              end^
   "Case class definitions are written as"                                     ^
       """`CASECLASSDEF(sym|"C")`, or with the class body, parameters, and parents as
 `CASECLASSDEF(sym|"C")` withParams(PARAM("x", typ1), ...) withParents(typ, ...) := BLOCK(stat, ...).""" ! caseclass1^
@@ -93,6 +96,20 @@ sealed classes `withFlags(Flags.SEALED)`."""                                  ! 
     )) must print_as(
       "class C { self: T1 with T2 => ",
       "  val x = self",
+      "}"
+    )
+
+  def constructor1 =
+    (CLASSDEF("C")
+      withParams(PARAM("s", StringClass)) := BLOCK(
+      DEFTHIS withParams(PARAM("x", IntClass)) := BLOCK(
+        THIS APPLY(REF("x") TOSTRING)
+      )
+    )) must print_as(
+      "class C(s: String) {",
+      "  def this(x: Int) = {",
+      "    this(x.toString)",
+      "  }",
       "}"
     )
 

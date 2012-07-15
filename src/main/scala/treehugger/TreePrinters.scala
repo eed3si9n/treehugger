@@ -15,12 +15,12 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
   final val showOuterTests = false
 
   /** Adds backticks if the name is a scala keyword. */
-  def quotedName(name: Name, decode: Boolean): String = {
-    val s = name.name
-    val term = name.toTermName
-    if (nme.keywords(term) && term != nme.USCOREkw) "`%s`" format s
-    else s
-  }
+  def quotedName(name: Name, decode: Boolean): String =
+    name.toTermName match {
+      case nme.THIS => "this"
+      case term if nme.keywords(term) && term != nme.USCOREkw => "`%s`" format name.name
+      case _ => name.name
+    }
   def quotedName(name: Name): String = quotedName(name, false)
 
   /** Turns a path into a String, introducing backquotes
@@ -297,7 +297,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           if (!mods.isDeferred && !rhs.isEmpty)
             print(" = ", rhs)
 
-        case DefDef(mods, name, tparams, vparamss, tp, b: Block) if tp.isEmpty =>
+        case DefDef(mods, name, tparams, vparamss, tp, b: Block) if tp.isEmpty && name != nme.THIS =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
