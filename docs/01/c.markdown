@@ -4,6 +4,7 @@ out:concepts.html
 
   [1]: typelevelexp.html
   [2]: stdtypecon.html
+  [definitions]: http://eed3si9n.com/treehugger/latest/api/#treehugger.Definitions%24definitions%24
 
 Symbols, Types, and Trees
 -------------------------
@@ -26,9 +27,11 @@ or:
 DEF("get")
 ```
 
-Both would yield the same source code at the end. There are several places where the use of symbols are recommended. First, use a built-in symbol if there is one available. Second, consider defining a symbol for repeated reference to a class or a method.
+Both would yield the same source code at the end. There are several places where the use of symbols are recommended.
 
-A new symbol may be defined off of an existing symbol as follows:
+First, use a built-in symbol if there is one available. Built-in symbols are defined under [treehugger.forest.definitions][definitions].
+
+Second, consider defining a symbol for repeated reference to a class or a method. A new symbol may be defined off of an existing symbol as follows:
 
 ```scala
 object sym {

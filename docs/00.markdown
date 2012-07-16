@@ -3,6 +3,10 @@ out: index.html
 toc: show
 ---
 
+  [gg]: https://groups.google.com/group/treehugger-scala
+  [github]: https://github.com/eed3si9n/treehugger
+  [scaladocs]: http://eed3si9n.com/treehugger/latest/api/
+
 treehugger.scala
 ================
 
@@ -19,3 +23,9 @@ resolvers ++= Seq(
   "sonatype" at "https://oss.sonatype.org/content/groups/public"
 )
 ```
+
+### Links
+
+- Ask questions on the [mailing list][gg].
+- Fork the code from [eed3si9n/treehugger][github].
+- Read [ScalaDocs][scaladocs].
