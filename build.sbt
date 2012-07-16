@@ -4,11 +4,11 @@ organization := "com.eed3si9n"
 
 name := "treehugger"
 
-version := "0.1.4-SNAPSHOT"
+version := "0.2.0"
 
 scalaVersion := "2.9.1"
 
-crossScalaVersions := Seq("2.9.2", "2.9.1", "2.8.1")
+crossScalaVersions := Seq("2.9.2", "2.9.1", "2.9.0-1", "2.8.1")
 
 homepage := Some(url("http://eed3si9n.com/treehugger"))
 
