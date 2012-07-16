@@ -1,6 +1,15 @@
 ## bug fixes and minor enhancements
 
 - Adds `DEFTHIS withParams(...) := tree`. [#17][17] reported by [@wheaties][@wheaties]
+- Adds `INFIX_CHAIN(sym|"op", tree, ...)`.
+
+`INFIX_CHAIN` allows chaining of infix operations:
+
+    INFIX_CHAIN(Any_==, LIT(1) :: LIT(2) :: LIT(3) :: Nil)
+
+This prints as:
+
+    1 == 2 == 3
 
   [17]: https://github.com/eed3si9n/treehugger/issues/17
   [@wheaties]: https://github.com/wheaties

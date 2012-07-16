@@ -46,8 +46,26 @@ Alternatively, `INFIX(sym|"op", arg, ...)` can be called with righ-hand side arg
 LIT(1) INFIX("+", LIT(2))    // 1 + 2
 ```
 
-Finally, for commonly used operations treehugger DSL defines some built-in operators, which will be covered later:
+For commonly used operations treehugger DSL defines some built-in operators, which will be covered [later](stdlib.html):
 
 ```scala
 LIT(1) INT_+ LIT(2)          // 1 + 2
+```
+
+### Infix chaining
+
+treehugger DSL provides a way to chain infix operations using `INFIX_CHAIN(sym|"op", tree, ...)`:
+
+```scala
+INFIX_CHAIN("+", LIT(1), LIT(2), LIT(3))
+
+INFIX_CHAIN(Any_==, LIT(1) :: LIT(2) :: LIT(3) :: Nil)
+```
+
+The above print as:
+
+```scala
+1 + 2 + 3
+
+1 == 2 == 3
 ```

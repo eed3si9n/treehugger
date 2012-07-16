@@ -60,8 +60,9 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
       """`tree POSTFIX(sym|"op")`."""                                         ! postfix1^
                                                                               p^
   "Infix operations are written as"                                           ^
-      """`tree INFIX(sym|"op") APPLY arg`, or"""                              ! infix1^
-      """`tree INFIX(sym|"op", arg, ...)`."""                                 ! infix2^
+      """`tree INFIX(sym|"op") APPLY arg`,"""                                 ! infix1^
+      """`tree INFIX(sym|"op", arg, ...)`,"""                                 ! infix2^
+      """`tree INFIX_CHAIN(sym|"op", tree, ...)`,"""                          ! infix3^
                                                                               p^
   "Assignments are written as"                                                ^
       """`tree := rhs`."""                                                    ! assignment1^
@@ -234,6 +235,10 @@ class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
   def infix1 = LIT(1) INFIX("+") APPLY LIT(2) must print_as("1 + 2")
 
   def infix2 = REF("x") INFIX("slice", LIT(1), LIT(2)) must print_as("x slice (1, 2)")
+
+  def infix3 =
+    (INFIX_CHAIN("+", LIT(1), LIT(2), LIT(3)) must print_as("1 + 2 + 3")) and
+    (INFIX_CHAIN(Any_==, LIT(1) :: LIT(2) :: LIT(3) :: Nil) must print_as("1 == 2 == 3"))
   
   def assignment1 = (REF("x") := LIT(0)) must print_as("x = 0")
 

@@ -229,6 +229,21 @@ trait TreehuggerDSLs { self: Forest =>
       def GETCLASS            = fn(target, Object_getClass)
     }
 
+    def INFIX_CHAIN(name: Name, tree: Tree, trees: Tree*): Tree = INFIX_CHAIN(name, tree :: trees.toList)
+    def INFIX_CHAIN(name: Name, trees: Iterable[Tree]): Tree =
+      trees.toList match {
+        case Nil => EmptyTree
+        case List(x) => x
+        case xs => xs reduceLeft { (x, y) => x INFIX(name) APPLY y }
+      }
+    def INFIX_CHAIN(sym: Symbol, tree: Tree, trees: Tree*): Tree = INFIX_CHAIN(sym, tree :: trees.toList)
+    def INFIX_CHAIN(sym: Symbol, trees: Iterable[Tree]): Tree =
+      trees.toList match {
+        case Nil => EmptyTree
+        case List(x) => x
+        case xs => xs reduceLeft { (x, y) => x INFIX(sym) APPLY y }
+      }    
+
     case class InfixStart(target: Tree, name: Name) {
       def APPLY(args: Tree*): Infix            = APPLY(args.toList)
       def APPLY(args: Iterable[Tree]): Infix   = Infix(target, name, args.toList)
