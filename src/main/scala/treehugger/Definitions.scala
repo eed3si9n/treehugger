@@ -305,7 +305,7 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     lazy val PrefixedAttributeClass = getClass("scala.xml.PrefixedAttribute")
     lazy val UnprefixedAttributeClass = getClass("scala.xml.UnprefixedAttribute")
     lazy val NullModule         = getModule("scala.xml.Null")
-    lazy val NamespaceBindingClass = getModule("scala.xml.NamespaceBinding")
+    lazy val NamespaceBindingClass = getClass("scala.xml.NamespaceBinding")
     lazy val TopScopeModule     = getModule("scala.xml.TopScope")
     
     // collections classes
