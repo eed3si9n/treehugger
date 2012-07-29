@@ -198,6 +198,29 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       print(" ")
     }
 
+    def printComment(mods: Modifiers, comments: List[String]) {
+      val lines = comments flatMap {_.lines}
+      val count = lines.size
+      if (mods.flags == 0L)
+        lines foreach { line =>
+          print("// ", line)
+          println()
+        } 
+      else if (count == 1) {
+        print("/** ", lines.head, " */")
+        println()
+      } else {
+        print("/**")
+        println()        
+        lines foreach { line =>
+          print(" * ", line)
+          println()
+        }
+        print(" */")
+        println()
+      }
+    }
+
     private var currentOwner: Symbol = NoSymbol
     private var selectorType: Type = NoType
     
@@ -415,13 +438,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Block(stats, expr) =>
           printColumn(stats ::: List(expr), "{", "", "}")
 
-        case Commented(comments, expr) =>
-          for {
-            comment <- comments
-            line <- comment.lines
-          } {
-            print("// ", line); println()
-          }
+        case Commented(mods, comments, expr) =>
+          printComment(mods, comments)
           print(expr)
 
         case Match(selector, cases) =>

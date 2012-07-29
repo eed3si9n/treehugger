@@ -5,6 +5,8 @@ out: comments.html
 Comments
 --------
 
+### Single line comments
+
 Single line comments are added to an arbitrary tree as follows:
 
 ```scala
@@ -24,4 +26,33 @@ print as
 // comments are useful
 // only if they provide more info than the code
 2
+```
+
+### Scaladoc style comments
+
+Scaladoc style comments are written using `withDoc` as follows:
+
+```scala
+tree withDoc("comments" | doctag, ...)
+```
+
+where `doctag` is a doctag defined as `DocTag.See(IntClass)`, `DocTag.Author("Somebody")`, etc.
+
+For example,
+
+```scala
+(DEF("x") := LIT(0)) withDoc(
+  "does something",
+  DocTag.See(IntClass)
+)
+```
+
+print as
+
+```scala
+/** 
+ * does something
+ * @see scala.Int
+ */
+def x = 0
 ```

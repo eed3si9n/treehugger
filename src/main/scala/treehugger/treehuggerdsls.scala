@@ -161,7 +161,10 @@ trait TreehuggerDSLs { self: Forest =>
       
       def withComment(comments: String*): Commented = withComments(comments.toList)
       def withComments(comments: String*): Commented = withComments(comments.toList)
-      def withComments(comments: Iterable[String]): Commented = Commented(comments.toList, target)
+      def withComments(comments: Iterable[String]): Commented = Commented(NoMods, comments.toList, target)
+      def withDoc(elems: DocElement*): Commented = mkScalaDoc(target, elems.toList)
+      def withDoc(comments: Iterable[String], elems: DocElement*): Commented =
+        mkScalaDoc(target, comments.toList.map( s => s: DocElement) ++ elems.toList)
 
       def withType(tp: Type): Typed = Typed(target, TypeTree(tp))
 
@@ -939,5 +942,6 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator = ifs.enumerator
     implicit def mkEnumeratorFromValDef(tree: ValDef): Enumerator =
       ForValDef(tree.name, tree.tpt, tree.rhs)
+    implicit def mkDocElementFromString(str: String): DocElement = DocText(str)
   }
 }

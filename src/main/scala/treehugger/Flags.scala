@@ -166,6 +166,8 @@ class Flags extends ModifierFlags {
   final val TRIEDCOOKING  = 0x100000000000L // ``Cooking'' has been tried on this symbol
                                             // A Java method's type is ``cooked'' by transforming raw types to existentials
 
+  final val SCALADOC_COMMENT = 0x01L
+  
   // ------- shift definitions -------------------------------------------------------
 
   final val InitialFlags  = 0x0001FFFFFFFFFFFFL // flags that are enabled from phase 1.

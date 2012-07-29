@@ -12,6 +12,7 @@ class Forest extends api.Universe
                            with AnnotationInfos
                            with TreePrinters
                            with TreeGen
+                           with DocGen
                            with TreehuggerDSLs
 {
   type Position = String
