@@ -20,7 +20,7 @@ LIT(2) withComment("comments are useful",
   "only if they provide more info than the code")
 ```
 
-print as
+prints as
 
 ```scala
 // comments are useful
@@ -47,7 +47,7 @@ For example,
 )
 ```
 
-print as
+prints as
 
 ```scala
 /** 

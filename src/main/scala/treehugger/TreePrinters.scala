@@ -199,7 +199,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     }
 
     def printComment(mods: Modifiers, comments: List[String]) {
-      val lines = comments flatMap {_.lines}
+      val lines = comments flatMap {_.lines.toList}
       val count = lines.size
       if (mods.flags == 0L)
         lines foreach { line =>

@@ -1,0 +1,16 @@
+## Scaladoc style comments
+
+Adds `withDoc("comment", doctag)` to support Scaladoc style comments. For example,
+
+    (DEF("x") := LIT(0)) withDoc(
+      "does something",
+      DocTag.See(IntClass)
+    )
+
+This prints as
+
+    /** 
+     * does something
+     * @see scala.Int
+     */
+    def x = 0
