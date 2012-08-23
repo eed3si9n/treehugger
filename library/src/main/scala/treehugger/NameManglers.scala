@@ -44,7 +44,7 @@ trait NameManglers { self: Forest =>
       val suffix = s takeRight edge
 
       val cs = s.toArray
-      val bytes = Codec.UTF8.encode(s).array
+      val bytes = Codec.toUTF8(s).array
       md5 update bytes
       val md5chars = md5.digest() map (b => (b & 0xFF).toHexString) mkString
 
