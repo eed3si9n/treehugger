@@ -86,6 +86,7 @@ trait Trees { self: Universe =>
 
     def tpe = rawtpe
     def tpe_=(t: Type) = rawtpe = t
+    def hasType = false
 
     /** Set tpe to give `tp` and return this.
      */
@@ -224,6 +225,11 @@ trait Trees { self: Universe =>
       this
     }
 
+    def transform[A](trans: AbstractTransformer[A]): A =
+      trans.transform(this)
+
+    def desugar: Tree = new DesugarTransformer().transform(this)
+
     // override def toString: String = show(this)
     override def hashCode(): Int = System.identityHashCode(this)
     override def equals(that: Any) = this eq that.asInstanceOf[AnyRef]
@@ -241,7 +247,9 @@ trait Trees { self: Universe =>
   /** A tree for a type.  Not all types are TypTrees; use isType
    *  to reliably identify types.
    */
-  trait TypTree extends Tree
+  trait TypTree extends Tree {
+    override def hasType = (tpe != NoType) && (tpe != null)
+  }
 
   /** A tree with a mutable symbol field, initialized to NoSymbol.
    */
@@ -905,6 +913,7 @@ trait Trees { self: Universe =>
     def Typed(tree: Tree, expr: Tree, tpt: Tree): Typed
     def TypeApply(tree: Tree, fun: Tree, args: List[Tree]): TypeApply
     def Apply(tree: Tree, fun: Tree, args: List[Tree]): Apply
+    def Infix(tree: Tree, qualifier: Tree, name: Name, args: List[Tree]): Infix
     def ApplyDynamic(tree: Tree, qual: Tree, args: List[Tree]): ApplyDynamic
     def Super(tree: Tree, qual: Tree, mix: TypeName): Super
     def This(tree: Tree, qual: Name): This
@@ -986,6 +995,8 @@ trait Trees { self: Universe =>
         case _: ApplyImplicitView => new ApplyImplicitView(fun, args)
         case _ => new Apply(fun, args)
       }).copyAttrs(tree)
+    def Infix(tree: Tree, qualifier: Tree, name: Name, args: List[Tree]): Infix =
+      new Infix(tree, name, args).copyAttrs(tree)
     def ApplyDynamic(tree: Tree, qual: Tree, args: List[Tree]) =
       new ApplyDynamic(qual, args).copyAttrs(tree)
     def Super(tree: Tree, qual: Tree, mix: TypeName) =
@@ -1046,7 +1057,7 @@ trait Trees { self: Universe =>
     }
     def AnonFunc(tree: Tree, vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) = tree match {
       case t @ AnonFunc(vparamss0, tpt0, rhs0)
-      if (vparamss0 == vparamss0) && (tpt0 == tpt) && (rhs0 == rhs) => t
+      if (vparamss0 == vparamss) && (tpt0 == tpt) && (rhs0 == rhs) => t
       case _ => treeCopy.AnonFunc(tree, vparamss, tpt, rhs)  
     }
     def TypeDef(tree: Tree, mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree) = tree match {
@@ -1169,6 +1180,11 @@ trait Trees { self: Universe =>
       if (fun0 == fun) && (args0 == args) => t
       case _ => treeCopy.Apply(tree, fun, args)
     }
+    def Infix(tree: Tree, qualifier: Tree, name: Name, args: List[Tree]): Infix = tree match {
+      case t @ Infix(qualifier0, name0, args0)
+      if (qualifier0 == qualifier) && (name0 == name) && (args0 == args) => t
+      case _ => treeCopy.Infix(tree, qualifier, name, args)
+    }
     def ApplyDynamic(tree: Tree, qual: Tree, args: List[Tree]) = tree match {
       case t @ ApplyDynamic(qual0, args0)
       if (qual0 == qual) && (args0 == args) => t
@@ -1238,6 +1254,136 @@ trait Trees { self: Universe =>
       if (tpt0 == tpt) && (whereClauses0 == whereClauses) => t
       case _ => treeCopy.ExistentialTypeTree(tree, tpt, whereClauses)
     }
+  }
+
+  trait AbstractTransformer[ATree] { self =>
+    type ATypeName
+    type ATermName
+    type AConstant
+    type AModifiers
+    def transformEmptyTree(o: Tree): ATree
+    // def ClassDef(mods: Modifiers, ctormods: Modifiers, name: Name, tparams: List[TypeDef], vparams: List[ValDef], impl: Template): ClassDef
+    // def PackageDef(mods: Modifiers, pid: RefTree, stats: List[Tree]): PackageDef
+    // def ModuleDef(mods: Modifiers, name: Name, impl: Template): ModuleDef
+    def transformValDef(o: Tree, mods: AModifiers, lhs: ATree, rhs: ATree): ATree
+    // def DefDef(mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree): DefDef
+    // def AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) 
+    // def TypeDef(mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree): TypeDef
+    // def LabelDef(name: Name, param: Tree, rhs: Tree): LabelDef
+    // def Import(expr: Tree, selectors: List[ImportSelector]): Import
+    // def Template(parents: List[Tree], self: ValDef, body: List[Tree]): Template
+    def transformBlock(o: Tree, stats: List[ATree], expr: ATree): ATree
+    // def Commented(mods: Modifiers, comment: List[String], expr: Tree): Commented
+    // def CaseDef(pat: Tree, guard: Tree, body: Tree): CaseDef
+    // def Alternative(trees: List[Tree]): Alternative
+    // def Star(elem: Tree): Star
+    // def Bind(name: Name, body: Tree): Bind
+    // def UnApply(fun: Tree, args: List[Tree]): UnApply
+    // def InfixUnApply(qualifier: Tree, name: Name, args: List[Tree]): InfixUnApply
+    // def ArrayValue(elemtpt: Tree, trees: List[Tree]): ArrayValue
+    // def Function(vparams: List[ValDef], body: Tree): Function
+    // def Assign(lhs: Tree, rhs: Tree): Assign
+    // def If(cond: Tree, thenp: Tree, elsep: Tree): If
+    // def Match(selector: Tree, cases: List[CaseDef]): Match
+    // def Return(expr: Tree): Return
+    // def Try(block: Tree, catches: List[CaseDef], finalizer: Tree): Try
+    // def Throw(expr: Tree): Throw
+    // def New(tpt: Tree): New
+    def transformTyped(o: Tree, expr: ATree, tpt: ATree): ATree
+    // def TypeApply(fun: Tree, args: List[Tree]): TypeApply
+    def transformApply(o: Tree, fun: ATree, args: List[ATree]): ATree
+    def transformInfix(o: Tree, qualifier: ATree, name: ATermName, args: List[ATree]): ATree
+    // def ApplyDynamic(qual: Tree, args: List[Tree]): ApplyDynamic
+    def transformSuper(o: Tree, qual: ATree, mix: ATypeName): ATree
+    def transformThis(o: Tree, qual: ATypeName): ATree
+    def transformSelect(o: Tree, qualifier: ATree, selector: ATermName): ATree
+    def transformIdent(o: Tree, name: ATermName): ATree
+    def transformLiteral(o: Tree, value: AConstant): ATree
+    def transformTypeTree(o: Tree): ATree
+    // def Annotated(annot: Tree, arg: Tree): Annotated
+    // def SingletonTypeTree(ref: Tree): SingletonTypeTree
+    // def SelectFromTypeTree(qualifier: Tree, selector: Name): SelectFromTypeTree
+    // def CompoundTypeTree(templ: Template): CompoundTypeTree
+    // def AppliedTypeTree(tpt: Tree, args: List[Tree]): AppliedTypeTree
+    // def TypeBoundsTree(lo: Tree, hi: Tree): TypeBoundsTree
+    // def ExistentialTypeTree(tpt: Tree, whereClauses: List[Tree]): ExistentialTypeTree
+  
+    def transform(tree: Tree): ATree = tree match {
+      case EmptyTree => self.transformEmptyTree(tree)
+      case ValDef(mods, lhs, rhs) =>
+        self.transformValDef(tree, transformMods(mods), transform(lhs), transform(rhs))
+      case Block(stats, expr) =>
+        self.transformBlock(tree, transformTrees(stats), transform(expr))
+      case Typed(expr, tpt) =>
+        self.transformTyped(tree, transform(expr), transform(tpt))
+      case Apply(fun, args) =>
+        self.transformApply(tree, transform(fun), transformTrees(args))
+      case Infix(qualifier, name, args) =>
+        self.transformInfix(tree, transform(qualifier), transformTermName(name), transformTrees(args))
+      case This(qual) =>
+        self.transformThis(tree, transformTypeName(qual))
+      case Super(qual, mix) =>
+        self.transformSuper(tree, transform(qual), transformTypeName(mix))
+      case Select(qualifier, selector) =>
+        self.transformSelect(tree, transform(qualifier), transformTermName(selector))
+      case Ident(name) =>
+        self.transformIdent(tree, transformTermName(name))
+      case Literal(value) =>
+        self.transformLiteral(tree, transformConstant(value))
+      case TypeTree() =>
+        self.transformTypeTree(tree)
+    }
+
+    def transformTrees(trees: List[Tree]): List[ATree] =
+      trees map {transform}
+    def transformTypeName(name: TypeName): ATypeName
+    def transformTermName(name: TermName): ATermName
+    def transformConstant(value: Constant): AConstant
+    def transformMods(mods: Modifiers): AModifiers
+  }
+
+  trait TreeTransformer extends AbstractTransformer[Tree] { self =>
+    type ATree = Tree
+    type ATypeName = TypeName
+    type ATermName = TermName
+    type AConstant = Constant
+    type AModifiers = Modifiers
+
+    val treeCopy: TreeCopier = newLazyTreeCopier
+    protected var currentOwner: Symbol = definitions.RootClass
+
+    def transformEmptyTree(o: Tree): ATree = o
+    def transformValDef(o: Tree, mods: AModifiers, lhs: ATree, rhs: ATree): ATree =
+      treeCopy.ValDef(o, mods, lhs, rhs)
+    def transformBlock(o: Tree, stats: List[ATree], expr: ATree): ATree =
+      treeCopy.Block(o, stats, expr)
+    def transformTyped(o: Tree, expr: ATree, tpt: ATree): ATree =
+      treeCopy.Typed(o, expr, tpt)
+    def transformApply(o: Tree, fun: ATree, args: List[ATree]): ATree =
+      treeCopy.Apply(o, fun, args)
+    def transformInfix(o: Tree, qualifier: ATree, name: ATermName, args: List[ATree]): ATree =
+      treeCopy.Infix(o, qualifier, name, args)
+    def transformSuper(o: Tree, qual: ATree, mix: ATypeName): ATree =
+      treeCopy.Super(o, qual, mix)
+    def transformThis(o: Tree, qual: ATypeName) =
+      treeCopy.This(o, qual)
+    def transformSelect(o: Tree, qualifier: ATree, selector: ATermName): ATree =
+      treeCopy.Select(o, qualifier, selector)
+    def transformIdent(o: Tree, name: ATermName): ATree =
+      treeCopy.Ident(o, name)
+    def transformLiteral(o: Tree, value: AConstant): ATree =
+      treeCopy.Literal(o, value)
+    def transformTypeTree(o: Tree): ATree = o
+
+    def transformTypeName(name: TypeName): TypeName = name
+    def transformTermName(name: TermName): TermName = name
+    def transformConstant(value: Constant): Constant = value
+    def transformMods(mods: Modifiers): AModifiers = mods
+  }
+
+  class DesugarTransformer extends TreeTransformer {
+    override def transformInfix(o: Tree, qualifier: ATree, name: ATermName, args: List[ATree]): ATree =
+      Apply(Select(qualifier, name), args)
   }
 
 /*

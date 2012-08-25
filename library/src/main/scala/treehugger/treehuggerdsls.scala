@@ -885,7 +885,7 @@ trait TreehuggerDSLs { self: Forest =>
       }
     def TYPE_SINGLETON(tree: Tree) = singleType(TYPE_REF(tree), NoSymbol)
 
-    implicit def stringToTermName(s: String): TermName = newTermName(s)
+    // implicit def stringToTermName(s: String): TermName = newTermName(s)
 
 
     /** Implicits - some of these should probably disappear **/
