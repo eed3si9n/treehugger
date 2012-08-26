@@ -9,5 +9,13 @@ case class MacroBridge(context: Context) {
     protected def doTransformMods(mods: Modifiers): u.Modifiers =
       u.Modifiers()    
   }
-  def toMacroTree = bridge.transformer
+  def toMacroTree(tree: Tree): context.universe.Tree =
+    bridge.transformer.transform(tree)
+  
+  val reverseBridge = new ReverseTransformer[context.universe.type] {
+    override type ATree = context.universe.Tree
+    def universe = context.universe
+  }
+  def fromMacroTree(tree: context.universe.Tree): Tree =
+    reverseBridge.transform(tree)
 }
