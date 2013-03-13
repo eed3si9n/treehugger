@@ -1266,7 +1266,8 @@ trait Trees { self: Universe =>
     // def PackageDef(mods: Modifiers, pid: RefTree, stats: List[Tree]): PackageDef
     // def ModuleDef(mods: Modifiers, name: Name, impl: Template): ModuleDef
     def transformValDef(o: Tree, mods: AModifiers, lhs: ATree, rhs: ATree): ATree
-    // def DefDef(mods: Modifiers, name: Name, tparams: List[TypeDef], vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree): DefDef
+    def transformDefDef(o: Tree, mods: AModifiers, name: ATermName, tparams: List[ATree],
+      vparamss: List[List[ATree]], tpt: ATree, rhs: ATree): ATree
     // def AnonFunc(vparamss: List[List[ValDef]], tpt: Tree, rhs: Tree) 
     // def TypeDef(mods: Modifiers, name: Name, tparams: List[TypeDef], rhs: Tree): TypeDef
     // def LabelDef(name: Name, param: Tree, rhs: Tree): LabelDef
@@ -1312,6 +1313,9 @@ trait Trees { self: Universe =>
       case EmptyTree => self.transformEmptyTree(tree)
       case ValDef(mods, lhs, rhs) =>
         self.transformValDef(tree, transformMods(mods), transform(lhs), transform(rhs))
+      case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
+        self.transformDefDef(tree, transformMods(mods), transformTermName(name), transformTrees(tparams),
+          transformTreess(vparamss), transform(tpt), transform(rhs))
       case Block(stats, expr) =>
         self.transformBlock(tree, transformTrees(stats), transform(expr))
       case Typed(expr, tpt) =>
@@ -1336,6 +1340,8 @@ trait Trees { self: Universe =>
 
     def transformTrees(trees: List[Tree]): List[ATree] =
       trees map {transform}
+    def transformTreess(treess: List[List[Tree]]): List[List[ATree]] =
+      treess map {transformTrees}
     def transformTypeName(name: TypeName): ATypeName
     def transformTermName(name: TermName): ATermName
     def transformConstant(value: Constant): AConstant
@@ -1355,6 +1361,13 @@ trait Trees { self: Universe =>
     def transformEmptyTree(o: Tree): ATree = o
     def transformValDef(o: Tree, mods: AModifiers, lhs: ATree, rhs: ATree): ATree =
       treeCopy.ValDef(o, mods, lhs, rhs)
+    def transformDefDef(o: Tree, mods: AModifiers, name: ATermName, tparams: List[ATree],
+        vparamss: List[List[ATree]], tpt: ATree, rhs: ATree): ATree =
+      treeCopy.DefDef(o, mods, name, tparams map {
+        case tparam: TypeDef => tparam
+      }, vparamss map { _ map {
+        case vparam: ValDef => vparam
+      }}, tpt, rhs)
     def transformBlock(o: Tree, stats: List[ATree], expr: ATree): ATree =
       treeCopy.Block(o, stats, expr)
     def transformTyped(o: Tree, expr: ATree, tpt: ATree): ATree =

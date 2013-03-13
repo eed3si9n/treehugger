@@ -24,6 +24,13 @@ trait Bridge[U <: scala.reflect.api.Universe] {
       lhs match {
         case u.Typed(u.Ident(name), tpt) => u.ValDef(mods, name.toTermName, tpt, rhs)
       }
+    def transformDefDef(o: Tree, mods: AModifiers, name: ATermName, tparams: List[ATree],
+        vparamss: List[List[ATree]], tpt: ATree, rhs: ATree): ATree =
+      u.DefDef(mods, name, tparams  map {
+        case tparam: u.TypeDef => tparam
+      }, vparamss map { _ map {
+        case vparam: u.ValDef => vparam
+      }}, tpt, rhs)
     def transformTyped(o: Tree, expr: ATree, tpt: ATree): ATree =
       u.Typed(expr, tpt)
     def transformApply(o: Tree, fun: ATree, args: List[ATree]): ATree =

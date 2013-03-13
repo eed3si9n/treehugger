@@ -13,32 +13,36 @@ class BridgeSpec extends Specification { def is = sequential                  ^
     """handle SUPER"""                                                        ! transform7^
     """handle BLOCK()"""                                                      ! transform8^
     """handle VAL("x")"""                                                     ! transform9^
+    """handle DEF("get", IntClass) := LIT(0)"""                               ! transform10^
                                                                               end
   
   import treehugger.forest._
   import definitions._
   import treehuggerDSL._
 
-  val rbt = treehugger.RuntimeBridge.toRuntimeTree
+  val bridge = treehugger.RuntimeBridge 
 
   def transform1 =
-    (ID("x") transform rbt).toString must_== "x"
+    (bridge toRuntimeTree ID("x")).toString must_== "x"
   def transform2 =
-    (LIT(1) transform rbt).toString must_== "1"
+    (bridge toRuntimeTree LIT(1)).toString must_== "1"
   def transform3 =
-    ((ID("foo") APPLY(LIT(1))) transform rbt).toString must_== "foo(1)"
+    (bridge toRuntimeTree (ID("foo") APPLY(LIT(1)))).toString must_== "foo(1)"
   def transform4 =
-    ((LIT(1) INFIX("+") APPLY(LIT(1))) transform rbt).toString must_== "1.+(1)"
+    (bridge toRuntimeTree (LIT(1) INFIX("+") APPLY(LIT(1)))).toString must_== "1.+(1)"
   def transform5 =
-    (REF("x") transform rbt).toString must_== "x"
+    (bridge toRuntimeTree REF("x")).toString must_== "x"
   def transform6 =
-    (THIS transform rbt).toString must_== "this"
+    (bridge toRuntimeTree THIS).toString must_== "this"
   def transform7 =
-    (SUPER("foo") transform rbt).toString must_== "foo.super"
+    (bridge toRuntimeTree SUPER("foo")).toString must_== "foo.super"
   def transform8 =
-    (BLOCK(REF("x")) transform rbt).toString must_== """{
+    (bridge toRuntimeTree BLOCK(REF("x"))).toString must_== """{
   x
 }"""
   def transform9 =
-    (VAL("x", IntClass) transform rbt).toString must_== "val x: Int = _"
+    (bridge toRuntimeTree VAL("x", IntClass)).toString must_== "val x: Int = _"
+  def transform10 =
+    (bridge toRuntimeTree (DEF("get", IntClass) := LIT(0))).toString must_== "def get(): Int = 0"
+   
 }
