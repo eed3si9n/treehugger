@@ -8,7 +8,7 @@ object Builds extends Build {
     organization := "com.eed3si9n",
     version := "0.2.1",
     scalaVersion := "2.9.1",
-    crossScalaVersions := Seq("2.9.2", "2.9.1", "2.9.0-1", "2.8.1", "2.10.0-M7"),
+    crossScalaVersions := Seq("2.9.2", "2.9.1", "2.9.0-1", "2.8.1", "2.10.0"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
     licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
     description := "a library to code Scala programmatically.",
@@ -68,10 +68,11 @@ object Builds extends Build {
       libraryDependencies <++= (scalaVersion) { (sv) => sv match {
         case "2.8.1"   => Seq("org.specs2" %% "specs2" % "1.5" % "test",
                               "org.specs2" %% "specs2-scalaz-core" % "5.1-SNAPSHOT" % "test")
-        case "2.9.0-1" => Seq("org.specs2" %% "specs2" % "1.6.1" % "test",
-                              "org.specs2" %% "specs2-scalaz-core" % "6.0.RC2" % "test")
-        case "2.10.0-M7" => Seq("org.specs2" % "specs2_2.10.0-M7" % "1.12.1" % "test")
-        case _ =>         Seq("org.specs2" %% "specs2" % "1.12.1" % "test")
+        case "2.9.0-1" | "2.9.1" | "2.9.2" =>
+          Seq("org.specs2" % "specs2_2.9.1" % "1.6.1" % "test",
+              "org.specs2" % "specs2-scalaz-core_2.9.1" % "6.0.RC2" % "test")
+        case "2.10.0" => Seq("org.specs2" % "specs2_2.10" % "1.14" % "test")
+        case _ =>         Seq("org.specs2" %% "specs2" % "1.14" % "test")
       }}
     ))
   lazy val swing = Project("treehugger_bridge", file("bridge"),
