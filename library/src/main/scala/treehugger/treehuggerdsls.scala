@@ -17,7 +17,7 @@ import Flags._
 trait TreehuggerDSLs { self: Forest =>
   
   import definitions._
-  import self.{ scalaDot }
+  import self.{ scalaDot, stringToTermName }
   
   object treehuggerDSL {
     // Add a null check to a Tree => Tree function
@@ -885,7 +885,7 @@ trait TreehuggerDSLs { self: Forest =>
       }
     def TYPE_SINGLETON(tree: Tree) = singleType(TYPE_REF(tree), NoSymbol)
 
-    implicit def stringToTermName(s: String): TermName = newTermName(s)
+    // implicit def mkTermName(s: String): TermName = newTermName(s)
 
 
     /** Implicits - some of these should probably disappear **/
