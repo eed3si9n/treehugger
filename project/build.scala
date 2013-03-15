@@ -6,9 +6,9 @@ object Builds extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "com.eed3si9n",
-    version := "0.2.1",
-    scalaVersion := "2.9.1",
-    crossScalaVersions := Seq("2.9.2", "2.9.1", "2.9.0-1", "2.8.1", "2.10.0"),
+    version := "0.2.3-SNAPSHOT",
+    scalaVersion := "2.10.1",
+    crossScalaVersions := Seq("2.10.1", "2.9.2", "2.9.1", "2.9.0-1"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
     licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
     description := "a library to code Scala programmatically.",
