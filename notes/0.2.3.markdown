@@ -1,0 +1,6 @@
+## Scala 2.10 support
+
+Scala 2.10.0 fixed implicit resolution, and it exposed sloppy ambiguous implicits in the earlier versions of treehugger.scala [#19][19] reported by [@rintcius][@rintcius]. 0.2.3 fixes this by getting rid of a duplicated implicit view. Also I'm dropping Scala 2.8 support.
+
+  [19]: https://github.com/eed3si9n/treehugger/issues/19
+  [@rintcius]: https://github.com/rintcius

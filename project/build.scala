@@ -2,11 +2,11 @@ import sbt._
 
 object Builds extends Build {
   import Keys._
-  // ls.Plugin.LsKeys._
+  import ls.Plugin.{LsKeys => lskeys, _}
 
-  lazy val buildSettings = Defaults.defaultSettings ++ Seq(
+  lazy val buildSettings = Defaults.defaultSettings ++ lsSettings ++ Seq(
     organization := "com.eed3si9n",
-    version := "0.2.3-SNAPSHOT",
+    version := "0.2.3",
     scalaVersion := "2.10.1",
     crossScalaVersions := Seq("2.10.1", "2.9.2", "2.9.1", "2.9.0-1"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
@@ -15,6 +15,9 @@ object Builds extends Build {
     initialCommands in console := """import treehugger.forest._
                                     |import definitions._
                                     |import treehuggerDSL._""".stripMargin,
+    
+    lskeys.tags in lskeys.lsync := Seq("code-generation"),
+
     // scaladoc fix
     unmanagedClasspath in Compile += Attributed.blank(new java.io.File("doesnotexist")),
 
