@@ -3,4 +3,4 @@
 pf docs www
 rm -r www/latest/
 mkdir www/latest/
-cp -r target/scala-2.9.1/api www/latest/
+cp -r library/target/scala-2.10/api www/latest/
