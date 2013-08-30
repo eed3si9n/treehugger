@@ -1,0 +1,35 @@
+/* github style */
+
+  pre {
+    font-size: 75%;
+    font-family: Consolas, 'Liberation Mono', Courier, monospace;
+    border: solid 1px #CCCCCC;
+    padding: 0.5em;
+  }
+
+  code {
+    font-family: Consolas, 'Liberation Mono', Courier, monospace;
+  }
+
+  .kwd {
+    color: #000000;
+    font-weight: bold;
+  }
+  .typ {
+    color: #445588;
+    font-weight: bold;
+  }
+  .pun {
+    color: #000000;
+    font-weight: bold; 
+  }
+  .str {
+    color: #dd1144;
+  }
+  .lit {
+    color: #009999;
+  }
+  .com {
+    color: #999988;
+    font-style: italic;
+  }
