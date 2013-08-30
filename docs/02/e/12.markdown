@@ -15,9 +15,10 @@ RETURN(LIT(0))               // return 0
 
 ### Throwing exceptions
 
-Exceptions are thrown using `THROW(sym|c, [tree|"message"])`:
+Exceptions are thrown using `THROW(tree)` or `THROW(sym|c, [tree|"message"])`:
 
 ```scala
+THROW(REF("x"))
 THROW(IllegalArgumentExceptionClass)
 THROW(IllegalArgumentExceptionClass, "oh no")
 THROW(IllegalArgumentExceptionClass, REF("x"))
@@ -26,6 +27,7 @@ THROW(IllegalArgumentExceptionClass, REF("x"))
 These examples print as:
 
 ```scala
+throw x
 throw new IllegalArgumentException()
 throw new IllegalArgumentException("oh no")
 throw new IllegalArgumentException(x.toString)

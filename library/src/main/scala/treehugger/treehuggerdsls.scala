@@ -653,6 +653,7 @@ trait TreehuggerDSLs { self: Forest =>
     def THROW(typ: Type): Throw = Throw(New(TypeTree(typ), List(Nil)))
     def THROW(typ: Type, msg: String): Throw = Throw(New(TypeTree(typ), List(List(LIT(msg)))))
     def THROW(typ: Type, msg: Tree): Throw = Throw(New(TypeTree(typ), List(List(msg.TOSTRING))))
+    def THROW(tree: Tree): Throw = Throw(tree)
 
     def NEW(tp: Type, args: Tree*): Tree = NEW(TypeTree(tp), args: _*)
     def NEW(tpt: Tree, args: Tree*): Tree   =
