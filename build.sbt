@@ -3,9 +3,9 @@ import Dependencies._
 
 val commonSettings = Seq(
     organization := "com.eed3si9n",
-    version := "0.3.0-SNAPSHOT",
+    version := "0.3.0",
     scalaVersion := "2.10.2",
-    crossScalaVersions := Seq("2.10.2", "2.9.2", "2.9.1", "2.9.0-1"),
+    crossScalaVersions := Seq("2.10.2", "2.9.2", "2.9.1"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
     licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
     description := "a library to code Scala programmatically.",

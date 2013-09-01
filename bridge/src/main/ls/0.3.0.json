@@ -1,0 +1,17 @@
+{
+  "organization" : "com.eed3si9n",
+  "name" : "bridge",
+  "version" : "0.3.0",
+  "description" : "a library to code Scala programmatically.",
+  "site" : "http://eed3si9n.com/treehugger",
+  "tags" : [ ],
+  "docs" : "",
+  "resolvers" : [ "https://oss.sonatype.org/content/repositories/releases" ],
+  "dependencies" : [ ],
+  "scalas" : [ "2.10.2", "2.9.2", "2.9.1" ],
+  "licenses" : [ {
+    "name" : "MIT License",
+    "url" : "http://www.opensource.org/licenses/mit-license.php"
+  } ],
+  "sbt" : false
+}

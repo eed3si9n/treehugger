@@ -3,7 +3,7 @@
 
 ### String Interpolation
 
-treehugger.scala 0.3.0 adds `INTERP(sym|"x", arg, ...)` to support String interpolation. [#20][20] For example,
+treehugger 0.3.0 adds `INTERP(sym|"x", arg, ...)` to support String interpolation. [#20][20] For example,
 
     INTERP(StringContext_s, LIT("Jello"), LIT(1), REF("x"))
 
@@ -17,4 +17,4 @@ These print as:
 
 ### THROW(REF("x"))
 
-Added an override to throw a tree. [#21][21]
+A new override was added to throw a tree. [#21][21]

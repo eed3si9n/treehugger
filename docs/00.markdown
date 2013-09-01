@@ -15,13 +15,9 @@ _treehugger.scala_ is a library to write Scala source code programmatically. It'
 ### Setup
 
 ```scala
-libraryDependencies ++= Seq(
-  "com.eed3si9n" %% "treehugger" % "$version$"
-)
+libraryDependencies += "com.eed3si9n" %% "treehugger" % "$version$"
 
-resolvers ++= Seq(
-  "sonatype" at "https://oss.sonatype.org/content/groups/public"
-)
+resolvers += Resolver.sonatypeRepo("public")
 ```
 
 ### Links
