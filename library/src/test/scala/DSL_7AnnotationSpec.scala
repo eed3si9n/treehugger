@@ -1,16 +1,15 @@
 import org.specs2._
 
-class DSL_7AnnotationSpec extends DSLSpec { def is = sequential               ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Declaration annotations are written as"                                    ^
-      """`CLASSDEF("C") withAnnots(ANNOT(typ|"C", arg, ...), ...)`, or"""     ! declannot1^
-      """`TYPEVAR(typ|"T") withAnnots(ANNOT(typ|"C", arg, ...), ...)`."""     ! declannot2^
-                                                                              p^
-  "Expression annotations are written as"                                     ^
-      """`tree withAnnots(ANNOT(typ), ...)`."""                               ! exp1^
-                                                                              p^
-                                                                              end
+class DSL_7AnnotationSpec extends DSLSpec { def is =                          s2"""
+  This is a specification to check Treehugger DSL
+
+  Declaration annotations are written as
+    `CLASSDEF("C") withAnnots(ANNOT(typ|"C", arg, ...), ...)`, or             $declannot1
+    `TYPEVAR(typ|"T") withAnnots(ANNOT(typ|"C", arg, ...), ...)`.             $declannot2
+
+  Expression annotations are written as
+    `tree withAnnots(ANNOT(typ), ...)`.                                       $exp1
+                                                                              """
   
   import treehugger.forest._
   import definitions._

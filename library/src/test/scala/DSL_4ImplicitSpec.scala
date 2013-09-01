@@ -1,15 +1,14 @@
 import org.specs2._
 
-class DSL_4ImplicitSpec extends DSLSpec { def is = sequential                 ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Implicit members are written as"                                           ^
-      """`VAL(sym|"x", typ|"Int")` withFlags(Flags.IMPLICIT)"""               ! implicit1^
-                                                                              p^
-  "Implicit parameters are written as"                                        ^
-      """`withParams(VAL(sym|"x", typ|"Int") withFlags(Flags.IMPLICIT))`"""   ! implicit2^                                                                            
-                                                                              p^
-                                                                              end
+class DSL_4ImplicitSpec extends DSLSpec { def is =                            s2"""              
+  This is a specification to check Treehugger DSL
+
+  Implicit members are written as
+      `VAL(sym|"x", typ|"Int")` withFlags(Flags.IMPLICIT)                     $implicit1
+
+  Implicit parameters are written as
+      `withParams(VAL(sym|"x", typ|"Int") withFlags(Flags.IMPLICIT))`         $implicit2
+                                                                              """
   
   import treehugger.forest._
   import definitions._

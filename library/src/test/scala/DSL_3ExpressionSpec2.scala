@@ -1,82 +1,81 @@
 import org.specs2._
 
-class DSL_3ExpressionSpec2 extends DSLSpec { def is = sequential              ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Prefix operations are written as"                                          ^
-      """`PLUS(tree)`, `MINUS(tree)`, `NOT(tree)`, and `TILDE(tree)`."""      ! unary1^
-                                                                              p^
-  "Postfix operations are written as"                                         ^
-      """`tree POSTFIX(sym|"op")`."""                                         ! postfix1^
-                                                                              p^
-  "Infix operations are written as"                                           ^
-      """`tree INFIX(sym|"op") APPLY arg`,"""                                 ! infix1^
-      """`tree INFIX(sym|"op", arg, ...)`,"""                                 ! infix2^
-      """`tree INFIX_CHAIN(sym|"op", tree, ...)`,"""                          ! infix3^
-                                                                              p^
-  "Assignments are written as"                                                ^
-      """`tree := rhs`."""                                                    ! assignment1^
-                                                                              p^
-  "Typed expressions are written as"                                          ^
-      """`tree withType(type)` or `sym withType(typ)`."""                     ! typed1^
-                                                                              p^  
-  "Conditional expressions are written as"                                    ^
-      """`IF (tree1) THEN tree2 ELSE tree3`, or"""                            ! conditional1^
-      """`IF (tree1) THEN tree2 ENDIF`."""                                    ! conditional2^
-                                                                              p^
-  "While loop expressions are written as"                                     ^
-      """`WHILE (tree1) DO tree2`."""                                         ! while1^
-                                                                              p^
-  "Do while loop expressions are written as"                                  ^
-      """`tree1 DO_WHILE(tree2)`."""                                          ! dowhile1^
-                                                                              p^
-  "For loop expressions are written as"                                       ^
-      """`FOR (enum, ...) DO tree` where `enum` is an enumerator such as
-`VALFROM(sym|"x") := tree`,"""                                                ! for1^
-      """`IF(tree)`, and"""                                                   ! for2^
-      """`VAL(sym|"x") := rhs`."""                                            ! for3^
-                                                                              end^
-  "For comprehensions are written as"                                         ^
-      """`FOR (enum, ...) YIELD tree`."""                                     ! for4^
-                                                                              p^
-  "Return expressions are written as"                                         ^
-      """`RETURN tree`."""                                                    ! return1^
-                                                                              p^
-  "Throw expressions are written as"                                          ^
-      """`THROW(typ)` where `typ` is an exception class."""                   ! throw1^
-      """An error message can be passed in as
-`THROW(typ, "oh no")` or `THROW(typ, tree)`"""                                ! throw2^
-                                                                              p^
-  "Try expressions are written as"                                            ^
-      """`TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) ENDTRY`, or"""        ! try1^
-      """with a finally clause as
-`TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) FINALLY(tree2)`"""             ! try2^
-                                                                              p^
-  "Anonymous functions are written as"                                        ^
-      """`LAMBDA(PARAM(sym|"x"), ...) ==> rhs`,"""                            ! lambda1^
-      """`LAMBDA(PARAM(WILDCARD)) ==> rhs`, or"""                             ! lambda2^
-      """by using placeholder syntax
-`WILDCARD op tree`."""                                                        ! lambda3^
-                                                                              p^
-  "Structural types are written as"                                           ^
-      """`TYPE_STRUCT(stat, ...)`."""                                         ! struc1^
-                                                                              p^
-  "Types projections are written as"                                          ^
-      """`typ TYPE_#("C")`."""                                                ! proj1^
-                                                                              p^
-  "Type paths are written as"                                                 ^
-      """`TYPE_REF(tree)`."""                                                 ! type3^
-                                                                              p^
-  "Existential types are written as"                                          ^
-      """`typ TYPE_FORSOME(tree)`."""                                         ! type4^
-                                                                              p^
-  "Refined types are written as"                                              ^
-      """`typ TYPE_WITH(typ, ...)`."""                                        ! type5^
-                                                                              p^
-  "Singleton types are written as"                                            ^
-      """`TYPE_SINGLETON(tree)`."""                                           ! type6^
-                                                                              p^
-                                                                              end
+class DSL_3ExpressionSpec2 extends DSLSpec { def is =                         s2"""
+  This is a specification to check Treehugger DSL
+
+  Prefix operations are written as
+    `PLUS(tree)`, `MINUS(tree)`, `NOT(tree)`, and `TILDE(tree)`.              $unary1
+
+  Postfix operations are written as
+    `tree POSTFIX(sym|"op")`.                                                 $postfix1
+
+  Infix operations are written as
+    `tree INFIX(sym|"op") APPLY arg`,                                         $infix1
+    `tree INFIX(sym|"op", arg, ...)`,                                         $infix2
+    `tree INFIX_CHAIN(sym|"op", tree, ...)`,                                  $infix3
+
+  Assignments are written as
+    `tree := rhs`.                                                            $assignment1
+
+  Typed expressions are written as
+    `tree withType(type)` or `sym withType(typ)`.                             $typed1
+
+  Conditional expressions are written as
+    `IF (tree1) THEN tree2 ELSE tree3`, or                                    $conditional1
+    `IF (tree1) THEN tree2 ENDIF`.                                            $conditional2
+
+  While loop expressions are written as
+    `WHILE (tree1) DO tree2`.                                                 $while1
+
+  Do while loop expressions are written as
+    `tree1 DO_WHILE(tree2)`.                                                  $dowhile1
+
+  For loop expressions are written as
+    `FOR (enum, ...) DO tree` where `enum` is an enumerator such as
+`VALFROM(sym|"x") := tree`,                                                   $for1
+    `IF(tree)`, and                                                           $for2
+    `VAL(sym|"x") := rhs`.                                                    $for3
+
+  For comprehensions are written as
+    `FOR (enum, ...) YIELD tree`.                                             $for4
+
+  Return expressions are written as
+    `RETURN tree`.                                                            $return1
+
+  Throw expressions are written as
+    `THROW(typ)` where `typ` is an exception class.                           $throw1
+    An error message can be passed in as
+`THROW(typ, "oh no")` or `THROW(typ, tree)`                                   $throw2
+
+  Try expressions are written as
+    `TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) ENDTRY`, or                $try1
+    with a finally clause as
+`TRY(stat, ...) CATCH(CASE(pat) ==> tree, ...) FINALLY(tree2)`                $try2
+
+  Anonymous functions are written as
+    `LAMBDA(PARAM(sym|"x"), ...) ==> rhs`,                                    $lambda1
+    `LAMBDA(PARAM(WILDCARD)) ==> rhs`, or                                     $lambda2
+    by using placeholder syntax
+`WILDCARD op tree`.                                                           $lambda3
+
+  Structural types are written as
+    `TYPE_STRUCT(stat, ...)`.                                                 $struc1
+
+  Types projections are written as
+    `typ TYPE_#("C")`.                                                        $proj1
+
+  Type paths are written as
+    `TYPE_REF(tree)`.                                                         $type3
+
+  Existential types are written as
+    `typ TYPE_FORSOME(tree)`.                                                 $type4
+
+  Refined types are written as
+    `typ TYPE_WITH(typ, ...)`.                                                $type5
+
+  Singleton types are written as
+    `TYPE_SINGLETON(tree)`.                                                   $type6
+                                                                              """
   
   import treehugger.forest._
   import definitions._

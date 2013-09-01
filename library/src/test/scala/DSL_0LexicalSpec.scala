@@ -1,21 +1,21 @@
 import org.specs2._
 
-class DSL_0LexicalSpec extends DSLSpec { def is = sequential                  ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Literals are written as"                                                   ^
-    """`LIT("Hello")` for Strings, `LIT('H')` for Char"""                     ! literal1^
-    """`LIT(1)` for Ints, `LIT(1L)` for Longs, `LIT(1.23)` for Doubles,
-`LIT(1.23F)` for Floats,"""                                                   ! literal2^
-    """and LIT('Symbol) for symbols."""                                       ! literal3^
-    """The predefined constants are `TRUE`, `FALSE`, `NULL`, and `UNIT`"""    ! literal4^
-                                                                              p^
-  "Comments are written as"                                                   ^
-    """`tree withComment("a", ...)` where `tree` is an arbitrary tree."""     ! comment1^
-                                                                              p^
-  "Scaladoc style comments are written as"                                    ^
-    """`tree withDoc("a")` or withDoc("a", DocTag.See(IntClass), ...).""" ! comment2^
-                                                                              end
+class DSL_0LexicalSpec extends DSLSpec { def is =                             s2"""
+  This is a specification to check Treehugger DSL"
+
+  Literals are written as
+    `LIT("Hello")` for Strings, `LIT('H')` for Char                           $literal1
+    `LIT(1)` for Ints, `LIT(1L)` for Longs, `LIT(1.23)` for Doubles,
+`LIT(1.23F)` for Floats,                                                      $literal2
+    and LIT('Symbol) for symbols.                                             $literal3
+    The predefined constants are `TRUE`, `FALSE`, `NULL`, and `UNIT`          $literal4
+
+  Comments are written as
+    `tree withComment("a", ...)` where `tree` is an arbitrary tree.           $comment1
+
+  Scaladoc style comments are written as
+    `tree withDoc("a")` or withDoc("a", DocTag.See(IntClass), ...).           $comment2
+                                                                              """
   
   import treehugger.forest._
   import definitions._

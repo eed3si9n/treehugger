@@ -1,53 +1,52 @@
 import org.specs2._
 
-class DSL_5PatternMatchingSpec extends DSLSpec { def is = sequential          ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Variable patterns are written as"                                          ^
-      """`ID("x"|sym)`, or"""                                                 ! pattern1^
-      """`WILDCARD`."""                                                       ! pattern2^
-                                                                              p^          
-  "Typed patterns are written as"                                             ^
-      """`ID("x"|sym) withType(typ)`, or"""                                   ! pattern3^
-      """`WILDCARD withType(typ)`."""                                         ! pattern4^
-                                                                              p^
-  "Pattern binders are written as"                                            ^
-      """`pattern withBinder(sym|"x")`."""                                    ! pattern5^
-                                                                              p^    
-  "Literal patterns are written as"                                           ^
-      """literals such as `LIT(0)`."""                                        ! pattern6^
-                                                                              p^
-  "Stable identifier patterns are written as"                                 ^
-      """`BACKQUOTED("x"|sym)`."""                                            ! pattern7^
-                                                                              p^
-  "Constructor patterns are written as"                                       ^
-      """`sym UNAPPLY(pattern, ...)`, or"""                                   ! pattern8^
-      """`REF("C") UNAPPLY(pattern, ...)`."""                                 ! pattern9^
-                                                                              p^
-  "Tuple patterns are written as"                                             ^
-      """`TUPLE(pattern1, ...)`."""                                           ! pattern10^
-                                                                              p^
-  "Pattern sequences are written as"                                          ^
-      """`sym UNAPPLY(SEQ_WILDCARD withBinder(sym2|"xs"))`."""                ! pattern11^
-                                                                              p^
-  "Infix operation patterns are written as"                                   ^
-      """`pattern1 INFIX("op"|sym) UNAPPLY pattern2`."""                      ! pattern12^
-                                                                              p^
-  "Pattern alternatives are written as"                                       ^
-      """`pattern1 OR_PATTERN pattern2`."""                                   ! pattern13^
-                                                                              p^
-  "Pattern matching expressions are written as"                               ^
-      """`tree MATCH (CASE(pattern1) ==> tree1, ...)`, or"""                  ! pattern14^
-      """with guards as
-`tree MATCH (CASE(pattern1, IF(guard)) ==> tree1, ...)`."""                   ! pattern15^
-                                                                              p^
-  "Pattern matching anonymous functions are written as"                       ^
-      """`BLOCK(CASE(pattern1) ==> tree1, ...)`."""                           ! pattern16^
-                                                                              p^
-  "Pattern value definitions are written as"                                  ^
-      """`VAL(pattern) := rhs`."""                                            ! patternvalue1^
-                                                                              end
-  
+class DSL_5PatternMatchingSpec extends DSLSpec { def is =                     s2"""
+  This is a specification to check Treehugger DSL
+
+  Variable patterns are written as
+    `ID("x"|sym)`, or                                                         $pattern1
+    `WILDCARD`.                                                               $pattern2
+
+  Typed patterns are written as
+    `ID("x"|sym) withType(typ)`, or                                           $pattern3
+    `WILDCARD withType(typ)`.                                                 $pattern4
+
+  Pattern binders are written as
+    `pattern withBinder(sym|"x")`.                                            $pattern5
+
+  Literal patterns are written as
+    literals such as `LIT(0)`.                                                $pattern6
+
+  Stable identifier patterns are written as
+    `BACKQUOTED("x"|sym)`.                                                    $pattern7
+
+  Constructor patterns are written as
+    `sym UNAPPLY(pattern, ...)`, or                                           $pattern8
+    `REF("C") UNAPPLY(pattern, ...)`.                                         $pattern9
+
+  Tuple patterns are written as
+    `TUPLE(pattern1, ...)`.                                                   $pattern10
+
+  Pattern sequences are written as
+    `sym UNAPPLY(SEQ_WILDCARD withBinder(sym2|"xs"))`.                        $pattern11
+
+  Infix operation patterns are written as
+    `pattern1 INFIX("op"|sym) UNAPPLY pattern2`.                              $pattern12
+
+  Pattern alternatives are written as
+    `pattern1 OR_PATTERN pattern2`.                                           $pattern13
+
+  Pattern matching expressions are written as
+    `tree MATCH (CASE(pattern1) ==> tree1, ...)`, or                          $pattern14
+    with guards as
+`tree MATCH (CASE(pattern1, IF(guard)) ==> tree1, ...)`.                      $pattern15
+
+  Pattern matching anonymous functions are written as
+    `BLOCK(CASE(pattern1) ==> tree1, ...)`.                                   $pattern16
+
+  Pattern value definitions are written as
+    `VAL(pattern) := rhs`.                                                    $patternvalue1
+                                                                              """
   import treehugger.forest._
   import definitions._
   import treehuggerDSL._

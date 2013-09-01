@@ -1,59 +1,60 @@
 import org.specs2._
 
-class DSL_3ExpressionSpec extends DSLSpec { def is = sequential               ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Named terms can be written as"                                             ^
-      """`REF(sym|"x")` to refer to values and methods."""                    ! term1^
-      """Selections are written either as
-`sym1 DOT sym2`, `sym1 DOT "y"`, or `REF("x"") DOT "y"` where `Tree`s are expected.""" ! term2^ 
-                                                                              end^
-  "References to `this` are written as"                                       ^
-      """`THIS` or"""                                                         ! this1^
-      """with a qualifier as `THIS(sym|"C")`."""                              ! this2^
-                                                                              end^
-  "References to `super` are written as"                                      ^
-      """`SUPER`, or"""                                                       ! super1^
-      """with a qualifier as `SUPER(sym|"C")` where `Tree`s are expected."""  ! super2^
-      """A trait qualifier may be added as
-`SUPER APPLYTYPE "T"`."""                                                     ! super3^      
-                                                                              p^
-  "Function applications are written as"                                      ^
-      """`sym APPLY (arg, ...)` where `arg` is a tree,"""                     ! apply1^
-      """`tree APPLY (arg, ...)`,"""                                          ! apply2^
-      """`tree APPLY (arg :: Nil)`, or"""                                     ! apply3^
-      """as a shorthand for application on a selection
-`(sym1 DOT sym2)(arg, ...)`."""                                               ! apply4^
-                                                                              end^
-  "Sequence arguments are written as"                                         ^
-      """`sym APPLY SEQARG(arg)"` to pass a sequence into vararg."""          ! seqarg1^
-                                                                              end^
-  "Named arguments are written as"                                            ^
-      """`sym APPLY (REF(sym1) := arg)"`."""                                  ! namedarg1^
-                                                                              end^
-  "Method values are written as"                                              ^
-      """`sym APPLY PARTIALLY`."""                                            ! methodvalue1^
-                                                                              p^
-  "Type applications are written as"                                          ^
-      """`sym APPLYTYPE (typ|"T", ...)`."""                                   ! typeapply1^
-                                                                              p^
-  "Tuples are written as"                                                     ^
-      """`TUPLE(tree1, tree2, ...)`."""                                       ! tuple1^
-                                                                              p^
-  "Parentheses are written as"                                                ^
-      """`PAREN(tree)`."""                                                    ! paren1^
-                                                                              p^ 
-  "Instance creations are written as"                                         ^
-      """`NEW(typ|"C")`, or"""                                                ! new1^
-      """with arguments to the constructor as
-`NEW(typ, arg1, arg2, ...)`"""                                                ! new2^
-      """Using `ANONDEF()`, instance creations with a class template are written as
-`NEW(ANONDEF(parent1, ...) := BLOCK(stat, ...))` where `parent1` is a type.""" ! new3^  
-                                                                              p^
-  "Blocks are written as"                                                     ^
-      """`BLOCK(stat, ...)`."""                                               ! block1^
-                                                                              p^    
-                                                                              end
+class DSL_3ExpressionSpec extends DSLSpec { def is =                          s2"""
+  This is a specification to check Treehugger DSL                       
+
+  Named terms can be written as
+    `REF(sym|"x")` to refer to values and methods.                            $term1
+  
+  Selections are written either as
+    `sym1 DOT sym2`, `sym1 DOT "y"`, or `REF("x"") DOT "y"` where `Tree`s are expected. $term2 
+
+  References to `this` are written as                                    
+    `THIS` or                                                                 $this1
+    with a qualifier as `THIS(sym|"C")`.                                      $this2
+
+  References to `super` are written as
+    `SUPER`, or                                                               $super1
+    with a qualifier as `SUPER(sym|"C")` where `Tree`s are expected.          $super2
+  
+  A trait qualifier may be added as
+    `SUPER APPLYTYPE "T"`.                                                    $super3
+
+  Function applications are written as
+    `sym APPLY (arg, ...)` where `arg` is a tree,                             $apply1
+    `tree APPLY (arg, ...)`,                                                  $apply2
+    `tree APPLY (arg :: Nil)`, or                                             $apply3
+    as a shorthand for application on a selection
+`(sym1 DOT sym2)(arg, ...)`.                                                  $apply4
+
+  Sequence arguments are written as
+    `sym APPLY SEQARG(arg)"` to pass a sequence into vararg.                  $seqarg1
+
+  Named arguments are written as
+    `sym APPLY (REF(sym1) := arg)"`.                                          $namedarg1
+
+  Method values are written as
+    `sym APPLY PARTIALLY`.                                                    $methodvalue1
+
+  Type applications are written as
+    `sym APPLYTYPE (typ|"T", ...)`.                                           $typeapply1
+
+  Tuples are written as
+    `TUPLE(tree1, tree2, ...)`.                                               $tuple1
+
+  Parentheses are written as
+    `PAREN(tree)`.                                                            $paren1
+
+  Instance creations are written as
+    `NEW(typ|"C")`, or                                                        $new1
+    with arguments to the constructor as
+    `NEW(typ, arg1, arg2, ...)`                                               $new2
+    Using `ANONDEF()`, instance creations with a class template are written as
+`NEW(ANONDEF(parent1, ...) := BLOCK(stat, ...))` where `parent1` is a type.   $new3  
+
+  Blocks are written as
+    `BLOCK(stat, ...)`.                                                       $block1
+                                                                              """
 
   import treehugger.forest._
   import definitions._

@@ -1,71 +1,70 @@
 import org.specs2._
 
-class DSL_8StdLibSpec extends DSLSpec { def is = sequential                   ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Built-in methods are written as"                                           ^
-      """`tree TOSTRING` for Any toString method,"""                          ! root1^
-      """`tree GETCLASS` for Object getClass method,"""                       ! root2^
-      """`tree IS typ` for Any isInstanceOf method,"""                        ! root3^
-      """`tree AS typ` for Any asInstanceOf method,"""                        ! root4^
-                                                                              p^
-  "Built-in operators are written as"                                         ^
-      """`tree OR tree` for Boolean || method,"""                             ! boolean1^
-      """`tree AND tree` for Boolean && method,"""                            ! boolean2^
-      """`tree ANY_== tree` for Any == method,"""                             ! any1^
-      """`tree ANY_!= tree` for Any != method,"""                             ! any2^
-      """`tree ANY_-> tree` for ArrowAssoc -> method,"""                      ! any3^
-      """`tree OBJ_EQ tree` for AnyRef eq method,"""                          ! anyref1^
-      """`tree OBJ_NE tree` for AnyRef ne method,"""                          ! anyref2^
-      """`tree INT_| tree` for numeric | method,"""                           ! int1^
-      """`tree INT_& tree` for numeric & method,"""                           ! int2^    
-      """`tree INT_>= tree` for numeric >= method,"""                         ! int3^
-      """`tree INT_== tree` for numeric == method,"""                         ! int4^
-      """`tree INT_!= tree` for numeric != method,"""                         ! int5^
-      """`tree INT_<= tree` for numeric <= method,"""                         ! int6^
-      """`tree INT_< tree` for numeric < method,"""                           ! int7^
-      """`tree INT_> tree` for numeric > method,"""                           ! int8^
-      """`tree INT_+ tree` for numeric + method,"""                           ! int9^
-      """`tree INT_- tree` for numeric - method,"""                           ! int10^
-      """`tree INT_* tree` for numeric * method,"""                           ! int11^
-      """`tree INT_/ tree` for numeric / method,"""                           ! int12^
-      """`tree INT_TO tree` for RichInt to method,"""                         ! int13^
-      """`tree LIST_:: tree` for List :: method,"""                           ! list1^
-      """`tree LIST_::: tree` for List ::: method,"""                         ! list2^
-      """`tree FOREACH LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
-  for collection foreach method,"""                                           ! traversable1^
-      """`tree MAP LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
-  for collection map method,"""                                               ! traversable2^
-      """`tree FILTER LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
-  for collection filter method,"""                                            ! traversable3^
-      """`tree FLATMAP LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
-  for collection flatMap method,"""                                           ! traversable4^
-      """`tree COLLECT BLOCK(CASE(pattern) ===> tree, ...)`
-  for collection collect method,"""                                           ! traversable5^
-      """`tree SEQ_/: tree` for collection /: method,"""                      ! traversable6^
-      """`tree SEQ_\: tree` for collection \: method,"""                      ! traversable7^
-                                                                              p^
-  "Built-in constructors are written as"                                      ^
-      """`LIST(tree, ...)` for List"""                                        ! listctor1^
-      """`NIL` for Nil"""                                                     ! listctor2^
-      """`tree UNLIST_::: tree` for ::"""                                     ! listctor3^
-      """`SOME(tree, ...)` for Some"""                                        ! optionctor1^
-      """`NONE` for None"""                                                   ! optionctor2^
-      """`ARRAY(tree, ...)` for Array"""                                      ! arrayctor1^
-      """`SEQ(tree, ...)` for Seq"""                                          ! seqctor1^
-      """`VECTOR(tree, ...)` for Vector"""                                    ! vectorctor1^
-      """`MAKE_MAP(key ANY_-> value, ...)` for Map"""                         ! mapctor1^
-      """`RIGHT(tree)` for Right"""                                           ! rightctor1^
-                                                                              p^
-  "Built-in type constructors are written as"                                 ^
-      """`TYPE_LIST(typ)` for List"""                                         ! listtype1^
-      """`TYPE_SEQ(typ)` for Seq"""                                           ! seqtype1^
-      """`TYPE_Map(k, v)` for Map"""                                          ! maptype1^
-      """`TYPE_TUPLE(typ, ...)` for Tuple"""                                  ! tupletype1^
-      """`TYPE_FUNCTION(typ, ...)` or `typ1 TYPE_=> typ2` for function"""     ! functype1^
-      """`TYPE_EITHER(typ1, typ2)` for Either"""                              ! eithertype1^
-                                                                              p^      
-                                                                              end
+class DSL_8StdLibSpec extends DSLSpec { def is =                              s2"""
+  This is a specification to check Treehugger DSL
+
+  Built-in methods are written as
+    `tree TOSTRING` for Any toString method,                                  $root1
+    `tree GETCLASS` for Object getClass method,                               $root2
+    `tree IS typ` for Any isInstanceOf method,                                $root3
+    `tree AS typ` for Any asInstanceOf method,                                $root4
+
+  Built-in operators are written as
+    `tree OR tree` for Boolean || method,                                     $boolean1
+    `tree AND tree` for Boolean && method,                                    $boolean2
+    `tree ANY_== tree` for Any == method,                                     $any1
+    `tree ANY_!= tree` for Any != method,                                     $any2
+    `tree ANY_-> tree` for ArrowAssoc -> method,                              $any3
+    `tree OBJ_EQ tree` for AnyRef eq method,                                  $anyref1
+    `tree OBJ_NE tree` for AnyRef ne method,                                  $anyref2
+    `tree INT_| tree` for numeric | method,                                   $int1
+    `tree INT_& tree` for numeric & method,                                   $int2
+    `tree INT_>= tree` for numeric >= method,                                 $int3
+    `tree INT_== tree` for numeric == method,                                 $int4
+    `tree INT_!= tree` for numeric != method,                                 $int5
+    `tree INT_<= tree` for numeric <= method,                                 $int6
+    `tree INT_< tree` for numeric < method,                                   $int7
+    `tree INT_> tree` for numeric > method,                                   $int8
+    `tree INT_+ tree` for numeric + method,                                   $int9
+    `tree INT_- tree` for numeric - method,                                   $int10
+    `tree INT_* tree` for numeric * method,                                   $int11
+    `tree INT_/ tree` for numeric / method,                                   $int12
+    `tree INT_TO tree` for RichInt to method,                                 $int13
+    `tree LIST_:: tree` for List :: method,                                   $list1
+    `tree LIST_::: tree` for List ::: method,                                 $list2
+    `tree FOREACH LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
+  for collection foreach method,                                              $traversable1
+    `tree MAP LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
+  for collection map method,                                                  $traversable2
+    `tree FILTER LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
+  for collection filter method,                                               $traversable3
+    `tree FLATMAP LAMBDA(PARAM("x")) ===> BLOCK(stat, ...)`
+  for collection flatMap method,                                              $traversable4
+    `tree COLLECT BLOCK(CASE(pattern) ===> tree, ...)`
+  for collection collect method,                                              $traversable5
+    `tree SEQ_/: tree` for collection /: method,                              $traversable6
+    `tree SEQ_\: tree` for collection \: method,                              $traversable7
+
+  Built-in constructors are written as
+    `LIST(tree, ...)` for List                                                $listctor1
+    `NIL` for Nil                                                             $listctor2
+    `tree UNLIST_::: tree` for ::                                             $listctor3
+    `SOME(tree, ...)` for Some                                                $optionctor1
+    `NONE` for None                                                           $optionctor2
+    `ARRAY(tree, ...)` for Array                                              $arrayctor1
+    `SEQ(tree, ...)` for Seq                                                  $seqctor1
+    `VECTOR(tree, ...)` for Vector                                            $vectorctor1
+    `MAKE_MAP(key ANY_-> value, ...)` for Map                                 $mapctor1
+    `RIGHT(tree)` for Right                                                   $rightctor1
+
+  Built-in type constructors are written as
+    `TYPE_LIST(typ)` for List                                                 $listtype1
+    `TYPE_SEQ(typ)` for Seq                                                   $seqtype1
+    `TYPE_Map(k, v)` for Map                                                  $maptype1
+    `TYPE_TUPLE(typ, ...)` for Tuple                                          $tupletype1
+    `TYPE_FUNCTION(typ, ...)` or `typ1 TYPE_=> typ2` for function             $functype1
+    `TYPE_EITHER(typ1, typ2)` for Either                                      $eithertype1
+                                                                              """
   
   import treehugger.forest._
   import definitions._

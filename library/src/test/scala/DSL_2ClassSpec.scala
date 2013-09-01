@@ -1,55 +1,61 @@
 import org.specs2._
 
-class DSL_2ClassSpec extends DSLSpec { def is = sequential                    ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Class definitions are written as"                                          ^
-      """`CLASSDEF(sym|"C")`, or"""                                           ! class1^
-      """with the class body as `CLASSDEF(sym|"C") := BLOCK(stat, ...)`."""   ! class2^
-      """`CLASSDEF(sym|"C") withParams(PARAM("x", typ1), VAL("y", typ2), VAR("z": typ3), ...)`
+class DSL_2ClassSpec extends DSLSpec { def is =                               s2"""
+  This is a specification to check Treehugger DSL
+
+  Class definitions are written as
+    `CLASSDEF(sym|"C")`, or                                                   $class1
+    with the class body as `CLASSDEF(sym|"C") := BLOCK(stat, ...)`.           $class2
+    `CLASSDEF(sym|"C") withParams(PARAM("x", typ1), VAL("y", typ2), VAR("z": typ3), ...)`
 where `PARAM(...)` declares a parameter while 
-`VAL(...)` and `VAR(...)` declare parameters with an accessor."""             ! class3^
-      """Polymorphic classes are written as
-`CLASSDEF(sym|"C") withTypeParams(TYPEVAR(typ|"C"))`."""                      ! class4^
-      """Classes with base classes are written as
-`CLASSDEF(sym|"C") withParents(typ|"B", ...)`."""                             ! class5^
-      """Using `withFlags(flag, ...)`, classes with access modifier can be written as
-`CLASSDEF(sym|"C") withFlags(Flags.PRIVATE)`."""                              ! class6^
-      """Other uses of `withFlags(flag)` are abstract classes withFlags(Flags.ABSTRACT)`,
+`VAL(...)` and `VAR(...)` declare parameters with an accessor.                $class3
+  
+  Polymorphic classes are written as
+    `CLASSDEF(sym|"C") withTypeParams(TYPEVAR(typ|"C"))`.                     $class4
+  
+  Classes with base classes are written as
+    `CLASSDEF(sym|"C") withParents(typ|"B", ...)`.                            $class5
+  
+  Using `withFlags(flag, ...)`, classes with access modifier can be written as
+    `CLASSDEF(sym|"C") withFlags(Flags.PRIVATE)`.                             $class6
+  Other uses of `withFlags(flag)` are abstract classes withFlags(Flags.ABSTRACT)`,
 final classes `withFlags(Flags.FINAL)`,
-sealed classes `withFlags(Flags.SEALED)`."""                                  ! class7^
-      """Private constructors are written as
-`CLASSDEF(sym|"C") withCtorFlags(Flags.PRIVATE)`."""                          ! class8^
-      """Self type annotations are written as
-`CLASSDEF(sym|"C") withSelf(sym|"self",typ)`."""                              ! class9^
-                                                                              end^
-  "Constructor definitions are written as"                                    ^
-      """`DEFTHIS withParams(PARAM("x", typ1), ...) := tree`"""               ! constructor1^
-                                                                              end^
-  "Case class definitions are written as"                                     ^
-      """`CASECLASSDEF(sym|"C")`, or with the class body, parameters, and parents as
-`CASECLASSDEF(sym|"C")` withParams(PARAM("x", typ1), ...) withParents(typ, ...) := BLOCK(stat, ...).""" ! caseclass1^
-                                                                              end^
-  "Trait definitions are written as"                                          ^
-      """`TRAITDEF(sym|"D")`."""                                              ! trait1^
-                                                                              end^
-  "Object definitions are written as"                                         ^
-      """`OBJECTDEF(sym|"E")`."""                                             ! object1^
-                                                                              end^
-  "Case object definitions are written as"                                    ^
-      """`CASEOBJECTDEF(sym|"E")`."""                                         ! object2^
-                                                                              end^
-  "Class members can"                                                         ^
-      """be defined by placing value defitions and function definitions within the class body as
-`CLASSDEF(sym|"C") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`."""             ! member1^
-      """Class members with access modifier can be written as
-`DEF(sym|"get", typ|"Int") withFlags(Flags.PROTECTED) := rhs`,"""             ! member2^
-      """`DEF(sym|"get", typ|"Int") withFlags(Flags.OVERRIDE) := rhs`,"""     ! member3^
-      """`DEF(sym|"get", typ|"Int") withFlags(PRIVATEWITHIN("this")) := rhs`.""" ! member4^
-                                                                              p^
-  "Early definitions can be written as"                                       ^
-      """`CLASSDEF(sym|"C") withEarlyDefs(stat, ...) withParents(typ, ...) := BLOCK(stat, ...)`.""" ! early1^
-                                                                              end
+sealed classes `withFlags(Flags.SEALED)`.                                     $class7
+  
+  Private constructors are written as
+    `CLASSDEF(sym|"C") withCtorFlags(Flags.PRIVATE)`.                         $class8
+  
+  Self type annotations are written as
+    `CLASSDEF(sym|"C") withSelf(sym|"self",typ)`.                             $class9
+
+  Constructor definitions are written as
+    `DEFTHIS withParams(PARAM("x", typ1), ...) := tree`                       $constructor1
+
+  Case class definitions are written as
+    `CASECLASSDEF(sym|"C")`, or with the class body, parameters, and parents as
+`CASECLASSDEF(sym|"C")` withParams(PARAM("x", typ1), ...) withParents(typ, ...) := BLOCK(stat, ...). $caseclass1
+
+  Trait definitions are written as
+    `TRAITDEF(sym|"D")`.                                                      $trait1
+
+  Object definitions are written as
+    `OBJECTDEF(sym|"E")`.                                                     $object1
+
+  Case object definitions are written as
+    `CASEOBJECTDEF(sym|"E")`.                                                 $object2
+
+  Class members can
+    be defined by placing value defitions and function definitions within the class body as
+`CLASSDEF(sym|"C") := BLOCK(DEF(sym|"get", typ) := rhs, ...)`.                $member1
+  
+  Class members with access modifier can be written as
+    `DEF(sym|"get", typ|"Int") withFlags(Flags.PROTECTED) := rhs`,            $member2
+    `DEF(sym|"get", typ|"Int") withFlags(Flags.OVERRIDE) := rhs`,             $member3
+    `DEF(sym|"get", typ|"Int") withFlags(PRIVATEWITHIN("this")) := rhs`.      $member4
+
+  Early definitions can be written as
+    `CLASSDEF(sym|"C") withEarlyDefs(stat, ...) withParents(typ, ...) := BLOCK(stat, ...)`. $early1
+                                                                              """
   
   import treehugger.forest._
   import definitions._

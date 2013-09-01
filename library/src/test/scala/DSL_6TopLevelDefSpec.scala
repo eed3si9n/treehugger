@@ -1,20 +1,19 @@
 import org.specs2._
 
-class DSL_6TopLevelDefSpec extends DSLSpec { def is = sequential              ^
-  "This is a specification to check Treehugger DSL"                           ^
-                                                                              p^
-  "Compilation units are written as"                                          ^
-      """`PACKAGEHEADER(sym|"p") := BLOCK(stat, ...)`,"""                     ! unit1^
-      """`BLOCK(stat, ...) inPackage(sym|"p")`, or"""                         ! unit2^
-      """`BLOCK(stat, ...) withoutPackage`."""                                ! unit3^
-                                                                              p^            
-  "Packaging are written as"                                                  ^
-      """`PACKAGE(sym|"p") := BLOCK(stat, ...)`."""                           ! package1^
-                                                                              p^
-  "Packaging are written as"                                                  ^
-      """`PACKAGEOBJECTDEF(sym|"p") := BLOCK(stat, ...)`."""                  ! packageobj1^
-                                                                              p^
-                                                                              end
+class DSL_6TopLevelDefSpec extends DSLSpec { def is =                         s2"""
+  This is a specification to check Treehugger DSL
+
+  Compilation units are written as
+    `PACKAGEHEADER(sym|"p") := BLOCK(stat, ...)`,                             $unit1
+    `BLOCK(stat, ...) inPackage(sym|"p")`, or                                 $unit2
+    `BLOCK(stat, ...) withoutPackage`.                                        $unit3
+
+  Packaging are written as
+    `PACKAGE(sym|"p") := BLOCK(stat, ...)`.                                   $package1
+
+  Packaging are written as
+    `PACKAGEOBJECTDEF(sym|"p") := BLOCK(stat, ...)`.                          $packageobj1
+                                                                              """
   
   import treehugger.forest._
   import definitions._
