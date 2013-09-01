@@ -757,6 +757,9 @@ trait TreehuggerDSLs { self: Forest =>
     def FOR(xs: Iterable[Enumerator]): ForStart = new ForStart(xs.toList)
     def WHILE(tree: Tree) = new WhileStart(tree)
 
+    def INTERP(sym: Symbol, args: Tree*): Interpolated = Interpolated(sym, args.toList)
+    def INTERP(name: Name, args: Tree*): Interpolated = Interpolated(name, args.toList)
+
     def BLOCK(xs: Iterable[Tree]) = Block(xs.toList: _*)
     def BLOCK(xs: Tree*)  = Block(xs: _*)
     def NOT(tree: Tree)   = Select(tree, Boolean_not)

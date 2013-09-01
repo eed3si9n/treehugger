@@ -14,6 +14,9 @@ class DSL_3ExpressionSpec2 extends DSLSpec { def is =                         s2
     `tree INFIX(sym|"op", arg, ...)`,                                         $infix2
     `tree INFIX_CHAIN(sym|"op", tree, ...)`,                                  $infix3
 
+  String interpolations are written as
+    `INTERP(sym|"x", arg, ...)`,                                              $interpolation1
+
   Assignments are written as
     `tree := rhs`.                                                            $assignment1
 
@@ -96,6 +99,10 @@ class DSL_3ExpressionSpec2 extends DSLSpec { def is =                         s2
   def infix3 =
     (INFIX_CHAIN("+", LIT(1), LIT(2), LIT(3)) must print_as("1 + 2 + 3")) and
     (INFIX_CHAIN(Any_==, LIT(1) :: LIT(2) :: LIT(3) :: Nil) must print_as("1 == 2 == 3"))
+
+  def interpolation1 =
+    (INTERP("s", LIT("Hello\n"), LIT(1), REF("x")) must print_as("s\"Hello\\n${1}$x\"")) and
+    (INTERP(StringContext_s, LIT("Jello"), LIT(1), REF("x")) must print_as("s\"Jello${1}$x\""))
   
   def assignment1 = (REF("x") := LIT(0)) must print_as("x = 0")
 

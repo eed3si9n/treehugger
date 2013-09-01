@@ -221,6 +221,20 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       }
     }
 
+    def printInterpolatedString(tree: Interpolated): Unit = {
+      print(tree.interpolator)
+      print("\"")
+      tree.args foreach { _ match {
+        case Literal(x) if x.tag == StringTag =>
+          print((x.stringValue map x.escapedChar) mkString "")
+        case Ident(x) =>
+          print("$", x)
+        case arg =>
+          print("${", arg, "}")
+      }}
+      print("\"")
+    }
+
     private var currentOwner: Symbol = NoSymbol
     private var selectorType: Type = NoType
     
@@ -664,7 +678,9 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               case _        => print(args(0))
             }
           else printRow(args, "(", ", ", ")")
-          
+        case x: Interpolated =>
+          printInterpolatedString(x)
+
 // SelectFromArray is no longer visible in reflect.internal.
 // eliminated until we figure out what we will do with both TreePrinters and
 // SelectFromArray.

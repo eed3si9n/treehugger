@@ -708,7 +708,13 @@ trait Trees { self: Universe =>
   case class ForTree(enums: List[Enumerator], body: Tree) extends Tree
   
   case class ForYieldTree(enums: List[Enumerator], body: Tree) extends Tree
-  
+
+  case class Interpolated(interpolator: Name, args: List[Tree])
+       extends Tree
+
+  def Interpolated(sym: Symbol, args: List[Tree]): Interpolated =
+    Interpolated(sym.name, args)
+
   // ------ traversers, copiers, and transformers ---------------------------------------------
 
   val treeCopy = newLazyTreeCopier
@@ -836,6 +842,9 @@ trait Trees { self: Universe =>
         traverse(test)
       case Infix(qual, fun, args) =>
         traverse(qual); traverseTrees(args)
+      case Interpolated(interpolator, args) =>
+        traverseTrees(args)
+
       case _ => xtraverse(this, tree)
     }
 

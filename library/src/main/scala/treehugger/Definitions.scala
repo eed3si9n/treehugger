@@ -228,6 +228,10 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     lazy val JavaCloneableClass    = getClass("java.lang.Cloneable")
     lazy val RemoteInterfaceClass  = getClass("java.rmi.Remote")
     lazy val RemoteExceptionClass  = getClass("java.rmi.RemoteException")
+    lazy val StringContextClass    = getClass("scala.StringContext")
+    lazy val StringContext_f       = getMember(StringContextClass, "f")
+    lazy val StringContext_raw     = getMember(StringContextClass, "raw")
+    lazy val StringContext_s       = getMember(StringContextClass, "s")
 
     lazy val RepeatedParamClass = newCovariantPolyClass(
       ScalaPackageClass,

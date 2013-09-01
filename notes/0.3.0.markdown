@@ -1,0 +1,20 @@
+  [20]: https://github.com/eed3si9n/treehugger/issues/20
+  [21]: https://github.com/eed3si9n/treehugger/issues/21
+
+### String Interpolation
+
+treehugger.scala 0.3.0 adds `INTERP(sym|"x", arg, ...)` to support String interpolation. [#20][20] For example,
+
+    INTERP(StringContext_s, LIT("Jello"), LIT(1), REF("x"))
+
+    INTERP("s", LIT("Hello"), LIT(1), REF("x"))
+
+These print as:
+
+    s"Jello${1}$x"
+
+    s"Hello${1}$x"
+
+### THROW(REF("x"))
+
+Added an override to throw a tree. [#21][21]
