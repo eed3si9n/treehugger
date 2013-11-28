@@ -1,5 +1,6 @@
 import Common._
 import Dependencies._
+import UnidocKeys._
 
 val commonSettings = Seq(
     organization := "com.eed3si9n",
@@ -29,6 +30,11 @@ val bridge = project.in(file("bridge")).
 
 lazy val root = project.in(file(".")).
   settings(commonSettings: _*).
+  settings(unidocSettings: _*).
+  settings(
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(bridge),
+    unidocConfigurationFilter in (TestScalaUnidoc, unidoc) := inConfigurations(Compile, Test)
+  ).
   settings(
     name := "treehugger",
     publishArtifact := false

@@ -15,7 +15,7 @@ object sym {
 
 (CLASSDEF(sym.Expr) withFlags(Flags.SEALED, Flags.ABSTRACT): Tree)
 (CASECLASSDEF(sym.Var)
-  withParams(VAL("name", StringClass)) withParents(Expr): Tree)
+  withParams(PARAM("name", StringClass)) withParents(Expr): Tree)
 ```
 
 These print as:
