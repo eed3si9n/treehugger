@@ -340,7 +340,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           print("def " + symName(tree, name))
           printTypeParams(tparams)
           vparamss match {
-            case List() | List(List()) => //
+            case List() => //
             case _ => vparamss foreach printValueParams
           }
           if (!rhs.isEmpty)
@@ -359,7 +359,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           print("def " + symName(tree, name))
           printTypeParams(tparams)
           vparamss match {
-            case List() | List(List()) => //
+            case List() => //
             case _ => vparamss foreach printValueParams
           }
           printOpt(": ", tp)
