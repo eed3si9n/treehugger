@@ -42,7 +42,7 @@ REF(sym.x)                   // x
 To refer to other values and methods, selections are written by calling `DOT(sym|"y")` either on a symbol or on a `REF(sym|"x")`. This returns an intermediate structure that can turn into a `Tree` by calling `tree` method or by implicit conversion:
 
 ```scala
-(sym.x DOT sym.y).Tree       // x.y
+(sym.x DOT sym.y).tree       // x.y
 (sym.x DOT "y": Tree)        // x.y
 (REF("x") DOT "y": Tree)     // x.y
 ```

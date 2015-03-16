@@ -20,7 +20,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
   import treehuggerDSL._
   
   def e2 = {
-    val tree = DEF("hello") := BLOCK(
+    val tree = PROC("hello") := BLOCK(
       Predef_println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
@@ -112,19 +112,19 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     val trees =
       (CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
         DEF("get", IntClass),
-        DEF("put") withParams(PARAM("x", IntClass))
+        PROC("put") withParams(PARAM("x", IntClass))
       )) ::
       (CLASSDEF(BasicIntQueue) withParents(IntQueue) := BLOCK(
         VAL(buf) withFlags(Flags.PRIVATE) :=
           NEW(ArrayBufferClass TYPE_OF IntClass),
         DEF("get", IntClass) :=
           REF(buf) DOT "remove" APPLY(),
-        DEF("put") withParams(PARAM("x", IntClass)) := BLOCK(
+        PROC("put") withParams(PARAM("x", IntClass)) := BLOCK(
           REF(buf) INFIX("+=") APPLY REF("x")
           )
       )) ::
       (TRAITDEF(Doubling) withParents(IntQueue) := BLOCK(
-        DEF("put") withFlags(Flags.ABSTRACT, Flags.OVERRIDE) withParams(PARAM("x", IntClass)) := BLOCK(
+        PROC("put") withFlags(Flags.ABSTRACT, Flags.OVERRIDE) withParams(PARAM("x", IntClass)) := BLOCK(
           SUPER DOT "put" APPLY (LIT(2) INT_* REF("x"))
           )
       )) ::

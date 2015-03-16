@@ -20,7 +20,7 @@ class DSL_4ImplicitSpec extends DSLSpec { def is =                            s2
     "implicit def intToRational(x: Int) = new Rational(x)")
   
   def implicit2 =
-    (DEF("greet")
+    (PROC("greet")
       withParams(PARAM("name", StringClass))
       withParams(PARAM("config", "Config") withFlags(Flags.IMPLICIT)) := BLOCK(
       Predef_println APPLY(REF("config") APPLY REF("name"))

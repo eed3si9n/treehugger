@@ -272,6 +272,7 @@ trait TreehuggerDSLs { self: Forest =>
     case class SuperStart(tree: Super) {
       def APPLYTYPE(typ: Type): Super = Super(tree.qual, typ.toString.toTypeName)
       def APPLYTYPE(name: Name): Super = Super(tree.qual, name.toTypeName)
+      def APPLYTYPE(name: String): Super = APPLYTYPE(name: Name)
       def empty = tree
     }
 
@@ -280,14 +281,14 @@ trait TreehuggerDSLs { self: Forest =>
       def ==>(body: Tree): CaseDef   = CaseDef(pat, guard, body)
     }
     
-    trait DefStart[ResultTreeType <: Tree] {
+    trait DefStart[ResultTreeType <: Tree, RhsTreeType <: Tree] {
       def name: Name
       def defaultMods: Modifiers
       def defaultPos: Position
 
-      // type ResultTreeType <: Tree // >
+      // mkTree could accept EmptyTree
       def mkTree(rhs: Tree): ResultTreeType
-      def :=(rhs: Tree): ResultTreeType
+      def :=(rhs: RhsTreeType): ResultTreeType
       final def empty: ResultTreeType = mkTree(EmptyTree)
       final def tree: ResultTreeType = empty
 
@@ -371,9 +372,9 @@ trait TreehuggerDSLs { self: Forest =>
      *  common code between a tree based on a pre-existing symbol and
      *  one being built from scratch.
      */
-    trait VODDStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] with TptStart
+    trait VODDStart[ResultTreeType <: Tree, RhsTreeType <: Tree] extends DefStart[ResultTreeType, RhsTreeType] with TptStart
     
-    trait SymVODDStart[ResultTreeType <: Tree] extends VODDStart[ResultTreeType] {
+    trait SymVODDStart[ResultTreeType <: Tree, RhsTreeType <: Tree] extends VODDStart[ResultTreeType, RhsTreeType] {
       def sym: Symbol
 
       def name        = sym.name
@@ -381,27 +382,43 @@ trait TreehuggerDSLs { self: Forest =>
       def defaultTpt  = TypeTree() // setPos sym.pos.focus
       def defaultPos  = sym.pos
 
-      final def :=(rhs: Tree): ResultTreeType =
+      def :=(rhs: RhsTreeType): ResultTreeType =
         mkTree(rhs) // setSymbol (sym resetFlag mods.flags)
     }
-    trait ValCreator { self: VODDStart[ValDef] =>
+    trait ValCreator { self: VODDStart[ValDef, Tree] =>
       
       def mkTree(rhs: Tree): ValDef = ValDef(mods, name, tpt, rhs)
     }
-    trait DefCreator { self: VODDStart[DefDef] with TparamsStart with VparamssStart  =>
+    trait DefCreator { self: VODDStart[DefDef, Tree] with TparamsStart with VparamssStart  =>
       def mkTree(rhs: Tree): DefDef = DefDef(mods, name, tparams, vparamss, tpt, rhs)
     }
-
-    class DefSymStart(val sym: Symbol) extends SymVODDStart[DefDef] with DefCreator with TparamsStart with VparamssStart
-    class ValSymStart(val sym: Symbol) extends SymVODDStart[ValDef] with ValCreator
-    
-    trait TreeDefStart[ResultTreeType <: Tree] extends DefStart[ResultTreeType] {
-      def defaultMods = NoMods
-      def defaultPos  = NoPosition
-      final def :=(rhs: Tree): ResultTreeType = mkTree(rhs)
+    trait ProcCreator { self: DefStart[ProcDef, Block] with TparamsStart with VparamssStart =>
+      def mkTree(rhs: Tree): ProcDef = ProcDef(mods, name, tparams, vparamss, rhs)
     }
 
-    trait TreeVODDStart[ResultTreeType <: Tree] extends VODDStart[ResultTreeType] with TreeDefStart[ResultTreeType] {
+    class DefSymStart(val sym: Symbol) extends SymVODDStart[DefDef, Tree] with DefCreator with TparamsStart with VparamssStart
+    class ValSymStart(val sym: Symbol) extends SymVODDStart[ValDef, Tree] with ValCreator
+    class ProcSymStart(val sym: Symbol) extends DefStart[ProcDef, Block] with ProcCreator with TparamsStart with VparamssStart {
+      def name        = sym.name      
+      def defaultMods = Modifiers(sym.flags)
+      def defaultPos  = sym.pos
+
+      final def :=(rhs: Block): ProcDef =
+        mkTree(rhs)
+    }
+    class NoBlockDefSymStart(sym: Symbol) extends DefSymStart(sym) {
+      @deprecated("0.4.0", "DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
+      def :=(rhs: Block): DefDef = error("DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
+      override def :=(rhs: Tree): DefDef = mkTree(rhs)
+    }
+
+    trait TreeDefStart[ResultTreeType <: Tree, RhsTreeType <: Tree] extends DefStart[ResultTreeType, RhsTreeType] {
+      def defaultMods = NoMods
+      def defaultPos  = NoPosition
+      def :=(rhs: RhsTreeType): ResultTreeType = mkTree(rhs)
+    }
+
+    trait TreeVODDStart[ResultTreeType <: Tree] extends VODDStart[ResultTreeType, Tree] with TreeDefStart[ResultTreeType, Tree] {
       def defaultTpt  = TypeTree()
     }
 
@@ -414,8 +431,16 @@ trait TreehuggerDSLs { self: Forest =>
     }
     
     class DefTreeStart(val name: Name) extends TreeVODDStart[DefDef] with DefCreator with TparamsStart with VparamssStart
+
+    class ProcTreeStart(val name: Name) extends TreeDefStart[ProcDef, Block] with ProcCreator with TparamsStart with VparamssStart
     
-    class AnonFuncStart extends TreeDefStart[AnonFunc] with TptStart with VparamssStart {
+    class NoBlockDefTreeStart(name: Name) extends DefTreeStart(name) {
+      @deprecated("0.4.0", "DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
+      def :=(rhs: Block): DefDef = error("DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
+      override def :=(rhs: Tree): DefDef = mkTree(rhs)
+    }
+
+    class AnonFuncStart extends TreeDefStart[AnonFunc, Tree] with TptStart with VparamssStart {
       def name        = ""
       def defaultTpt  = TypeTree()
       
@@ -511,7 +536,7 @@ trait TreehuggerDSLs { self: Forest =>
       final def selfDef: ValDef = _selfDef
     }
 
-    class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef] with TparamsStart with ParentsStart {
+    class ClassDefStart(val name: TypeName) extends TreeDefStart[ClassDef, Tree] with TparamsStart with ParentsStart {
       private var _vparams: List[ValDef] = Nil
       private var _ctormods: Modifiers = NoMods
 
@@ -547,7 +572,7 @@ trait TreehuggerDSLs { self: Forest =>
         ClassDef(mods | Flags.TRAIT, ctormods, name, tparams, vparams, Template(parents, selfDef, body))
     }
     
-    class ModuleDefStart(val name: TermName) extends TreeDefStart[ModuleDef] with ParentsStart {
+    class ModuleDefStart(val name: TermName) extends TreeDefStart[ModuleDef, Tree] with ParentsStart {
 
       
       def mkTree(rhs: Tree): ModuleDef = rhs match {
@@ -559,7 +584,7 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(body: List[Tree]): ModuleDef = ModuleDef(mods, name, Template(parents, selfDef, body))
     }
     
-    trait PackageCreator extends TreeDefStart[PackageDef] {
+    trait PackageCreator extends TreeDefStart[PackageDef, Tree] {
       def header: Boolean
 
       override def defaultMods =
@@ -592,7 +617,7 @@ trait TreehuggerDSLs { self: Forest =>
     case class ViewBoundsStart(target: Type) extends TypeBoundsStart
     case class ContextBoundsStart(typcon: Type) extends TypeBoundsStart
     
-    trait TypeDefStart extends TreeDefStart[TypeDef] with TparamsStart {
+    trait TypeDefStart extends TreeDefStart[TypeDef, Tree] with TparamsStart {
       private var _bounds: List[TypeBoundsStart] = Nil
       
       private def withBounds(bounds: TypeBoundsStart*): this.type = {
@@ -661,12 +686,17 @@ trait TreehuggerDSLs { self: Forest =>
       else New(tpt, List(args.toList))
     // def NEW(sym: Symbol, args: Tree*): Tree = New(sym, args: _*)
 
-    def DEF(name: Name, tp: Type): DefTreeStart     = DEF(name) withType tp
-    def DEF(name: Name): DefTreeStart               = new DefTreeStart(name)
-    def DEF(sym: Symbol, tp: Type): DefSymStart     = DEF(sym) withType tp
-    def DEF(sym: Symbol): DefSymStart               = new DefSymStart(sym)
+    def PROC(name: Name): ProcTreeStart             = new ProcTreeStart(name)
+    def PROC(sym: Symbol): ProcSymStart             = new ProcSymStart(sym)
 
-    def DEFTHIS: DefTreeStart                       = DEF(nme.THIS)
+    def DEF(name: Name, tp: Type): DefTreeStart     = new DefTreeStart(name) withType tp
+    def DEF(name: Name)                             = new NoBlockDefTreeStart(name)
+    def DEF(sym: Symbol, tp: Type): DefSymStart     = new DefSymStart(sym) withType tp
+    def DEF(sym: Symbol)                            = new NoBlockDefSymStart(sym)
+    def DEFINFER(sym: Symbol): DefSymStart          = new DefSymStart(sym)
+    def DEFINFER(name: Name): DefTreeStart          = new DefTreeStart(name)
+
+    def DEFTHIS: DefTreeStart                       = new DefTreeStart(nme.THIS)
 
     def VAL(name: Name, tp: Type): ValNameStart     = VAL(name) withType tp
     def VAL(name: Name): ValNameStart               = new ValNameStart(name)
@@ -760,8 +790,8 @@ trait TreehuggerDSLs { self: Forest =>
     def INTERP(sym: Symbol, args: Tree*): Interpolated = Interpolated(sym, args.toList)
     def INTERP(name: Name, args: Tree*): Interpolated = Interpolated(name, args.toList)
 
-    def BLOCK(xs: Iterable[Tree]) = Block(xs.toList: _*)
-    def BLOCK(xs: Tree*)  = Block(xs: _*)
+    def BLOCK(xs: Iterable[Tree]): Block = Block(xs.toList: _*)
+    def BLOCK(xs: Tree*): Block = Block(xs: _*)
     def NOT(tree: Tree)   = Select(tree, Boolean_not)
 
     def PLUS(tree: Tree)  = Select(tree, Int_plus)
@@ -930,9 +960,9 @@ trait TreehuggerDSLs { self: Forest =>
 
     implicit def mkTreeMethodsFromSelectStart(ss: SelectStart): TreeMethods = mkTreeMethods(ss.tree)
     
-    implicit def mkTreeFromDefStart[A <: Tree](start: DefStart[A]): A = start.empty
-    implicit def mkSeqTreeFromDefStarts[A <: Tree, M[A] <: Iterable[A]](in: M[DefStart[A]]): Seq[A] =
-      in.toSeq map { x: DefStart[A] => (x: A)}
+    implicit def mkTreeFromDefStart[A <: Tree, B <: Tree](start: DefStart[A, B]): A = start.empty
+    implicit def mkSeqTreeFromDefStarts[A <: Tree, M[A] <: Iterable[A], B <: Tree](in: M[DefStart[A, B]]): Seq[A] =
+      in.toSeq map { x: DefStart[A, B] => (x: A)}
 
     implicit def mkTypeFromSymbol(sym: Symbol): Type = TYPE_REF(sym)
     implicit def mkTypeFromString(str: String): Type = TYPE_REF(RootClass.newClass(str))
