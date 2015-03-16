@@ -9,20 +9,14 @@ Classes
 
 Class definitions are written using `CLASSDEF(...)`:
 
-```scala
-(CLASSDEF("C"): Tree)
-CLASSDEF("C") := BLOCK(
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = (CLASSDEF("C"): Tree)
+scala> treeToString(tree)
+scala> val tree2 = CLASSDEF("C") := BLOCK(
   VAL("x") := LIT(0)
 )
-```
-
-The above examples print as:
-
-```scala
-class C
-class C {
-  val x = 0
-}
+scala> treeToString(tree2)
 ```
 
 The general form of the first example is:
@@ -37,100 +31,61 @@ As with value and function names, `CLASSDEF` can accept either a symbol or a `St
 
 Primary constructor parameters are written using `withParams(...)` similar to function definitions. Except, it could use `VAL(...)` and `VAR(...)` in addition to `PARAM(...)`:
 
-```scala
-CLASSDEF("C")
+```console
+scala> val tree3 = (CLASSDEF("C")
   withParams(PARAM("x", IntClass),
     VAL("y", StringClass),
     VAR("z", TYPE_LIST(StringClass))) := BLOCK(
   DEF("hi") := LIT("hi") 
-)
-```
-
-This prints as:
-
-```scala
-class C(x: Int, val y: String, var z: List[String]) {
-  def hi = "hi"
-}
+))
+scala> treeToString(tree3)
 ```
 
 ### Constructor definitions
 
 Auxiliary constructors are defined using `DEFTHIS := BLOCK(stat, ...)`. Optionally, `DEFTHIS` may take `withParams(...)`:
 
-```scala
-CLASSDEF("C")
+```console
+scala> val tree4 = (CLASSDEF("C")
   withParams(PARAM("s", StringClass)) := BLOCK(
   DEFTHIS withParams(PARAM("x", IntClass)) := BLOCK(
     THIS APPLY(REF("x") TOSTRING)
   )
-)
-```
-
-This prints as:
-
-```scala
-class C(s: String) {
-  def this(x: Int) = {
-    this(x.toString)
-  }
-}
+))
+scala> treeToString(tree4)
 ```
 
 ### Extending classes
 
 To define classes by extending super classes use `withParents(tree|typ|"T")`:
 
-```scala
-CLASSDEF("C") withParents("B") := BLOCK(
+```console
+scala> val tree5 = CLASSDEF("C") withParents("B") := BLOCK(
   DEF("x") := LIT(0)
 )
-```
-
-This prints as:
-
-```scala
-class C extends B {
-  def x = 0
-}
+scala> treeToString(tree5)
 ```
 
 ### Self type annotations
 
 To define self type annotations use `withSelf(sym|"self", [typ1, ...])`:
 
-```scala
-CLASSDEF("C") withSelf("self", "T1", "T2") := BLOCK(
+```console
+scala> val tree6 = CLASSDEF("C") withSelf("self", "T1", "T2") := BLOCK(
   VAL("x") := REF("self")
 )
-```
-
-This prints as:
-
-```scala
-class C { self: T1 with T2 => 
-  val x = self
-}
+scala> treeToString(tree6)
 ```
 
 ### Early denifitions
 
 To define field values before supertype constructor is called add early definitions using `withEarlyDefs(tree, ...)`:
 
-```scala
-CLASSDEF("C") withEarlyDefs(
+```console
+scala> val tree7 = CLASSDEF("C") withEarlyDefs(
   VAL("name") := LIT("Bob")
 ) withParents("B") := BLOCK(
   LIT(0)
 )
-```
-
-This prints as:
-
-```scala
-class C extends {
-  val name = "Bob"
-} with B {
-  0
-}
+scala> treeToString(tree7)
 ```

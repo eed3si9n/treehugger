@@ -7,21 +7,22 @@ Literals
 
 Literals are the basic foundation of treehugger DSL. Numeric literals, `String`, and symbols are written by wrapping a Scala literal with `LIT()`:
 
-```scala
-LIT(1)     // Int
-LIT(1L)    // Long
-LIT(1.23)  // Double
-LIT(1.23F) // Float
-LIT('H')   // Char
-LIT("H")   // String
-LIT('Sym)  // scala.Symbol
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> LIT(1)     // Int
+scala> LIT(1L)    // Long
+scala> LIT(1.23)  // Double
+scala> LIT(1.23F) // Float
+scala> LIT('H')   // Char
+scala> LIT("H")   // String
+scala> LIT('Sym)  // scala.Symbol
 ```
 
 Boolean literals, `()`, and `null` are written as follows:
 
-```scala
-TRUE       // true
-FALSE      // false
-NULL       // null
-UNIT       // ()
+```console
+scala> TRUE       // true
+scala> FALSE      // false
+scala> NULL       // null
+scala> UNIT       // ()
 ```

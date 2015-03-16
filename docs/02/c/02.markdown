@@ -9,8 +9,10 @@ Variables
 
 Abstract variable declarations are written using `VAR(...)`:
 
-```scala
-(VAR("foo", IntClass): Tree)
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = (VAR("foo", IntClass): Tree)
+scala> treeToString(tree)
 ```
 
 or in general:
@@ -23,18 +25,14 @@ VAR(sym|"x", typ|"C").tree
 
 Value definitions are written as:
 
-```scala
-VAR("foo", IntClass) := LIT(0)
+```console
+scala> val tree2 = VAR("foo", IntClass) := LIT(0)
+scala> treeToString(tree2)
 ```
 
 as a special form of initializing the variable with the default value of the type, `WILDCARD` can be used as follows:
 
-```scala
-VAR("foo", IntClass) := WILDCARD
-```
-
-This prints as:
-
-```scala
-var foo: Int = _
+```console
+scala> val tree3 = VAR("foo", IntClass) := WILDCARD
+scala> treeToString(tree3)
 ```

@@ -7,10 +7,11 @@ Pattern Matching
 
 Pattern matching is written using `tree MATCH(CASE(...), ...)`:
 
-```scala
-DEF("maxList", "T")
-    withTypeParams(TYPEVAR("T") VIEWBOUNDS TYPE_ORDERED("T"))
-    withParams(PARAM("elements", TYPE_LIST("T"))) :=
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = (DEF("maxList", "A")
+    withTypeParams(TYPEVAR("T") VIEWBOUNDS TYPE_ORDERED("A"))
+    withParams(PARAM("elements", TYPE_LIST("A")))) :=
   REF("elements") MATCH (
     CASE(ListClass UNAPPLY()) ==>
       THROW(IllegalArgumentExceptionClass, "empty list!"),
@@ -21,20 +22,5 @@ DEF("maxList", "T")
       ELSE REF("maxRest") 
     )
   )
-```
-
-This prints as:
-
-```scala
-def maxList[T <% Ordered[T]](elements: List[T]): T =
-  elements match {
-    case List() =>
-      throw new IllegalArgumentException("empty list!")
-    case List(x) => x
-    case x :: rest => {
-      val maxRest = maxList(rest)
-      if (x > maxRest) x
-      else maxRest
-    }
-  }
+scala> treeToString(tree)
 ```

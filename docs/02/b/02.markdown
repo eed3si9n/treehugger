@@ -15,17 +15,11 @@ tree withComment("comments here", ...)
 
 For example,
 
-```scala
-LIT(2) withComment("comments are useful",
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = LIT(2) withComment("comments are useful",
   "only if they provide more info than the code")
-```
-
-prints as
-
-```scala
-// comments are useful
-// only if they provide more info than the code
-2
+scala> treeToString(tree)
 ```
 
 ### Scaladoc style comments
@@ -40,19 +34,9 @@ where `doctag` is a doctag defined as `DocTag.See(IntClass)`, `DocTag.Author("So
 
 For example,
 
-```scala
-(DEF("x") := LIT(0)) withDoc(
+```console
+scala> val tree2 = (DEF("x") := LIT(0)) withDoc(
   "does something",
-  DocTag.See(IntClass)
-)
-```
-
-prints as
-
-```scala
-/** 
- * does something
- * @see scala.Int
- */
-def x = 0
+  DocTag.See(IntClass))
+scala> treeToString(tree2)
 ```

@@ -7,13 +7,9 @@ Polymorphic Classes
 
 Polymorphic classes are defined using `withTypeParams(...)`:
 
-```scala
-(CLASSDEF("Queue") withTypeParams(TYPEVAR("T"))
-  withParams(VAL("leading", "T"), VAL("trailing", "T")): Tree)
-```
-
-This prints as:
-
-```scala
-class Queue[T](val leading: List[T], val trailing: List[T])
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = (CLASSDEF("Queue") withTypeParams(TYPEVAR("A"))
+  withParams(VAL("leading", "A"), VAL("trailing", "A")): Tree)
+scala> treeToString(tree)
 ```

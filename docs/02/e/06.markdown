@@ -7,18 +7,11 @@ Blocks
 
 Blocks are written using `BLOCK(tree, ...)`:
 
-```scala
-BLOCK(
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = BLOCK(
   VAL("x") := LIT(0),
   REF("x")
 )
-```
-
-This prints as:
-
-```scala
-{
-  val x = 1
-  x
-}
+scala> treeToString(tree)
 ```

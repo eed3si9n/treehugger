@@ -7,72 +7,48 @@ Function Applications
 
 There are two ways to write function applications. The first way is calling `APPLY(arg, ...)` on a symbol or a tree. Here, `arg` denotes a `Tree`:
 
-```scala
-Predef_println APPLY LIT("Hello, world!")
-(REF("x") DOT "y") APPLY (LIT(0), LIT(1))
-```
-
-These print as:
-
-```scala
-println("Hello, world!")
-x.y(0, 1)
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = Predef_println APPLY LIT("Hello, world!")
+scala> treeToString(tree)
+scala> val tree2 = (REF("x") DOT "y") APPLY (LIT(0), LIT(1))
+scala> treeToString(tree2)
 ```
 
 ### Function application on selections
 
 The second way is to apply `arg, ...` on intermediate structure returned by `DOT(sym|"y")`:
 
-```scala
-(REF("x") DOT "y")(LIT(0), LIT(1))
-```
-
-This prints as:
-
-```scala
-x.y(0, 1)
+```console
+scala> val tree3 = (REF("x") DOT "y")(LIT(0), LIT(1))
+scala> treeToString(tree3)
 ```
 
 ### Sequence arguments
 
 To pass sequence into a vararg parameter, use `SEQARG(arg)`:
 
-```scala
-THIS APPLY (SEQARG(REF("list")))
-```
-
-This prints as:
-
-```scala
-this((list: _*))
+```console
+scala> val tree4 = THIS APPLY (SEQARG(REF("list")))
+scala> treeToString(tree4)
 ```
 
 ### Named arguments
 
 To pass named arguments into a function, specify the parameter using `REF(sym|"x")` as follows:
 
-```scala
-REF("put") APPLY (REF("x") := LIT(0))
-```
-
-This prints as:
-
-```scala
-put(x = 0)
+```console
+scala> val tree5 = REF("put") APPLY (REF("x") := LIT(0))
+scala> treeToString(tree5)
 ```
 
 ### Partially applied functions
 
 Partially applied functions are written by calling `APPLY` with `PARTIALLY`:
 
-```scala
-REF("put") APPLY PARTIALLY
-```
-
-This prints as:
-
-```scala
-put _
+```console
+scala> val tree6 = REF("put") APPLY PARTIALLY
+scala> treeToString(tree6)
 ```
 
 Note this is different from `APPLY`ing `WILDCARD` since `PARTIALLY` applies to the entire parameter list.

@@ -9,11 +9,20 @@ Type members
 
 Abstract type declarations are written using `TYPEVAR(sym|"T")`. Optionally, lower bounds and higher bounds can be specified:
 
-```scala
-(TYPEVAR("T"): Tree)
-(TYPEVAR("T") LOWER(IntClass): Tree)
 
-(TYPEVAR(sym.T) UPPER(ComparableClass TYPE_OF sym.T): Tree)
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = (TYPEVAR("T"): Tree)
+scala> treeToString(tree)
+scala> val tree2 = (TYPEVAR("T") LOWER(IntClass): Tree)
+scala> treeToString(tree2)
+scala> object sym {
+  val T = RootClass.newAliasType("T")
+  val A = RootClass.newAliasType("A")
+  val B = RootClass.newAliasType("B")
+}
+scala> val tree3 = (TYPEVAR(sym.T) UPPER(ComparableClass TYPE_OF sym.T): Tree)
+scala> treeToString(tree3)
 ```
 
 or in general:
@@ -28,9 +37,11 @@ where `lo` denotes an optional lower bound type and `hi` upper bound type.
 
 Type alias definitions are written by appending `:=` and right-hand side `Type`. The alias may accompany type parameters given by `withTypeParams(TYPEVAR(...), ...)`:
 
-```scala
-TYPEVAR("IntList") := TYPE_LIST(IntClass)
-TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := TYPE_TUPLE(sym.A, sym.A)
+```console
+scala> val tree4 = TYPEVAR("IntList") := TYPE_LIST(IntClass)
+scala> treeToString(tree4)
+scala> val tree5 = TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := TYPE_TUPLE(sym.A, sym.A)
+scala> treeToString(tree5)
 ```
 
 or in general:
@@ -43,15 +54,15 @@ TYPEVAR(sym|"T") [withTypeParams(TYPEVAR(typ1), ...)] := typ2
 
 Variance annotations for the type parameters are set using `COVARIANT(...)` and `CONTRAVARIANT(...)`:
 
-```scala
-val A = RootClass.newTypeParameter("A")
-(TYPEVAR("M") withTypeParams(TYPEVAR(COVARIANT(A))): Tree)
-(TYPEVAR("M") withTypeParams(TYPEVAR(CONTRAVARIANT(A))): Tree)
+```console
+scala> val A = RootClass.newTypeParameter("A")
+scala> val tree6 = (TYPEVAR("M") withTypeParams(TYPEVAR(COVARIANT(A))): Tree)
+scala> val tree7 = (TYPEVAR("M") withTypeParams(TYPEVAR(CONTRAVARIANT(A))): Tree)
 ```
 
 The above examples print as:
 
-```scala
-type M[+A]
-type M[-A]
+```console
+scala> treeToString(tree6)
+scala> treeToString(tree7)
 ```

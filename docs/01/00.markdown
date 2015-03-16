@@ -9,67 +9,48 @@ treehugger lets you treat Scala code as data (case classes), and data as code (t
 
 For example, here's treehugger DSL for Hello World:
 
-```scala
-import treehugger.forest._
-import definitions._
-import treehuggerDSL._
-
-val tree: Tree = Predef_println APPLY LIT("Hello, world!")
-
-println(tree)
-println(treeToString(tree))
+```console
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree: Tree = Predef_println APPLY LIT("Hello, world!")
+scala> treeToString(tree)
 ```
 
-The above code prints two lines:
-
-```scala
-Apply(Ident(println),List(Literal(Constant(Hello, world!))))
-println("Hello, world!")
-```
-
-The first line shows the structure of the returned _tree_, and the second line is the Scala source code represented by the tree. Because it is responsible for formatting of the `string`, your code generating code would be more clear using treehugger.
+The result of the `tree` shows the structure,
+and `treeToString(tree)` shows the Scala source code represented by the tree.
+Because it is responsible for formatting of the `String`, your code generating code would be more clear using treehugger.
 
 ### Classy example
 
 Let's omit the import statements, and `println` statements from here. Here's how treehugger DSL defines classes:
 
-```scala
+```console
+scala> :paste
 object sym {
   val IntQueue = RootClass.newClass("IntQueue")
   val BasicIntQueue = RootClass.newClass("BasicIntQueue")
   val buf = BasicIntQueue.newValue("buf")
 }
 
-CLASSDEF(sym.IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
+val tree1 = CLASSDEF(sym.IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
   DEF("get", IntClass),
-  DEF("put") withParams(PARAM("x", IntClass))
+  PROC("put") withParams(PARAM("x", IntClass))
 )
 
-CLASSDEF(sym.BasicIntQueue) withParents(sym.IntQueue) := BLOCK(
-  VAL(buf) withFlags(Flags.PRIVATE) :=
+val tree2 = CLASSDEF(sym.BasicIntQueue) withParents(sym.IntQueue) := BLOCK(
+  VAL(sym.buf) withFlags(Flags.PRIVATE) :=
     NEW(ArrayBufferClass TYPE_OF IntClass),
   DEF("get", IntClass) := REF(sym.buf) DOT "remove" APPLY(),
-  DEF("put") withParams(PARAM("x", IntClass)) := BLOCK(
-    REF(buf) INFIX("+=") APPLY REF("x")
+  PROC("put") withParams(PARAM("x", IntClass)) := BLOCK(
+    REF(sym.buf) INFIX("+=") APPLY REF("x")
   )
 )
 ```
 
-These print as:
+Let's print them out:
 
-```scala
-abstract class IntQueue {
-  def get(): Int
-  def put(x: Int)
-}
-
-class BasicIntQueue extends IntQueue {
-  private val buf = new scala.collection.mutable.ArrayBuffer[Int]
-  def get: Int = buf.remove()
-  def put(x: Int) {
-    buf += x
-  }
-}
+```console
+scala> treeToString(tree1)
+scala> treeToString(tree2)
 ```
 
 Notice some of the symbols were defined upfront so we could avoid typing in string names.

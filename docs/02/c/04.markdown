@@ -7,29 +7,44 @@ Functions
 
 ### Abstract function declarations
 
-Abstract function declarations are written using `DEF(...)`. Optionally, parameter lists can be specified using `withParams(PARAM(...), ...)` and type parameters can be specified using `withTypeParams(TYPEVAR(...), ...)`:
+Abstract function declarations are written using `DEF(...)` or `PROC(...)`. Optionally, parameter lists can be specified using `withParams(PARAM(...), ...)` and type parameters can be specified using `withTypeParams(TYPEVAR(...), ...)`:
 
-```scala
-(DEF("get", IntClass): Tree)
-(DEF("put") withParams(PARAM("x", IntClass)): Tree)
-(DEF("compare", BooleanClass)
-  withTypeParams(TYPEVAR(sym.T))
-  withParams(PARAM("a", sym.T) := LIT(0))
-  withParams(PARAM("b", sym.T) := LIT(0)): Tree)
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = DEF("get", IntClass).tree
+scala> val tree2 = (DEF("sideEffect", UnitClass) withParams()).tree
+scala> val tree3 = (PROC("put") withParams(PARAM("x", IntClass))).tree
+scala> object sym {
+  val A = RootClass.newAliasType("A")
+  val B = RootClass.newAliasType("B")
+}
+scala> val tree4 = (DEF("compare", BooleanClass)
+  withTypeParams(TYPEVAR(sym.A))
+  withParams(PARAM("a", sym.A) := LIT(0))
+  withParams(PARAM("b", sym.A) := LIT(0)): Tree)
 ```
 
 The above examples print as:
 
-```scala
-def get: Int
-def put(x: Int)
-def compare[T](a: T = 0)(b: T = 0): Boolean
+```console
+scala> treeToString(tree)
+scala> treeToString(tree2)
+scala> treeToString(tree3)
+scala> treeToString(tree4)
 ```
 
-In genral:
+In genral, for functions with return type:
 
 ```scala
-(DEF("get"|sym, [typ])
+(DEF("get"|sym, typ)
+  [withParams(PARAM("x"|sym, typ|"C")[ := arg], ...)]*
+  [withTypeParams(TYPEVAR(...), ...)]).tree
+```
+
+For procedures:
+
+```scala
+(PROC("get"|sym)
   [withParams(PARAM("x"|sym, typ|"C")[ := arg], ...)]*
   [withTypeParams(TYPEVAR(...), ...)]).tree
 ```
@@ -38,89 +53,77 @@ In genral:
 
 Function definitions are written by appending right-hand side tree after `:=` as follows:
 
-```scala
-DEF("get", IntClass) := LIT(0)
+```console
+scala> val tree5 = DEF("get", IntClass) := LIT(0)
+scala> treeToString(tree5)
 ```
 
-This prints as:
+The result type can be omitted using `DEF(...)` as follows:
 
-```scala
-def get: Int = 0
+```console
+scala> val tree6 = DEF("get") := LIT(0)
+scala> treeToString(tree6)
 ```
 
-Like Scala, the result type can be omitted as follows:
+When rhs is a `BLOCK(tree, ...)` you need to use `DEFINFER(...)` to differentiate from procedures (`PROC` was added in 0.4.0).
 
-```scala
-DEF("get") := LIT(0)
+```console
+scala> val tree7 = DEFINFER("get") := BLOCK(LIT(0))
+scala> treeToString(tree7)
 ```
 
 ### Procedures
 
-Procedure definitions are written by omitting the result type and using `BLOCK(tree, ...)` for the rhs:
+Procedure definitions are written using `PROC(...)` with `BLOCK(tree, ...)` for the rhs:
 
-```scala
-DEF("write") withParams(PARAM("str", StringClass)) := BLOCK(
+```console
+scala> val tree8 = PROC("write") withParams(PARAM("str", StringClass)) := BLOCK(
   LIT(0)
 )
-```
-
-This prints as:
-
-```scala
-def write(str: String) {
-  0
-}
+scala> treeToString(tree8)
 ```
 
 ### Currying
 
 Note `withParams(...)` clause may be added multiple times, each forming a parameter list:
 
-```scala
-(DEF("compare")
-  withTypeParams(TYPEVAR(sym.T))
-  withParams(PARAM("a", sym.T))
-  withParams(PARAM("b", sym.T))) := FALSE
+```console
+scala> val tree9 = (DEF("compare")
+  withTypeParams(TYPEVAR(sym.A))
+  withParams(PARAM("a", sym.A))
+  withParams(PARAM("b", sym.A))) := FALSE
+scala> treeToString(tree9)
 ```
 
 ### Default parameters
 
 Similar to `VAL(...)`, `PARAM(...)` can be followed by `:=` and rhs to specify the default argument:
 
-```scala
-(DEF("compare")
-  withTypeParams(TYPEVAR(sym.T))
-  withParams(PARAM("a", sym.T) := LIT(0))
-  withParams(PARAM("b", sym.T) := LIT(0))) := FALSE
+```console
+scala> val tree10 = (DEF("compare")
+  withTypeParams(TYPEVAR(sym.A))
+  withParams(PARAM("a", sym.A) := LIT(0))
+  withParams(PARAM("b", sym.A) := LIT(0))) := FALSE
+scala> treeToString(tree10)
 ```
 
 ### By-name parameters
 
 By-name parameters are written using `TYPE_BYNAME(typ)` as follows:
 
-```scala
-(DEF("whileLoop")
+```console
+scala> val tree11 = (PROC("whileLoop")
   withParams(PARAM("cond", TYPE_BYNAME(BooleanClass)))
   withParams(PARAM("stat", TYPE_BYNAME(UnitClass))): Tree)
-```
-
-This prints as:
-
-```scala
-def whileLoop(cond: => Boolean)(stat: => Unit)
+scala> treeToString(tree11)
 ```
 
 ### Repeated parameters
 
-Repeated parameters are written using `STAR(typ)` as follows:
+Repeated parameters are written using `TYPE_*(typ)` as follows:
 
-```scala
-(DEF("sum", IntClass)
-  withParams(PARAM("args", STAR(IntClass))): Tree)
-```
-
-This prints as:
-
-```scala
-def sum(args: Int*): Int
+```console
+scala> val tree12 = (DEF("sum", IntClass)
+  withParams(PARAM("args", TYPE_*(IntClass))): Tree)
+scala> treeToString(tree12)
 ```

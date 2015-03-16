@@ -33,8 +33,8 @@ First, use a built-in symbol if there is one available. Built-in symbols are def
 
 Second, consider defining a symbol for repeated reference to a class or a method. A new symbol may be defined off of an existing symbol as follows:
 
-```scala
-object sym {
+```console
+scala> object sym {
   val BasicIntQueue = RootClass.newClass("BasicIntQueue")
   val buf = BasicIntQueue.newValue("buf")  
   val A = ArrowAssocClass.newTypeParameter("A")

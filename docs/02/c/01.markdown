@@ -9,8 +9,10 @@ Values
 
 Abstract value declarations are written by wrapping the name and the type with `VAL(...)`:
 
-```scala
-(VAL("foo", IntClass): Tree)
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = (VAL("foo", IntClass): Tree)
+scala> treeToString(tree)
 ```
 
 or in general:
@@ -27,30 +29,26 @@ Calling `tree` method creates a `Tree` without a right-hand side (rhs) expressio
 
 Value definitions are written by appending right-hand side tree after `:=` as follows:
 
-```scala
-VAL("foo", IntClass) := LIT(0)
-```
-
-This prints as:
-
-```scala
-val foo: Int = 0
+```console
+scala> val tree2 = VAL("foo", IntClass) := LIT(0)
+scala> treeToString(tree2)
 ```
 
 Like Scala, the type annotation can be omitted when rhs is provided:
 
-```scala
-VAL("foo") := LIT(0)
+```console
+scala> val tree3 = VAL("foo") := LIT(0)
+scala> treeToString(tree3)
 ```
 
 In addition, a symbol could be used to define a value instead of using `String` names.
 
-```scala
-object sym {
+```console
+scala> object sym {
   val foo = RootClass.newValue("foo")
 }
-
-VAL(sym.foo) := LIT(0)
+scala> val tree4 = VAL(sym.foo) := LIT(0)
+scala> treeToString(tree4)
 ```
 
 For a larger code base, using symbols makes the code more readable.
@@ -65,22 +63,25 @@ VAL(sym|"x", [typ]) := rhs
 
 Lazy value declarations are written using `LAZYVAL(...)`:
 
-```scala
-(LAZYVAL("foo", IntClass): Tree)
+```console
+scala> val tree5 = (LAZYVAL("foo", IntClass): Tree)
+scala> treeToString(tree5)
 ```
 
 and lazy value definitions are written as:
 
-```scala
-LAZYVAL("foo", IntClass) := LIT(0)
+```console
+scala> val tree6 = LAZYVAL("foo", IntClass) := LIT(0)
+scala> treeToString(tree6)
 ```
 
 ### Final values
 
 Final value definitions are written by appending `withFlags(...)` after `VAL(...)`:
 
-```scala
-VAL("foo", IntClass) withFlags(Flags.FINAL) := LIT(0)
+```console
+scala> val tree7 = VAL("foo", IntClass) withFlags(Flags.FINAL) := LIT(0)
+scala> treeToString(tree7)
 ```
 
 ### Pattern values
