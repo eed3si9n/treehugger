@@ -354,7 +354,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
     
     trait VparamssStart {
-      private var _vparamss: List[List[ValDef]] = List(Nil)
+      private var _vparamss: List[List[ValDef]] = Nil
       
       def withParams(param: ValDef*): this.type = withParams(param.toList)
       def withParams(param: Iterable[ValDef]): this.type = {

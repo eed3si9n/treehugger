@@ -150,11 +150,12 @@ limit them to some members.                                                   $i
   }
 
   def function1 =
-    (DEF("get", IntClass): Tree) must print_as("def get: Int")
+    DEF("get", IntClass).tree must print_as("def get: Int")
     
   def function2 =
     ((DEF("put", UnitClass) withParams(PARAM("x", IntClass)): Tree) must print_as("def put(x: Int): Unit")) and
-    ((DEF(sym.run, UnitClass) withParams(PARAM("x", IntClass) := LIT(0)): Tree) must print_as("def run(x: Int = 0): Unit"))
+    ((DEF(sym.run, UnitClass) withParams(PARAM("x", IntClass) := LIT(0)): Tree) must print_as("def run(x: Int = 0): Unit")) and
+    ((DEF("sideEffect", UnitClass) withParams()).tree must print_as("def sideEffect(): Unit"))
 
   def function3 =
     (DEF("compare", BooleanClass)
