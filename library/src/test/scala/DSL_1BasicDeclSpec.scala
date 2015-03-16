@@ -58,9 +58,9 @@ where `trg` is a target Type,                                                 $b
 where `tycon` is the type constructor Type.                                   $bounds2
 
   Function definitions are written as
-     `DEF(sym|"get", typ|"") := rhs`.                                         $function4
+     `DEF(sym|"get", typ|"Int") := rhs`.                                      $function4
      The result type `typ` may be omitted as
-`DEF(sym|"get") := rhs`.                                                      $function5
+`DEFINFER(sym|"get") := rhs`.                                                 $function5
 
   Parameter lists
     with default arguments are written as
@@ -181,7 +181,10 @@ limit them to some members.                                                   $i
   
   def function4 = (DEF("get", IntClass) := LIT(0)) must print_as("def get: Int = 0")
   
-  def function5 = (DEF("get") := LIT(0)) must print_as("def get = 0")
+  def function5 = (DEFINFER("get") := BLOCK(LIT(0))) must print_as(
+    """def get = {""",
+    """  0""",
+    """}""")
   
   def param1 = (DEF("put", UnitClass) withParams(PARAM("x", IntClass) := LIT(0)) := UNIT) must print_as(
     "def put(x: Int = 0): Unit = ()")
@@ -201,12 +204,12 @@ limit them to some members.                                                   $i
   }
   
   def procedure1 = {
-    val tree: Tree = DEF("write") withParams(PARAM("str", StringClass))
+    val tree: Tree = PROC("write") withParams(PARAM("str", StringClass))
     tree must print_as("def write(str: String)")
   }
   
   def procedure2 =
-    (DEF("write") withParams(PARAM("str", StringClass)) := BLOCK(
+    (PROC("write") withParams(PARAM("str", StringClass)) := BLOCK(
       UNIT
     )) must print_as(
       """def write(str: String) {""",

@@ -1,0 +1,36 @@
+  [22]: https://github.com/eed3si9n/treehugger/issues/22
+
+## Breaking change: Procedures
+
+Prior to this release the procedures used to be written using
+`DEF("x")` and `BLOCK(...)`.
+This created a problem  of not being able to infer the
+return type when rhs is a block. [#22][22]
+
+### PROC
+
+treehugger 0.4.0 adds a new construct for procedures.
+
+    PROC("greet") := BLOCK(Predef_println APPLY LIT("Hello, world!"))
+
+This prints as
+
+    def greet {
+      println("Hello, world!")
+    }
+
+### DEFINFER
+
+treehugger 0.4.0 also adds a new construct `DEFINFER(...)`
+that's safe to use with `BLOCK(...)`
+
+    DEFINFER("get") := BLOCK(LIT(0))
+
+This prints as
+
+    def get = {
+      0
+    }
+
+`DEF("x") := BLOCK(...)` will now throw an exception.
+rhs that's not a `BLOCK(...)` will continue to work as before.

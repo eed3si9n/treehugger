@@ -334,7 +334,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           if (!mods.isDeferred && !rhs.isEmpty)
             print(" = ", rhs)
 
-        case DefDef(mods, name, tparams, vparamss, tp, b: Block) if tp.isEmpty && name != nme.THIS =>
+        case ProcDef(mods, name, tparams, vparamss, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
@@ -343,7 +343,15 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             case List() | List(List()) => //
             case _ => vparamss foreach printValueParams
           }
-          print(" ", b)
+          if (!rhs.isEmpty)
+            rhs match {
+              case b: Block => print(" ", b)
+              case _ =>
+                if (isinline(rhs)) print(" ", rhs)
+                else {
+                  print(" "); indent; println(); print(rhs); undent
+                }
+            }
             
         case DefDef(mods, name, tparams, vparamss, tp, rhs) =>
           printAnnotations(tree)
