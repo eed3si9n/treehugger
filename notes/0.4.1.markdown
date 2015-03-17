@@ -10,7 +10,7 @@ return type when rhs is a block. [#22][22]
 
 ### PROC
 
-treehugger 0.4.0 adds a new construct for procedures.
+treehugger 0.4.1 adds a new construct for procedures.
 
     PROC("greet") := BLOCK(Predef_println APPLY LIT("Hello, world!"))
 
@@ -22,7 +22,7 @@ This prints as
 
 ### DEFINFER
 
-treehugger 0.4.0 also adds a new construct `DEFINFER(...)`
+treehugger 0.4.1 also adds a new construct `DEFINFER(...)`
 that's safe to use with `BLOCK(...)`
 
     DEFINFER("get") := BLOCK(LIT(0))
@@ -38,7 +38,7 @@ rhs that's not a `BLOCK(...)` will continue to work as before.
 
 ## Breaking change: Empty parameter list
 
-Starting treehugger 0.4.0 `withParams()` will print as an empty parameter list. [#23][23]
+Starting treehugger 0.4.1 `withParams()` will print as an empty parameter list. [#23][23]
 
     DEF("greet", UnitClass) withParams() := BLOCK(Predef_println APPLY LIT("Hello, world!"))
 
