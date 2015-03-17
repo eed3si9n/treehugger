@@ -4,12 +4,13 @@ import UnidocKeys._
 
 val commonSettings = Seq(
     organization := "com.eed3si9n",
-    version := "0.3.0",
-    scalaVersion := "2.11.1",
-    crossScalaVersions := Seq("2.11.1", "2.10.2", "2.9.2", "2.9.1"),
+    version := "0.4.0-SNAPSHOT",
+    scalaVersion := "2.11.4",
+    crossScalaVersions := Seq("2.11.6", "2.10.5"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
     licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
     description := "a library to code Scala programmatically.",
+    scalacOptions += "-deprecation",
     initialCommands in console := """import treehugger.forest._
                                     |import definitions._
                                     |import treehuggerDSL._""".stripMargin,
@@ -21,7 +22,8 @@ val library = project.in(file("library")).
   settings(commonSettings: _*).
   settings(
     name := "treehugger",
-    libraryDependencies ++= libDeps(scalaVersion.value)
+    libraryDependencies ++= libDeps(scalaVersion.value),
+    sourceDirectory in (Pamflet, pf) := (baseDirectory in ThisBuild).value / "docs"
   )
 
 val bridge = project.in(file("bridge")).
@@ -37,6 +39,9 @@ lazy val root = project.in(file(".")).
   ).
   settings(
     name := "treehugger",
-    publishArtifact := false
+    publishArtifact := false,
+    publish := (),
+    publishLocal := (),
+    pf := (pf in library).value
   ).
   aggregate(library, bridge)

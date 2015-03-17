@@ -11,121 +11,78 @@ Many of the `Tree` objects has `Modifier` field, which adds extra attribute abou
 
 To define class members with access modifiers use `Flags.PRIVATE`, `Flags.PROTECTED`, and `PRIVATEWITHIN("scope")`:
 
-```scala
-CLASSDEF("C") := BLOCK(
-  DEF("x") withFlags(Flags.PRIVATE) := LIT(0)
-  DEF("y") withFlags(Flags.PROTECTED) := LIT(0)
+
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = CLASSDEF("C") := BLOCK(
+  DEF("x") withFlags(Flags.PRIVATE) := LIT(0),
+  DEF("y") withFlags(Flags.PROTECTED) := LIT(0),
   DEF("z") withFlags(PRIVATEWITHIN("this")) := LIT(0) 
 )
-```
-
-This prints as:
-
-```scala
-class C {
-  private def x = 0
-  protected def y = 0
-  private[this] def z = 0
-}
+scala> treeToString(tree)
 ```
 
 ### Overriding
 
 To override class members use `Flags.OVERRIDE`:
 
-```scala
-CLASSDEF("C") withParents("B") := BLOCK(
+```console
+scala> val tree2 = CLASSDEF("C") withParents("B") := BLOCK(
   DEF("x") withFlags(Flags.OVERRIDE) := LIT(0)
 )
-```
-
-This prints as:
-
-```scala
-class C extends B {
-  override def x = 0
-}
+scala> treeToString(tree2)
 ```
 
 ### Final members
 
 To prohibit overriding by subclasses class members are marked `final` using `Flags.FINAL`:
 
-```scala
-CLASSDEF("C") := BLOCK(
+```console
+scala> val tree3 = CLASSDEF("C") := BLOCK(
   DEF("x") withFlags(Flags.FINAL) := LIT(0)
 )
-```
-
-This prints as:
-
-```scala
-class C {
-  final def x = 0
-}
+scala> treeToString(tree3)
 ```
 
 ### Abstract classes
 
 To define abstract classes use `Flags.ABSTRACT` on `CLASSDEF(...)`:
 
-```scala
-val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")
- 
-CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
-  DEF("get", IntClass)
-  DEF("put") withParams(PARAM("x", IntClass))
-)
-```
-
-This prints as:
-
-```scala
-abstract class IntQueue {
-  def get: Int
-  def put(x: Int)
+```console
+scala> object sym {
+  val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")  
 }
+scala> val tree4 = CLASSDEF(sym.IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
+  DEF("get", IntClass),
+  PROC("put") withParams(PARAM("x", IntClass))
+)
+scala> treeToString(tree4)
 ```
 
 ### Final classes
 
 To define final classes, which prohibits extension, use `Flags.FINAL` on `CLASSDEF(...)`:
 
-```scala
-(CLASSDEF("C") withFlags(Flags.FINAL): Tree)
-```
-
-This prints as:
-
-```scala
-final class C
+```console
+scala> val tree5 = (CLASSDEF("C") withFlags(Flags.FINAL): Tree)
+scala> treeToString(tree5)
 ```
 
 ### Sealed classes
 
 To define sealed classes use `Flags.SEALED` on `CLASSDEF(...)`:
 
-```scala
-CLASSDEF("Animal") withFlags(Flags.ABSTRACT, Flags.SEALED)
-```
-
-This prints as:
-
-```scala
-sealed abstract class Animal
+```console
+scala> val tree6 = CLASSDEF("Animal") withFlags(Flags.ABSTRACT, Flags.SEALED)
+scala> treeToString(tree6)
 ```
 
 ### Private constructors
 
 To define private constructors use `Flags.PRIVATE` with `withCtorFlags(...)` on `CLASSDEF(...)`:
 
-```scala
-(CLASSDEF("C") withCtorFlags(Flags.PRIVATE)
+```console
+scala> val tree7 = (CLASSDEF("C") withCtorFlags(Flags.PRIVATE)
   withParams(PARAM("x", IntClass)): Tree)
-```
-
-This prints as:
-
-```scala
-class C private (x: Int)
+scala> treeToString(tree7)
 ```

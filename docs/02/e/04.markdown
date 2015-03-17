@@ -7,22 +7,23 @@ Tuples and Parentheses
 
 There are three ways to write tuple expressions. The most general form is `TUPLE(tree, ...)`:
 
-```scala
-TUPLE()                      // ()
-TUPLE(REF("x"))              // (x)
-TUPLE(LIT(0), LIT(1))        // (0, 1)
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> TUPLE()                      // ()
+scala> TUPLE(REF("x"))              // (x)
+scala> TUPLE(LIT(0), LIT(1))        // (0, 1)
 ```
 
 The second way is to use `UNIT` literal:
 
-```scala
-UNIT                         // ()
+```console
+scala> UNIT                         // ()
 ```
 
 Finally, `PAREN(tree, ...)` can also be used to write a tuple expression:
 
-```scala
-PAREN(REF("x"))              // (x)
+```console
+scala> PAREN(REF("x"))              // (x)
 ```
 
 Semantically speaking the actual `scala.Tuple`_n_ are formed only when two or more arguments are passed, but as a syntactic expression, `PAREN` is just an alias to `TUPLE`.

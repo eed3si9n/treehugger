@@ -9,64 +9,70 @@ Basic Expressions
 
 As we've seen earlier, literals are written as follows:
 
-```scala
-LIT(1)                       // 1
-LIT(1L)                      // 1L
-LIT(1.23)                    // 1.23
-LIT(1.23F)                   // 1.23F
-LIT('H')                     // 'H'
-LIT("H")                     // "H"
-LIT('Sym)                    // 'Sym
-TRUE                         // true
-FALSE                        // false
-NULL                         // null
-UNIT                         // ()
+
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> LIT(1)                       // 1
+scala> LIT(1L)                      // 1L
+scala> LIT(1.23)                    // 1.23
+scala> LIT(1.23F)                   // 1.23F
+scala> LIT('H')                     // 'H'
+scala> LIT("H")                     // "H"
+scala> LIT('Sym)                    // 'Sym
+scala> TRUE                         // true
+scala> FALSE                        // false
+scala> NULL                         // null
+scala> UNIT                         // ()
 ```
 
 ### Simple Names
 
 Simple names are written using `REF(sym|"x")` to refer to values and methods that immediately available in the current scope:
 
-```scala
-object sym {
+```console
+scala> object sym {
   val x = RootClass.newValue("x")
-  val y = RootClass.newValue("y") 
+  val y = RootClass.newValue("y")
+  val Address = RootClass.newClass("Address")
 }
-
-REF("x")                     // x
-REF(sym.x)                   // x
+scala> REF("x")                     // x
+scala> REF(sym.x)                   // x
 ```
 
 ### Selection
 
 To refer to other values and methods, selections are written by calling `DOT(sym|"y")` either on a symbol or on a `REF(sym|"x")`. This returns an intermediate structure that can turn into a `Tree` by calling `tree` method or by implicit conversion:
 
-```scala
-(sym.x DOT sym.y).tree       // x.y
-(sym.x DOT "y": Tree)        // x.y
-(REF("x") DOT "y": Tree)     // x.y
+```console
+scala> (sym.x DOT sym.y).tree       // x.y
+scala> (sym.x DOT "y": Tree)        // x.y
+scala> (REF("x") DOT "y": Tree)     // x.y
+scala> val tree = (REF("x") DOT "y").tree
+scala> treeToString(tree)
 ```
 
 ### This
 
 References to `this` are written using `THIS` or `THIS(sym|"C")`:
 
-```scala
-THIS                         // this
-THIS(sym.Address)            // Address.this
+```console
+scala> THIS                         // this
+scala> val tree2 = THIS(sym.Address)
+scala> treeToString(tree2)
 ```
 
 ### Super
 
 References to `super` are written using `SUPER` or `SUPER(sym|"C")`. This also returns an intermediate structure that can turn into a `Tree` by calling `tree` method or via implicit conversion:
 
-```scala
-(SUPER: Tree)                // super
-(SUPER("C"): Tree)           // C.super
+```console
+scala> SUPER.tree                   // super
+scala> (SUPER("C"): Tree)           // C.super
 ```
 
 To add type parameter to `super`, call `APPLYTYPE(sym|"T")`:
 
-```scala
-SUPER APPLYTYPE "T"          // super[T]
+```console
+scala> val tree3 = SUPER APPLYTYPE "T"
+scala> treeToString(tree3)
 ```

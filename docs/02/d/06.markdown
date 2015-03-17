@@ -7,24 +7,20 @@ Object Definitions
 
 Object definitions are written using `OBJECTDEF(...)`:
 
-```scala
-OBJECTDEF("Main") withParents("App") := BLOCK(
+
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = OBJECTDEF("Main") withParents("App") := BLOCK(
   LIT(0)
 )
-```
-
-This prints as:
-
-```scala
-object Main extends App {
-  0
-}
+scala> treeToString(tree)
 ```
 
 ### Case object definitions
 
 Case object definitions are written using `CASEOBJECTDEF(...)`:
 
-```scala
-(CASEOBJECTDEF("C"): Tree)  // case object C
+```console
+scala> val tree2 = (CASEOBJECTDEF("C"): Tree)
+scala> treeToString(tree2)
 ```

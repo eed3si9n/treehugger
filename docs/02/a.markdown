@@ -5,14 +5,10 @@ out: forest.html
 Forest
 ------
 
-```scala
-import treehugger.forest._
-import definitions._
-import treehuggerDSL._
-
-val tree: Tree = Predef_println APPLY LIT("Hello, world!")
-
-println(treeToString(tree))
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree: Tree = Predef_println APPLY LIT("Hello, world!")
+scala> treeToString(tree)
 ```
 
 The entire treehugger system is bundled up as `treehugger.Forest` class. The package object for `treehugger` defines an instance of `Forest` called `forest` for convenience.  Under the `forest`, `definitions` object defines built-in symbols and `treehuggerDSL` object defines the DSL.

@@ -7,12 +7,8 @@ Type Applications
 
 Type applications are written by calling `APPLYTYPE(typ|"C", ...)` on a symbol or a tree:
 
-```scala
-REF("put") APPLYTYPE(IntClass) APPLY(LIT(0))
-```
-
-This prints as:
-
-```scala
-put[Int](0)
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = REF("put") APPLYTYPE(IntClass) APPLY(LIT(0))
+scala> treeToString(tree)
 ```

@@ -9,44 +9,43 @@ Instance Creation Expressions
 
 Instance creations are written using `NEW(path|typ|"C")`:
 
-```scala
-NEW(sym.T)                   // new T
-NEW("C")                     // new C
-NEW(REF("B") DOT "C")        // new B.C
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> object sym {
+  val A = RootClass.newClass("A")
+}
+scala> NEW(sym.A)                   // new A
+scala> NEW("C")                     // new C
+scala> NEW(REF("B") DOT "C")        // new B.C
 ```
 
 Optionally, arguments may be passed into the constructor using `NEW(path|typ|"C", arg, ...)`:
 
-```scala
-NEW("C", LIT(0), LIT(1))     // new C(0, 1)
+```console
+scala> val tree = NEW("C", LIT(0), LIT(1))
+scala> treeToString(tree)
 ```
 
 ### Anonymous classes
 
 Anonymous classes are created by passing `ANONDEF(parent|"C", ...)` into `NEW(...)`:
 
-```scala
-NEW(ANONDEF() := BLOCK(
+```console
+scala> val tree2 = NEW(ANONDEF() := BLOCK(
   DEF("name") := LIT("Robert")
 ))
-NEW(ANONDEF("C") := BLOCK(
+scala> val tree3 = NEW(ANONDEF("C") := BLOCK(
   DEF("name") := LIT("Robert")
 ))
-NEW(ANONDEF("C") withEarlyDefs(
+scala> val tree4 = NEW(ANONDEF("C") withEarlyDefs(
   VAL("name") := LIT("Robert")
 ))
 ```
 
 These examples print as:
 
-```scala
-new {
-  def name = "Robert"
-}
-new C {
-  def name = "Robert"
-}
-new {
-  val name = "Robert"
-} with C
+```console
+scala> treeToString(tree2)
+scala> treeToString(tree3)
+scala> treeToString(tree4)
 ```

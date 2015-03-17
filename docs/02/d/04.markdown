@@ -7,20 +7,15 @@ Case Classes
 
 Case classes are defined using `CASECLASSDEF(...)`:
 
-```scala
-object sym {
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> object sym {
   val Expr = RootClass.newClass("Expr")
   val Var  = RootClass.newClass("Var")
 }
-
-(CLASSDEF(sym.Expr) withFlags(Flags.SEALED, Flags.ABSTRACT): Tree)
-(CASECLASSDEF(sym.Var)
-  withParams(PARAM("name", StringClass)) withParents(Expr): Tree)
-```
-
-These print as:
-
-```scala
-sealed abtract class Expr
-case class Var(name: String) extends Expr
+scala> val tree = (CLASSDEF(sym.Expr) withFlags(Flags.SEALED, Flags.ABSTRACT): Tree)
+scala> treeToString(tree)
+scala> val tree2 = (CASECLASSDEF(sym.Var)
+  withParams(PARAM("name", StringClass)) withParents(sym.Expr): Tree)
+scala> treeToString(tree2)
 ```

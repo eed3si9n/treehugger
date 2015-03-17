@@ -47,3 +47,8 @@ This prints as
     def greet(): Unit = {
       println("Hello, world!")
     }
+
+## compilable documentation
+
+Much of the [documentation](http://eed3si9n.com/treehugger/) is converted to
+compilable documentation powered by sbt-pamflet.

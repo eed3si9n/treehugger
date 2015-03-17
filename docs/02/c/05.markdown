@@ -7,22 +7,23 @@ Import Clauses
 
 Import clauses are written using `IMPORT(...)`. Optionally, import selectors may be specified:
 
-```scala
-IMPORT(MutablePackage)
-IMPORT("scala.collection.mutable")
-IMPORT(MutablePackage, "_")
-IMPORT(MutablePackage, "Map", "Set")
-IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap")
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree  = IMPORT(MutablePackage)
+scala> val tree2 = IMPORT("scala.collection.mutable")
+scala> val tree3 = IMPORT(MutablePackage, "_")
+scala> val tree4 = IMPORT(MutablePackage, "Map", "Set")
+scala> val tree5 = IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap")
 ```
 
 The above examples print as:
 
-```scala
-import scala.collection.mutable
-import scala.collection.mutable
-import scala.collection.mutable._
-import scala.collection.mutable.{Map, Set}
-import scala.collection.mutable.{Map => MutableMap}
+```console
+scala> treeToString(tree)
+scala> treeToString(tree2)
+scala> treeToString(tree3)
+scala> treeToString(tree4)
+scala> treeToString(tree5)
 ```
 
 In general:

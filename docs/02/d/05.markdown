@@ -7,35 +7,26 @@ Traits
 
 Traits are defined using `TRAITDEF(...)`:
 
-```scala
-TRAITDEF("Philosophical") := BLOCK(
-  DEF("philosophize") := BLOCK(
+```console:new
+scala> import treehugger.forest._, definitions._, treehuggerDSL._
+scala> val tree = TRAITDEF("Philosophical") := BLOCK(
+  PROC("philosophize") := BLOCK(
     LIT(0)
   ) 
 )
-(CLASSDEF("Animal"): Tree)
-(TRAITDEF("HasLegs"): Tree)
-CLASSDEF("Frog")
+scala> val tree2 = (CLASSDEF("Animal"): Tree)
+scala> val tree3 = (TRAITDEF("HasLegs"): Tree)
+scala> val tree4 = (CLASSDEF("Frog")
     withParents("Animal", "HasLegs", "Philosophical") := BLOCK(
   DEF(Any_toString) withFlags(Flags.OVERRIDE) := LIT("green")
-)
+))
 ```
 
 These print as:
 
-```scala
-trait Philosophical {
-  def philosophize {
-    0
-  }
-}
-
-class Animal
-
-trait HasLegs
-
-class Fogs extends Animal with HasLegs with Philosophical {
-  override toString = "green"
-}
-
+```console
+scala> treeToString(tree)
+scala> treeToString(tree2)
+scala> treeToString(tree3)
+scala> treeToString(tree4)
 ```
