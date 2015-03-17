@@ -4,7 +4,7 @@ import UnidocKeys._
 
 val commonSettings = Seq(
     organization := "com.eed3si9n",
-    version := "0.4.0",
+    version := "0.4.1",
     scalaVersion := "2.11.4",
     crossScalaVersions := Seq("2.11.6", "2.10.5"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
@@ -22,8 +22,8 @@ val library = project.in(file("library")).
   settings(commonSettings: _*).
   settings(
     name := "treehugger",
-    libraryDependencies ++= libDeps(scalaVersion.value),
-    sourceDirectory in (Pamflet, pf) := (baseDirectory in ThisBuild).value / "docs"
+    libraryDependencies ++= libDeps(scalaVersion.value)
+    ,sourceDirectory in (Pamflet, pf) := (baseDirectory in ThisBuild).value / "docs"
   )
 
 val bridge = project.in(file("bridge")).
@@ -41,7 +41,7 @@ lazy val root = project.in(file(".")).
     name := "treehugger",
     publishArtifact := false,
     publish := (),
-    publishLocal := (),
-    pf := (pf in library).value
+    publishLocal := ()
+    ,pf := (pf in library).value
   ).
   aggregate(library, bridge)
