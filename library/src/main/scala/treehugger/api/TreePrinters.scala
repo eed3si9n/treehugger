@@ -13,7 +13,7 @@ trait TreePrinters { self: Universe =>
     def withUniqueIds: this.type = { uniqueIds = true; this }
   }
 
-  def show(tree: Tree, mkPrinter: PrintWriter => TreePrinter = newTreePrinter): String = {
+  def show(tree: Tree, mkPrinter: PrintWriter => TreePrinter = pw => newTreePrinter(pw)(None)): String = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
     val printer = mkPrinter(writer)
@@ -26,7 +26,7 @@ trait TreePrinters { self: Universe =>
 
   /** Hook to define what `show(tree)` means.
    */
-  def newTreePrinter(out: PrintWriter): TreePrinter
+  def newTreePrinter(out: PrintWriter)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter
 
   class RawTreePrinter(out: PrintWriter) extends TreePrinter {
     def print(args: Any*): Unit = args foreach {

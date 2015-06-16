@@ -33,7 +33,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     case _                  => t.toString
   }
 
-  class TreePrinter(out: PrintWriter) extends super.TreePrinter {
+  class TreePrinter(out: PrintWriter)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]) extends super.TreePrinter {
+    me =>
     protected var indentMargin = 0
     protected val indentStep = 2
     protected var indentString = "                                        " // 40
@@ -269,15 +270,14 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     private def unaryop(name: Name): Option[String] =
       Map(nme.UNARY_! -> "!", nme.UNARY_+ -> "+", nme.UNARY_- -> "-", nme.UNARY_~ -> "~").get(name)
 
-    def printTree(tree: Tree) {
-      tree match {
+    def printTree: PartialFunction[Tree, Unit] = {
         case EmptyTree =>
           print("")
         
         case classdef: ClassDef if classdef.name == tpnme.ANON_CLASS_NAME =>
            print(classdef.impl)
         
-        case ClassDef(mods, ctormods, name, tparams, vparams, impl) =>
+        case tree @ ClassDef(mods, ctormods, name, tparams, vparams, impl) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           val word =
@@ -297,7 +297,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
                 else if (impl.parents.isEmpty) ""
                 else " extends ", impl)
 
-        case PackageDef(mods, packaged, stats) =>
+        case tree @ PackageDef(mods, packaged, stats) =>
           printAnnotations(tree)
           
           if (packaged != NoPackage)
@@ -312,7 +312,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           }
           else printColumn(stats, " {", "", "}")
 
-        case ModuleDef(mods, name, impl) =>
+        case tree @ ModuleDef(mods, name, impl) =>
           printAnnotations(tree)
           printModifiers(tree, mods);
           if (mods.hasFlag(Flags.PACKAGE)) print("package ")
@@ -321,7 +321,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           else print(" extends ")
           print(impl)
 
-        case ValDef(mods, lhs, rhs) =>
+        case tree @ ValDef(mods, lhs, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ")
@@ -334,7 +334,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           if (!mods.isDeferred && !rhs.isEmpty)
             print(" = ", rhs)
 
-        case ProcDef(mods, name, tparams, vparamss, rhs) =>
+        case tree @ ProcDef(mods, name, tparams, vparamss, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
@@ -353,7 +353,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
                 }
             }
             
-        case DefDef(mods, name, tparams, vparamss, tp, rhs) =>
+        case tree @ DefDef(mods, name, tparams, vparamss, tp, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
@@ -387,7 +387,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           printOpt(": ", tp)
           if (!rhs.isEmpty) print(" => ", rhs)
                               
-        case TypeDef(mods, name, tparams, rhs) =>
+        case tree @ TypeDef(mods, name, tparams, rhs) =>
           if (mods hasFlag (PARAM | DEFERRED)) {
             printAnnotations(tree)
             printModifiers(tree, mods); print("type "); printParam(tree)
@@ -405,7 +405,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             }
           }
 
-        case LabelDef(name, param, rhs) =>
+        case tree @ LabelDef(name, param, rhs) =>
           name match {
             case x if x == nme.WHILEkw =>
               print("while (", param, ") ")
@@ -441,7 +441,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               print(".", many.map(selectorToString).mkString("{", ", ", "}"))
           }
 
-       case Template(parents, self, body) =>
+       case tree @ Template(parents, self, body) =>
           val currentOwner1 = currentOwner
           if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
           printRow(parents, " with ")
@@ -489,7 +489,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Star(elem) =>
           print("(", elem, ")*")
 
-        case Bind(name, t) =>
+        case tree @ Bind(name, t) =>
           print("(", symName(tree, name), " @ ", t, ")")
 
         case UnApply(fun, args) =>
@@ -498,7 +498,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case ArrayValue(elemtpt, trees) =>
           print("Array[", elemtpt); printRow(trees, "]{", ", ", "}")
 
-        case Function(vparams, body) =>
+        case tree @ Function(vparams, body) =>
           print("("); printValueParams(vparams); print(" => ", body, ")")
           if (uniqueIds && tree.symbol != null) print("#"+tree.symbol.id)
 
@@ -537,17 +537,17 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case TypeApply(fun, targs) =>
           print(fun); printRow(targs, "[", ", ", "]")
         
-        case Apply(fun, vargs) =>
+        case tree @ Apply(fun, vargs) =>
           if (!isTupleTree(tree)) print(fun)
           if (vargs.size == 1
             && vargs.head.symbol == definitions.PartiallyAppliedParam) print(" _")
           else printRow(vargs, "(", ", ", ")")
 
-        case ApplyDynamic(qual, vargs) =>
+        case tree @ ApplyDynamic(qual, vargs) =>
           print("<apply-dynamic>(", qual, "#", tree.symbol.nameString)
           printRow(vargs, ", (", ", ", "))")
 
-        case Super(This(qual), mix) =>
+        case tree @ Super(This(qual), mix) =>
           if (!qual.isEmpty || tree.symbol != NoSymbol) print(symName(tree, qual) + ".")
           print("super")
           if (!mix.isEmpty)
@@ -559,7 +559,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           if (!mix.isEmpty)
             print("[" + mix + "]")
 
-        case This(qual) =>
+        case tree @ This(qual) =>
           if (!qual.isEmpty) print(symName(tree, qual) + ".")
           print("this")
         
@@ -569,14 +569,14 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Select(qual @ New(tpe), name) => // if (!settings.debug.value) =>
           print(qual)
 
-        case Select(Literal(x), name) =>
+        case tree @ Select(Literal(x), name) =>
           print(x.escapedStringValue, ".", symName(tree, name))
         
-        case Select(qualifier, name) =>
+        case tree @ Select(qualifier, name) =>
           print(qualifier, ".", symName(tree, name))
           // print(backquotedPath(qualifier), ".", symName(tree, name))
                 
-        case Ident(name) =>
+        case tree @ Ident(name) =>
           tree match {
             case BackQuotedIdent(name) =>
               print("`", symName(tree, name), "`")
@@ -601,7 +601,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case SingletonTypeTree(ref) =>
           print(ref, ".type")
 
-        case SelectFromTypeTree(qualifier, selector) =>
+        case tree @ SelectFromTypeTree(qualifier, selector) =>
           print(qualifier, "#", symName(tree, selector))
 
         case CompoundTypeTree(templ) =>
@@ -642,17 +642,17 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             printColumn(enumerators, "{", "", "} ")
             print("yield "); print(body)
           }          
-        case ForValFrom(_, name, tp, rhs) =>
+        case tree @ ForValFrom(_, name, tp, rhs) =>
           print(symName(tree, name))
           printOpt(": ", tp)
           print(" <- ", rhs)  
-        case ForValDef(_, name, tp, rhs) =>
+        case tree @ ForValDef(_, name, tp, rhs) =>
           print(symName(tree, name))
           printOpt(": ", tp)
           print(" = ", rhs)  
         case ForFilter(_, test: Tree) =>
           print("if ", test)
-        case Infix(Literal(x), name, args) =>
+        case tree @ Infix(Literal(x), name, args) =>
           print(x.escapedStringValue, " ", symName(tree, name))
           if (!args.isEmpty) {
             print(" ")
@@ -663,7 +663,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
              }
             else printRow(args, "(", ", ", ")")
           }
-        case Infix(qualifier, name, args) =>
+        case tree @ Infix(qualifier, name, args) =>
           print(qualifier, " ", symName(tree, name))
           if (!args.isEmpty) {
             print(" ")
@@ -674,11 +674,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
              }
             else printRow(args, "(", ", ", ")")
           }
-        case InfixUnApply(Literal(x), name, args) =>
+        case tree @ InfixUnApply(Literal(x), name, args) =>
           print(x.escapedStringValue, " ", symName(tree, name), " ")
           if (args.size == 1) print(args(0))
           else printRow(args, "(", ", ", ")")
-        case InfixUnApply(qualifier, name, args) =>
+        case tree @ InfixUnApply(qualifier, name, args) =>
           print(qualifier, " ", symName(tree, name), " ")
           if (args.size == 1) 
             args(0) match {
@@ -697,16 +697,22 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
         case tree =>
           xprintTree(this, tree)
-      }
+    }
+  
+    def printDefault(tree: Tree) =
       if (typesPrinted && tree.isTerm && !tree.isEmpty) {
         print("{", if (tree.tpe eq null) "<null>" else tree.tpe.toString, "}")
       }
-    }
 
     def print(args: Any*): Unit = args foreach {
       case tree: Tree =>
         printPosition(tree)
-        printTree(tree)
+        val prntr =
+          customPrinter.
+            map(_(out, me.asInstanceOf[treehugger.forest.TreePrinter]).orElse(printTree)).
+            getOrElse(printTree)
+        prntr(tree)
+        printDefault(tree)
       case name: Name =>
         print(quotedName(name))
       case arg =>
@@ -717,15 +723,18 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
   /** Hook for extensions */
   def xprintTree(treePrinter: TreePrinter, tree: Tree) =
     treePrinter.print(tree.productPrefix+tree.productIterator.mkString("(", ", ", ")"))
-
-  def newTreePrinter(writer: PrintWriter): TreePrinter = new TreePrinter(writer)
-  def newTreePrinter(stream: OutputStream): TreePrinter = newTreePrinter(new PrintWriter(stream))
-  def newTreePrinter(): TreePrinter = newTreePrinter(new PrintWriter(ConsoleWriter))
     
-  def treeToString(args: Any*): String = {
+  def newTreePrinter(writer: PrintWriter)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
+    new TreePrinter(writer)(customPrinter)
+  def newTreePrinter(stream: OutputStream)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
+    newTreePrinter(new PrintWriter(stream))(customPrinter)
+  def newTreePrinter()(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
+    newTreePrinter(new PrintWriter(ConsoleWriter))(customPrinter)
+    
+  def treeToString(args: Any*)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]] = None): String = {
     val sw = new StringWriter
     val writer = new PrintWriter(sw)
-    val printer = newTreePrinter(writer)  
+    val printer = newTreePrinter(writer) 
     args.toList match {
       case Nil => //
       case List(x) => printer.print(x)
