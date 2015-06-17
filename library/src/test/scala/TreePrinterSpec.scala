@@ -13,6 +13,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     """print case class [T <% List[T]]Address()"""                            ! e8^
     """print new Addressable {}"""                                            ! e9^
     """print mkPointed"""                                                     ! e10^
+    """print with custom formats"""                                           ! e11^
                                                                               end
   
   import treehugger.forest._
@@ -291,6 +292,43 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       "implicit def mkPointed[M : Monoid] = new Pointed[({ type L[A] = Const[M, A] })#L] {",
       "  def point[A](a: => A) = Const[M, A](implicitly[Monoid[M]].z)",
       "}"
+    ).inOrder)
+  }
+  
+  def e11 = {
+    var afterS = false
+
+    implicit val customPrinter: Option[(treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]] =
+      Some(
+        (tp) => {
+          case tree @ Ident(name) if (name.name == "s") =>
+            afterS = true
+            tree match {
+              case BackQuotedIdent(name) =>
+                tp.print("`", tp.symName(tree, name), "`")
+              case _ =>
+                tp.print(tp.symName(tree, name))
+            }
+          case tree @ Apply(fun, vargs) =>
+            if (!isTupleTree(tree)) tp.print(fun)
+            if (vargs.size == 1
+              && vargs.head.symbol == definitions.PartiallyAppliedParam) tp.print(" _")
+            else {
+              if (afterS) {
+                afterS = false
+                tp.printRow(vargs, "", "", "")
+              } else {
+                tp.printRow(vargs, "(", ", ", ")")
+              }
+            }
+        })
+    
+    val tree = REF("s") APPLY( LIT("$x andThen $y"))
+    
+    val s = treeToString(tree); println(s)
+    
+    s.lines.toList must contain(allOf(
+      """s"$x andThen $y""""
     ).inOrder)
   }
 }

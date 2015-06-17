@@ -26,7 +26,7 @@ trait TreePrinters { self: Universe =>
 
   /** Hook to define what `show(tree)` means.
    */
-  def newTreePrinter(out: PrintWriter)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter
+  def newTreePrinter(out: PrintWriter)(implicit customPrinter: Option[(treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter
 
   class RawTreePrinter(out: PrintWriter) extends TreePrinter {
     def print(args: Any*): Unit = args foreach {

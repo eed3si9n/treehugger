@@ -33,8 +33,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     case _                  => t.toString
   }
 
-  class TreePrinter(out: PrintWriter)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]) extends super.TreePrinter {
-    me =>
+  class TreePrinter(out: PrintWriter)(implicit customPrinter: Option[(treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]) extends super.TreePrinter {
+    self =>
     protected var indentMargin = 0
     protected val indentStep = 2
     protected var indentString = "                                        " // 40
@@ -709,7 +709,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         printPosition(tree)
         val prntr =
           customPrinter.
-            map(_(out, me.asInstanceOf[treehugger.forest.TreePrinter]).orElse(printTree)).
+            map(_(self.asInstanceOf[treehugger.forest.TreePrinter]).orElse(printTree)).
             getOrElse(printTree)
         prntr(tree)
         printDefault(tree)
@@ -724,14 +724,14 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
   def xprintTree(treePrinter: TreePrinter, tree: Tree) =
     treePrinter.print(tree.productPrefix+tree.productIterator.mkString("(", ", ", ")"))
     
-  def newTreePrinter(writer: PrintWriter)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
+  def newTreePrinter(writer: PrintWriter)(implicit customPrinter: Option[(treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
     new TreePrinter(writer)(customPrinter)
-  def newTreePrinter(stream: OutputStream)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
+  def newTreePrinter(stream: OutputStream)(implicit customPrinter: Option[(treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
     newTreePrinter(new PrintWriter(stream))(customPrinter)
-  def newTreePrinter()(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
+  def newTreePrinter()(implicit customPrinter: Option[(treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]]): TreePrinter = 
     newTreePrinter(new PrintWriter(ConsoleWriter))(customPrinter)
     
-  def treeToString(args: Any*)(implicit customPrinter: Option[(PrintWriter, treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]] = None): String = {
+  def treeToString(args: Any*)(implicit customPrinter: Option[(treehugger.forest.TreePrinter) => PartialFunction[Tree, Unit]] = None): String = {
     val sw = new StringWriter
     val writer = new PrintWriter(sw)
     val printer = newTreePrinter(writer) 
