@@ -4,7 +4,7 @@ import UnidocKeys._
 
 val commonSettings = Seq(
     organization := "com.eed3si9n",
-    version := "0.4.1",
+    version := "0.4.2-SNAPSHOT",
     scalaVersion := "2.11.4",
     crossScalaVersions := Seq("2.11.6", "2.10.5"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
