@@ -6,7 +6,7 @@ val commonSettings = Seq(
     organization := "com.eed3si9n",
     version := "0.4.2-SNAPSHOT",
     scalaVersion := "2.11.4",
-    crossScalaVersions := Seq("2.11.6", "2.10.5"),
+    crossScalaVersions := Seq("2.12.2", "2.11.6", "2.10.5"),
     homepage := Some(url("http://eed3si9n.com/treehugger")),
     licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
     description := "a library to code Scala programmatically.",
@@ -23,7 +23,7 @@ val library = project.in(file("library")).
   settings(
     name := "treehugger",
     libraryDependencies ++= libDeps(scalaVersion.value)
-    ,sourceDirectory in (Pamflet, pf) := (baseDirectory in ThisBuild).value / "docs"
+    //,sourceDirectory in (Pamflet, pf) := (baseDirectory in ThisBuild).value / "docs"
   )
 
 val bridge = project.in(file("bridge")).
@@ -42,6 +42,6 @@ lazy val root = project.in(file(".")).
     publishArtifact := false,
     publish := (),
     publishLocal := ()
-    ,pf := (pf in library).value
+    //,pf := (pf in library).value
   ).
   aggregate(library, bridge)

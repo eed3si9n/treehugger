@@ -96,7 +96,7 @@ trait TreeGen { self: Forest =>
         // mkAttributedQualifier(firstStable.get)
 
       case _ =>
-        error("bad qualifier received: " + failMessage)
+        sys.error("bad qualifier received: " + failMessage)
     }
   }
   /** If this is a reference to a method with an empty
