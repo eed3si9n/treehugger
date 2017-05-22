@@ -162,7 +162,7 @@ trait Symbols extends api.Symbols { self: Forest =>
      *  Not applicable for term symbols.
      */
     def typeConstructor: Type =
-      error("typeConstructor inapplicable for " + this)
+      sys.error("typeConstructor inapplicable for " + this)
     
     final def toType: Type = typeConstructor
     
@@ -380,7 +380,7 @@ trait Symbols extends api.Symbols { self: Forest =>
       case PRIVATE   => notPRIVATE
       case PROTECTED => notPROTECTED
       case OVERRIDE  => notOVERRIDE
-      case _         => error("setNotFlag on invalid flag: " + flag)
+      case _         => sys.error("setNotFlag on invalid flag: " + flag)
     })
 
     /** The class or term up to which this symbol is accessible,

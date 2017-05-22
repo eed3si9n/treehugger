@@ -408,7 +408,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
     class NoBlockDefSymStart(sym: Symbol) extends DefSymStart(sym) {
       @deprecated("0.4.0", "DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
-      def :=(rhs: Block): DefDef = error("DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
+      def :=(rhs: Block): DefDef = sys.error("DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
       override def :=(rhs: Tree): DefDef = mkTree(rhs)
     }
 
@@ -436,7 +436,7 @@ trait TreehuggerDSLs { self: Forest =>
     
     class NoBlockDefTreeStart(name: Name) extends DefTreeStart(name) {
       @deprecated("0.4.0", "DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
-      def :=(rhs: Block): DefDef = error("DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
+      def :=(rhs: Block): DefDef = sys.error("DEF(x) := BLOCK() is no longer supported. Use PROC(x) or DEFINFER(x).")
       override def :=(rhs: Tree): DefDef = mkTree(rhs)
     }
 
@@ -914,7 +914,7 @@ trait TreehuggerDSLs { self: Forest =>
     def TYPE_FUNCTION(typs: Type*): Type = TYPE_FUNCTION(typs.toList)
     def TYPE_FUNCTION(typs: Iterable[Type]): Type =
       typs.toList match {
-        case Nil => error("TYPE_FUNCTION must take at least one Type.")
+        case Nil => sys.error("TYPE_FUNCTION must take at least one Type.")
         case x => functionType(x.init, x.last)
       }
     def TYPE_SINGLETON(tree: Tree) = singleType(TYPE_REF(tree), NoSymbol)

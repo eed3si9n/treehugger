@@ -719,7 +719,7 @@ trait Types extends api.Types { self: Forest =>
       case AnnotatedType(annots, underlying, self)        => AnnotatedType(annots, appliedType(underlying, args), self)
       case ErrorType                                      => tycon
       case WildcardType                                   => tycon // needed for neg/t0226
-      case _                                              => error(tycon.toString)
+      case _                                              => sys.error(tycon.toString)
     }
 
 // Helper Classes ---------------------------------------------------------
