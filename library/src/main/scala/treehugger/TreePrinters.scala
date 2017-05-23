@@ -187,6 +187,14 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       }
       annots foreach (printAnnotation)
     }
+    
+    def printlnAnnotations(tree: Tree) {
+      val annots = tree.symbol.annotations match {
+        case Nil  => tree.asInstanceOf[MemberDef].mods.annotations
+        case anns => anns
+      }
+      annots foreach (printlnAnnotation)
+    }
 
     def printAnnotation(annot: AnnotationInfo) {
       print("@", annot.atp)
@@ -196,6 +204,16 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         print(annot.assocs map { case (x, y) => x+" = "+y } mkString ("(", ", ", ")"))
       
       print(" ")
+    }
+    
+    def printlnAnnotation(annot: AnnotationInfo) {
+      print("@", annot.atp)
+      
+      if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
+      else if (!annot.assocs.isEmpty)
+        print(annot.assocs map { case (x, y) => x+" = "+y } mkString ("(", ", ", ")"))
+      
+      println
     }
 
     def printComment(mods: Modifiers, comments: List[String]) {
@@ -278,7 +296,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
            print(classdef.impl)
         
         case ClassDef(mods, ctormods, name, tparams, vparams, impl) =>
-          printAnnotations(tree)
+          printlnAnnotations(tree)
           printModifiers(tree, mods)
           val word =
             if (mods.hasTraitFlag) "trait"
@@ -298,7 +316,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
                 else " extends ", impl)
 
         case PackageDef(mods, packaged, stats) =>
-          printAnnotations(tree)
+          printlnAnnotations(tree)
           
           if (packaged != NoPackage)
             print("package ", packaged)
@@ -313,7 +331,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           else printColumn(stats, " {", "", "}")
 
         case ModuleDef(mods, name, impl) =>
-          printAnnotations(tree)
+          printlnAnnotations(tree)
           printModifiers(tree, mods);
           if (mods.hasFlag(Flags.PACKAGE)) print("package ")
           print("object " + symName(tree, name))
@@ -322,7 +340,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           print(impl)
 
         case ValDef(mods, lhs, rhs) =>
-          printAnnotations(tree)
+          printlnAnnotations(tree)
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ")
           
@@ -335,7 +353,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             print(" = ", rhs)
 
         case ProcDef(mods, name, tparams, vparamss, rhs) =>
-          printAnnotations(tree)
+          printlnAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
           printTypeParams(tparams)
@@ -354,7 +372,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             }
             
         case DefDef(mods, name, tparams, vparamss, tp, rhs) =>
-          printAnnotations(tree)
+          printlnAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symName(tree, name))
           printTypeParams(tparams)

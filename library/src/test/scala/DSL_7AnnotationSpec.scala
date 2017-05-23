@@ -19,7 +19,8 @@ class DSL_7AnnotationSpec extends DSLSpec { def is =                          s2
     (CLASSDEF("C") withAnnots(ANNOT(SerializableAttr)) := BLOCK(
       DEF("get", IntClass)
     )) must print_as(
-      """@serializable class C {""",
+      """@serializable""",
+      """class C {""",
       """  def get: Int""",
       """}"""
     )
