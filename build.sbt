@@ -11,6 +11,7 @@ val commonSettings = Seq(
     licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")),
     description := "a library to code Scala programmatically.",
     scalacOptions += "-deprecation",
+    parallelExecution in Test := false,
     initialCommands in console := """import treehugger.forest._
                                     |import definitions._
                                     |import treehuggerDSL._""".stripMargin,
