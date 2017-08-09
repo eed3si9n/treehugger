@@ -1,0 +1,29 @@
+## Breaking change: annotation
+
+Print annotations for `ClassDef`, `PackageDef`, `ModuleDef`, `ValDef`, `ProcDef`, `DefDef` on their own lines.
+
+Before:
+
+```scala
+@annotation1 @annotation2 trait MyTrait {
+  ... 
+}
+```
+
+After:
+
+```scala
+@annotation1
+@annotation2
+trait MyTrait {
+  ... 
+}
+```
+
+Contributed by @julianpeeters as #34
+
+## Cross building: 2.10, 2.11, 2.12, and 2.13.0-M2
+
+treehugger 0.4.3 is cross published for 2.10, 2.11, 2.12, and 2.13.0-M2.
+
+Contributed by @thyming as #41
