@@ -54,11 +54,12 @@ class DSL_0LexicalSpec extends DSLSpec { def is =                             s2
     )) and
     ((DEF("x").tree withDoc("does \nsomething",
         DocTag.See(IntClass), DocTag.ToDo(IntClass, "foo"))) must print_as(
-      "/** does ",
-      "  * something",
-      "  * @see scala.Int",
-      "  * @todo scala.Int foo",
-      "  */",
+      "/**",
+      " * does ",
+      " * something",
+      " * @see scala.Int",
+      " * @todo scala.Int foo",
+      " */",
       "def x"
     ))
 }
