@@ -1,0 +1,21 @@
+sudo: false
+
+language: scala
+
+script:
+  - sbt "++${TRAVIS_SCALA_VERSION}" "${SBT_CMD}"
+
+matrix:
+  include:
+  - env: SBT_CMD="test"
+    jdk: openjdk6
+    scala: 2.10.6
+  - env: SBT_CMD="test"
+    jdk: openjdk6
+    scala: 2.11.11
+  - env: SBT_CMD="test"
+    jdk: oraclejdk8
+    scala: 2.12.3
+  - env: SBT_CMD="compile"
+    jdk: oraclejdk8
+    scala: 2.13.0-M2
