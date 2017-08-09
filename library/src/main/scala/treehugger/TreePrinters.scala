@@ -228,13 +228,13 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         print("/** ", lines.head, " */")
         println()
       } else {
-        print("/** ", lines.headOption.getOrElse(""))
+        print("/**")
         println()        
-        lines.tail foreach { line =>
-          print("  * ", line)
+        lines foreach { line =>
+          print(" * ", line)
           println()
         }
-        print("  */")
+        print(" */")
         println()
       }
     }
