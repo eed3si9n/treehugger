@@ -7,6 +7,7 @@ package treehugger
 
 import java.io.{ OutputStream, PrintWriter, StringWriter, Writer }
 import Flags._
+import treehugger.api.Modifier
 
 trait TreePrinters extends api.TreePrinters { self: Forest =>
 
@@ -309,7 +310,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             print(" ")
             printModifiers(tree, ctormods)
           }
-          if (vparams != Nil) printValueParams(vparams, true)
+          if (vparams != Nil || modifiersOfFlags(mods.flags).contains(Modifier.`case`))
+            printValueParams(vparams, true)
           
           print(if (mods.isDeferred) " <: "
                 else if (impl.parents.isEmpty) ""
