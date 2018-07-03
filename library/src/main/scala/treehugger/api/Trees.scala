@@ -126,7 +126,7 @@ trait Trees { self: Universe =>
      *  it will induce an exception.
      */
     def symbol: Symbol = null
-    def symbol_=(sym: Symbol) { throw new UnsupportedOperationException("symbol_= inapplicable for " + this) }
+    def symbol_=(sym: Symbol): Unit = { throw new UnsupportedOperationException("symbol_= inapplicable for " + this) }
     def setSymbol(sym: Symbol): this.type = { symbol = sym; this }
 
     def hasSymbol = false
@@ -158,7 +158,7 @@ trait Trees { self: Universe =>
     }
 
     /** Apply `f` to each subtree */
-    def foreach(f: Tree => Unit) { new ForeachTreeTraverser(f).traverse(this) }
+    def foreach(f: Tree => Unit): Unit = { new ForeachTreeTraverser(f).traverse(this) }
 
     /** Find all subtrees matching predicate `p` */
     def filter(f: Tree => Boolean): List[Tree] = {
@@ -469,7 +469,7 @@ trait Trees { self: Universe =>
   case class InfixUnApply(qualifier: Tree, name: Name, args: List[Tree]) extends Tree {
     val fun = Select(qualifier, name)
     override def symbol: Symbol = fun.symbol
-    override def symbol_=(sym: Symbol) { fun.symbol = sym }
+    override def symbol_=(sym: Symbol): Unit = { fun.symbol = sym }
   }
 
   def InfixUnApply(qualifier: Tree, sym: Symbol, args: List[Tree]): InfixUnApply =
@@ -550,14 +550,14 @@ trait Trees { self: Universe =>
   case class TypeApply(fun: Tree, args: List[Tree])
        extends GenericApply {
     override def symbol: Symbol = fun.symbol
-    override def symbol_=(sym: Symbol) { fun.symbol = sym }
+    override def symbol_=(sym: Symbol): Unit = { fun.symbol = sym }
   }
 
   /** Value application */
   case class Apply(fun: Tree, args: List[Tree])
        extends GenericApply {
     override def symbol: Symbol = fun.symbol
-    override def symbol_=(sym: Symbol) { fun.symbol = sym }
+    override def symbol_=(sym: Symbol): Unit = { fun.symbol = sym }
   }
 
   class ApplyToImplicitArgs(fun: Tree, args: List[Tree]) extends Apply(fun, args)
@@ -568,7 +568,7 @@ trait Trees { self: Universe =>
   case class Infix(qualifier: Tree, name: Name, args: List[Tree]) extends Tree {
     val fun = Select(qualifier, name)
     override def symbol: Symbol = fun.symbol
-    override def symbol_=(sym: Symbol) { fun.symbol = sym }
+    override def symbol_=(sym: Symbol): Unit = { fun.symbol = sym }
   }
   
   def Infix(qualifier: Tree, sym: Symbol, args: List[Tree]): Infix =
@@ -589,7 +589,7 @@ trait Trees { self: Universe =>
     // The symbol of a Super is the class _from_ which the super reference is made.
     // For instance in C.super(...), it would be C.
     override def symbol: Symbol = qual.symbol
-    override def symbol_=(sym: Symbol) { qual.symbol = sym }
+    override def symbol_=(sym: Symbol): Unit = { qual.symbol = sym }
   }
 
   /** Self reference */
@@ -653,7 +653,7 @@ trait Trees { self: Universe =>
   case class AppliedTypeTree(tpt: Tree, args: List[Tree])
        extends TypTree {
     override def symbol: Symbol = tpt.symbol
-    override def symbol_=(sym: Symbol) { tpt.symbol = sym }
+    override def symbol_=(sym: Symbol): Unit = { tpt.symbol = sym }
   }
 
   case class TypeBoundsTree(lo: Tree, hi: Tree)
@@ -855,23 +855,23 @@ trait Trees { self: Universe =>
       case _ => xtraverse(this, tree)
     }
 
-    def traverseTrees(trees: List[Tree]) {
+    def traverseTrees(trees: List[Tree]): Unit = {
       trees foreach traverse
     }
-    def traverseTreess(treess: List[List[Tree]]) {
+    def traverseTreess(treess: List[List[Tree]]): Unit = {
       treess foreach traverseTrees
     }
-    def traverseStats(stats: List[Tree], exprOwner: Symbol) {
+    def traverseStats(stats: List[Tree], exprOwner: Symbol): Unit = {
       stats foreach (stat =>
         if (exprOwner != currentOwner) atOwner(exprOwner)(traverse(stat))
         else traverse(stat)
       )
     }
-    def traverseAnnotations(annotations: List[AnnotationInfo]) {
+    def traverseAnnotations(annotations: List[AnnotationInfo]): Unit = {
       annotations foreach { x => traverseTrees(x.args) } 
     }
 
-    def atOwner(owner: Symbol)(traverse: => Unit) {
+    def atOwner(owner: Symbol)(traverse: => Unit): Unit = {
       val prevOwner = currentOwner
       currentOwner = owner
       traverse
@@ -1413,7 +1413,7 @@ trait Trees { self: Universe =>
 */
 
   class ForeachTreeTraverser(f: Tree => Unit) extends Traverser {
-    override def traverse(t: Tree) {
+    override def traverse(t: Tree): Unit = {
       f(t)
       super.traverse(t)
     }
@@ -1421,7 +1421,7 @@ trait Trees { self: Universe =>
 
   class FilterTreeTraverser(p: Tree => Boolean) extends Traverser {
     val hits = new ListBuffer[Tree]
-    override def traverse(t: Tree) {
+    override def traverse(t: Tree): Unit = {
       if (p(t)) hits += t
       super.traverse(t)
     }
@@ -1429,7 +1429,7 @@ trait Trees { self: Universe =>
 
   class FindTreeTraverser(p: Tree => Boolean) extends Traverser {
     var result: Option[Tree] = None
-    override def traverse(t: Tree) {
+    override def traverse(t: Tree): Unit = {
       if (result.isEmpty) {
         if (p(t)) result = Some(t)
         super.traverse(t)

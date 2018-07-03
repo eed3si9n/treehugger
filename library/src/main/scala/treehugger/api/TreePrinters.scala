@@ -6,7 +6,7 @@ import java.io.{ PrintWriter, StringWriter }
 trait TreePrinters { self: Universe =>
 
   trait TreePrinter {
-    def print(args: Any*)
+    def print(args: Any*): Unit
     protected var typesPrinted = false
     protected var uniqueIds = false
     def withTypesPrinted: this.type = { typesPrinted = true; this }
