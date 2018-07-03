@@ -47,7 +47,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
     def printPosition(tree: Tree) = () // if (doPrintPositions) print(showPos(tree.pos))
 
-    def println() {
+    def println(): Unit = {
       out.println()
       while (indentMargin > indentString.length())
         indentString += indentString
@@ -55,7 +55,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         out.write(indentString, 0, indentMargin)
     }
 
-    def printSeq[a](ls: List[a])(printelem: a => Unit)(printsep: => Unit) {
+    def printSeq[a](ls: List[a])(printelem: a => Unit)(printsep: => Unit): Unit = {
       ls match {
         case List() =>
         case List(x) => printelem(x)
@@ -63,18 +63,18 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       }
     }
 
-    def printColumn(ts: List[Tree], start: String, sep: String, end: String) {
+    def printColumn(ts: List[Tree], start: String, sep: String, end: String): Unit = {
       print(start); indent; println()
       printSeq(ts){print(_)}{print(sep); println()}; undent; println(); print(end)
     }
 
-    def printRow(ts: List[Tree], start: String, sep: String, end: String) {
+    def printRow(ts: List[Tree], start: String, sep: String, end: String): Unit = {
       print(start); printSeq(ts){print(_)}{print(sep)}; print(end)
     }
 
-    def printRow(ts: List[Tree], sep: String) { printRow(ts, "", sep, "") }
+    def printRow(ts: List[Tree], sep: String): Unit = { printRow(ts, "", sep, "") }
 
-    def printTypeParams(ts: List[TypeDef]) {
+    def printTypeParams(ts: List[TypeDef]): Unit = {
       if (!ts.isEmpty) {
         print("["); printSeq(ts){ t =>
           printAnnotations(t)
@@ -83,25 +83,25 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       }
     }
     
-    def printValueParams(ts: List[ValDef]) {
+    def printValueParams(ts: List[ValDef]): Unit = {
       printValueParams(ts, false)
     }
     
-    def printValueParams(ts: List[ValDef], isclass: Boolean) {
+    def printValueParams(ts: List[ValDef], isclass: Boolean): Unit = {
       print("(")
       if (!ts.isEmpty) printFlags(ts.head.mods.flags & IMPLICIT, "")
       printSeq(ts){printParam(_, isclass)}{print(", ")}
       print(")")
     }
 
-    def printLambdaParams(ts: List[ValDef]) {
+    def printLambdaParams(ts: List[ValDef]): Unit = {
       if (ts.size == 1 &&
         !ts.head.mods.hasFlag(IMPLICIT) &&
         !(ts.head.lhs.isInstanceOf[Typed]) ) printParam(ts.head, false)
       else printValueParams(ts)
     }
 
-    def printParam(tree: Tree, isclass: Boolean = false) {
+    def printParam(tree: Tree, isclass: Boolean = false): Unit = {
       tree match {
         case ValDef(mods, lhs, rhs) =>
           printPosition(tree)
@@ -126,7 +126,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       }
     }
 
-    def printBlock(tree: Tree) {
+    def printBlock(tree: Tree): Unit = {
       tree match {
         case Block(_, _) =>
           print(tree)
@@ -162,7 +162,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     def decodedSymName(tree: Tree, name: Name) = symNameInternal(tree, name, true)
     def symName(tree: Tree, name: Name) = symNameInternal(tree, name, false)
 
-    def printOpt(prefix: String, tree: Tree) {
+    def printOpt(prefix: String, tree: Tree): Unit = {
       if (!tree.isEmpty) { print(prefix, tree) }
     }
 
@@ -174,13 +174,13 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       )
     )
 
-    def printFlags(flags: Long, privateWithin: String) {
+    def printFlags(flags: Long, privateWithin: String): Unit = {
       var mask: Long = PrintableFlags // if (settings.debug.value) -1L else PrintableFlags
       val s = flagsToString(flags & mask, privateWithin)
       if (s != "") print(s + " ")
     }
 
-    def printAnnotations(tree: Tree) {
+    def printAnnotations(tree: Tree): Unit = {
       val annots = tree.symbol.annotations match {
         case Nil  => tree.asInstanceOf[MemberDef].mods.annotations
         case anns => anns
@@ -188,7 +188,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       annots foreach (printAnnotation)
     }
     
-    def printlnAnnotations(tree: Tree) {
+    def printlnAnnotations(tree: Tree): Unit = {
       val annots = tree.symbol.annotations match {
         case Nil  => tree.asInstanceOf[MemberDef].mods.annotations
         case anns => anns
@@ -196,7 +196,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       annots foreach (printlnAnnotation)
     }
 
-    def printAnnotation(annot: AnnotationInfo) {
+    def printAnnotation(annot: AnnotationInfo): Unit = {
       print("@", annot.atp)
       
       if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
@@ -206,7 +206,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       print(" ")
     }
     
-    def printlnAnnotation(annot: AnnotationInfo) {
+    def printlnAnnotation(annot: AnnotationInfo): Unit = {
       print("@", annot.atp)
       
       if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
@@ -216,7 +216,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       println
     }
 
-    def printComment(mods: Modifiers, comments: List[String]) {
+    def printComment(mods: Modifiers, comments: List[String]): Unit = {
       val lines = comments flatMap {_.lines.toList}
       val count = lines.size
       if (mods.flags == 0L)
@@ -287,7 +287,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     private def unaryop(name: Name): Option[String] =
       Map(nme.UNARY_! -> "!", nme.UNARY_+ -> "+", nme.UNARY_- -> "-", nme.UNARY_~ -> "~").get(name)
 
-    def printTree(tree: Tree) {
+    def printTree(tree: Tree): Unit = {
       tree match {
         case EmptyTree =>
           print("")
@@ -608,7 +608,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           print(typeTreeToString(tt))
           
         case Annotated(Apply(Select(New(tpt), nme.CONSTRUCTOR), args), tree) =>
-          def printAnnot() {
+          def printAnnot(): Unit = {
             print("@", tpt)
             if (!args.isEmpty)
               printRow(args, "(", ", ", ")")
@@ -763,9 +763,9 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
    * output stream.
    */
   object ConsoleWriter extends Writer {
-    override def write(str: String) { Console.print(str) }
+    override def write(str: String): Unit = { Console.print(str) }
 
-    def write(cbuf: Array[Char], off: Int, len: Int) {
+    def write(cbuf: Array[Char], off: Int, len: Int): Unit = {
       write(new String(cbuf, off, len))
     }
 

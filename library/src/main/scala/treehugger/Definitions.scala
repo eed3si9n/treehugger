@@ -620,7 +620,7 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     // lazy val ParamTargetClass           = getMetaAnnotation("param")
     // lazy val SetterTargetClass          = getMetaAnnotation("setter")
 
-    def init() {
+    def init(): Unit = {
       if (isInitialized) return
       
       // members of class scala.Any

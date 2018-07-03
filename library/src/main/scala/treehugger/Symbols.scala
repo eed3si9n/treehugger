@@ -364,7 +364,7 @@ trait Symbols extends api.Symbols { self: Forest =>
     final def setFlag(mask: Long): this.type = { rawflags = rawflags | mask; this }
     final def resetFlag(mask: Long): this.type = { rawflags = rawflags & ~mask; this }
     final def getFlag(mask: Long): Long = flags & mask
-    final def resetFlags() { rawflags = rawflags & TopLevelCreationFlags }
+    final def resetFlags(): Unit = { rawflags = rawflags & TopLevelCreationFlags }
 
     /** Does symbol have ANY flag in `mask` set? */
     final def hasFlag(mask: Long): Boolean = (flags & mask) != 0L
@@ -411,7 +411,7 @@ trait Symbols extends api.Symbols { self: Forest =>
      */
     private[this] var _privateWithin: Symbol = _
     def privateWithin = _privateWithin
-    def privateWithin_=(sym: Symbol) { _privateWithin = sym }
+    def privateWithin_=(sym: Symbol): Unit = { _privateWithin = sym }
     def setPrivateWithin(sym: Symbol): this.type = { privateWithin_=(sym) ; this }
 
     /** Does symbol have a private or protected qualifier set? */
