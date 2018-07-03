@@ -219,7 +219,7 @@ trait Constants extends api.Constants { self: Forest =>
     }
 
     def escapedStringValue: String = {
-      def escape(text: String): String = (text map escapedChar) mkString ""
+      def escape(text: String): String = (text.map(escapedChar(_))) mkString ""
       tag match {
         case NullTag   => "null"
         case StringTag => "\"" + escape(stringValue) + "\""

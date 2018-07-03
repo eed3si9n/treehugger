@@ -1,6 +1,8 @@
 package treehugger
 package api
 
+import scala.reflect.ClassManifest
+
 trait AnnotationInfos { self: Universe =>
 
   type AnnotationInfo <: AbsAnnotationInfo

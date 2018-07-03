@@ -16,6 +16,6 @@ matrix:
   - env: SBT_CMD="test"
     jdk: oraclejdk8
     scala: 2.12.6
-  - env: SBT_CMD="compile"
+  - env: SBT_CMD="test"
     jdk: oraclejdk8
-    scala: 2.13.0-M2
+    scala: 2.13.0-M4
