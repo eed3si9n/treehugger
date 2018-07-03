@@ -5,6 +5,8 @@
 
 package treehugger
 
+import scala.reflect.ClassManifest
+
 /** AnnotationInfo and its helpers */
 trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
   object AnnotationInfo extends AnnotationInfoExtractor {
@@ -156,5 +158,5 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
   }
   
   lazy val classfileAnnotArgManifest: ClassManifest[ClassfileAnnotArg] =
-    reflect.ClassManifest.classType(classOf[ClassfileAnnotArg])  
+    ClassManifest.classType(classOf[ClassfileAnnotArg])
 }

@@ -244,7 +244,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       print("\"")
       tree.args foreach { _ match {
         case Literal(x) if x.tag == StringTag =>
-          print((x.stringValue map x.escapedChar) mkString "")
+          print((x.stringValue.map(x.escapedChar(_))) mkString "")
         case Ident(x) =>
           print("$", x)
         case arg =>
