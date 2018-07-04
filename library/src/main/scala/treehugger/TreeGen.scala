@@ -243,7 +243,7 @@ trait TreeGen { self: Forest =>
    */
   def mkZero(tp: Type): Tree = {
     val tree = tp.typeSymbol match {
-      case UnitClass    => Literal(Constant())
+      case UnitClass    => Literal(Constant(()))
       case BooleanClass => Literal(Constant(false))
       case FloatClass   => Literal(Constant(0.0f))
       case DoubleClass  => Literal(Constant(0.0d))
@@ -259,7 +259,7 @@ trait TreeGen { self: Forest =>
 
   /** Builds a tuple */
   def mkTuple(elems: List[Tree]): Tree =
-    if (elems.isEmpty) Literal(Constant())
+    if (elems.isEmpty) Literal(Constant(()))
     else Apply(
       TupleClass(elems.length),
       elems: _*)
