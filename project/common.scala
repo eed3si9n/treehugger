@@ -1,11 +1,7 @@
 import sbt._
 import Keys._
-import ls.Plugin.{LsKeys => lskeys, _}
 
 object Common {
-  val customLsSettings: Seq[Def.Setting[_]] = Seq(
-    lskeys.tags in lskeys.lsync := Seq("code-generation")
-  ) ++ lsSettings
 
   val docSettings: Seq[Def.Setting[_]] = Seq(
     // scaladoc fix
