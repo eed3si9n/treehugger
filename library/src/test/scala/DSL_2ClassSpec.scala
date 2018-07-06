@@ -120,7 +120,7 @@ sealed classes `withFlags(Flags.SEALED)`.                                     $c
     )
 
   def caseclass1 =
-    ((CASECLASSDEF("C"): Tree) must print_as("case class C")) and
+    ((CASECLASSDEF("C"): Tree) must print_as("case class C()")) and
     ((CASECLASSDEF("C") withParams(VAL("x", IntClass) withFlags(Flags.OVERRIDE)) withParents(sym.Addressable APPLY(REF("x"))) := BLOCK(
       DEF("y") := LIT(0)
     ))
