@@ -4,16 +4,11 @@ jdk:
   - openjdk8
   - openjdk11
 
-script:
-  - sbt "++${TRAVIS_SCALA_VERSION}" "${SBT_CMD}"
+scala:
+  - 2.10.7
+  - 2.11.12
+  - 2.12.9
+  - 2.13.0
 
-matrix:
-  include:
-  - env: SBT_CMD="test"
-    scala: 2.10.7
-  - env: SBT_CMD="test"
-    scala: 2.11.12
-  - env: SBT_CMD="test"
-    scala: 2.12.9
-  - env: SBT_CMD="test"
-    scala: 2.13.0
+script:
+  - sbt "++${TRAVIS_SCALA_VERSION}" test
