@@ -46,7 +46,7 @@ trait NameManglers { self: Forest =>
       val cs = s.toArray
       val bytes = Codec.toUTF8(s).array
       md5 update bytes
-      val md5chars = md5.digest() map (b => (b & 0xFF).toHexString) mkString
+      val md5chars = (md5.digest() map (b => (b & 0xFF).toHexString)).mkString
 
       prefix + marker + md5chars + marker + suffix
     }
@@ -128,14 +128,14 @@ trait NameManglers { self: Forest =>
     def getterName(name: TermName): TermName     = if (isLocalName(name)) localToGetter(name) else name
     def getterToLocal(name: TermName): TermName  = name.toTermName append LOCAL_SUFFIX_STRING
     def getterToSetter(name: TermName): TermName = name.toTermName append SETTER_SUFFIX
-    def localToGetter(name: TermName): TermName  = name stripEnd LOCAL_SUFFIX_STRING toTermName
+    def localToGetter(name: TermName): TermName  = (name stripEnd LOCAL_SUFFIX_STRING).toTermName
 
     def setterToGetter(name: TermName): TermName = {
       val p = name.pos(TRAIT_SETTER_SEPARATOR_STRING)
       if (p < name.length)
         setterToGetter(name.subName(p + TRAIT_SETTER_SEPARATOR_STRING.length, name.length))
       else
-        name stripEnd SETTER_SUFFIX toTermName
+        (name stripEnd SETTER_SUFFIX).toTermName
     }
 
     def defaultGetterName(name: Name, pos: Int): TermName = {
@@ -165,10 +165,10 @@ trait NameManglers { self: Forest =>
     /** Note that for performance reasons, stripEnd does not verify that the
      *  suffix is actually the suffix specified.
      */
-    def dropSingletonName(name: Name): TypeName = name stripEnd SINGLETON_SUFFIX toTypeName
-    def singletonName(name: Name): TypeName     = name append SINGLETON_SUFFIX toTypeName
-    def implClassName(name: Name): TypeName     = name append IMPL_CLASS_SUFFIX toTypeName
-    def interfaceName(implname: Name): TypeName = implname stripEnd IMPL_CLASS_SUFFIX toTypeName
+    def dropSingletonName(name: Name): TypeName = (name stripEnd SINGLETON_SUFFIX).toTypeName
+    def singletonName(name: Name): TypeName     = (name append SINGLETON_SUFFIX).toTypeName
+    def implClassName(name: Name): TypeName     = (name append IMPL_CLASS_SUFFIX).toTypeName
+    def interfaceName(implname: Name): TypeName = (implname stripEnd IMPL_CLASS_SUFFIX).toTypeName
     def localDummyName(clazz: Symbol): TermName = newTermName(LOCALDUMMY_PREFIX + clazz.name + ">")
     def productAccessorName(i: Int): TermName   = newTermName("_" + i)
     def superName(name: Name): TermName         = newTermName(SUPER_PREFIX_STRING + name)

@@ -29,7 +29,7 @@ trait Definitions extends api.StandardDefinitions { self: Forest =>
     )
     
     private def classesMap[T](f: Name => T) = symbolsMap(ScalaValueClassesNoUnit, f)
-    private def symbolsMap[T](syms: List[Symbol], f: Name => T): Map[Symbol, T] = syms zip (syms map (x => f(x.name))) toMap
+    private def symbolsMap[T](syms: List[Symbol], f: Name => T): Map[Symbol, T] = (syms zip (syms map (x => f(x.name)))).toMap
     private def symbolsMapFilt[T](syms: List[Symbol], p: Name => Boolean, f: Name => T) = symbolsMap(syms filter (x => p(x.name)), f)    
     
     lazy val numericWeight    = symbolsMapFilt(ScalaValueClasses, nameToWeight.keySet, nameToWeight)

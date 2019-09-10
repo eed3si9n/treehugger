@@ -155,7 +155,7 @@ limit them to some members.                                                   $i
   def function2 =
     ((DEF("put", UnitClass) withParams(PARAM("x", IntClass)): Tree) must print_as("def put(x: Int): Unit")) and
     ((DEF(sym.run, UnitClass) withParams(PARAM("x", IntClass) := LIT(0)): Tree) must print_as("def run(x: Int = 0): Unit")) and
-    ((DEF("sideEffect", UnitClass) withParams()).tree must print_as("def sideEffect(): Unit"))
+    ((DEF("sideEffect", UnitClass).withParams()).tree must print_as("def sideEffect(): Unit"))
 
   def function3 =
     (DEF("compare", BooleanClass)

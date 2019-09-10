@@ -2,20 +2,18 @@ sudo: false
 
 language: scala
 
+jdk: openjdk8
+
 script:
   - sbt "++${TRAVIS_SCALA_VERSION}" "${SBT_CMD}"
 
 matrix:
   include:
   - env: SBT_CMD="test"
-    jdk: openjdk6
     scala: 2.10.7
   - env: SBT_CMD="test"
-    jdk: openjdk6
     scala: 2.11.12
   - env: SBT_CMD="test"
-    jdk: oraclejdk8
     scala: 2.12.6
   - env: SBT_CMD="test"
-    jdk: oraclejdk8
-    scala: 2.13.0-M4
+    scala: 2.13.0

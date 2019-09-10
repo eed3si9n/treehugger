@@ -69,14 +69,14 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     
     val tree = (OBJECTDEF(ChecksumAccumulator) := BLOCK(
         VAL(cache) withFlags(Flags.PRIVATE) :=
-          mutableMapType(StringClass, IntClass) APPLY (),
+          mutableMapType(StringClass, IntClass).APPLY(),
         DEF("calculate", IntClass) withParams(PARAM(s, StringClass)) :=
           (IF(REF(cache) DOT "contains" APPLY REF(s)) THEN REF(cache).APPLY(REF(s)) 
           ELSE BLOCK(
             VAL("acc") := NEW(ChecksumAccumulator),
             FOR(VALFROM("c") := REF(s)) DO
               (REF("acc") DOT "add" APPLY (REF("c") DOT "toByte")),
-            VAL("cs") := REF("acc") DOT "checksum" APPLY (),
+            VAL("cs") := REF("acc").DOT("checksum").APPLY(),
             REF(cache) INFIX ("+=") APPLY REF(s) INFIX ("->") APPLY REF("cs"),
             REF("cs")
           ))
@@ -118,7 +118,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
         VAL(buf) withFlags(Flags.PRIVATE) :=
           NEW(ArrayBufferClass TYPE_OF IntClass),
         DEF("get", IntClass) :=
-          REF(buf) DOT "remove" APPLY(),
+          REF(buf).DOT("remove").APPLY(),
         PROC("put") withParams(PARAM("x", IntClass)) := BLOCK(
           REF(buf) INFIX("+=") APPLY REF("x")
           )
@@ -192,8 +192,8 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
           withTypeParams(TYPEVAR(T) UPPER TYPE_ORDERED(T))
           withParams(PARAM("elements", TYPE_LIST(T))) :=
         REF("elements") MATCH(
-          CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
-          CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
+          CASE(ListClass.UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
+          CASE(ListClass.UNAPPLY(ID("x"))) ==> REF("x"),
           CASE(ID("x") LIST_:: ID("rest")) ==> BLOCK(
             VAL("maxRest") := maxListUpBound APPLY(REF("rest")),
             IF(REF("x") INT_> REF("maxRest")) THEN REF("x")
