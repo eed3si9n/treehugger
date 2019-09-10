@@ -124,7 +124,7 @@ class DSL_8StdLibSpec extends DSLSpec { def is =                              s2
 
   def traversable1 =
     (REF("foo") FOREACH LAMBDA(PARAM("x")) ==> BLOCK(
-      REF("x") APPLY())) must print_as(
+      REF("x").APPLY())) must print_as(
       "foo foreach { x =>",
       "  x()",
       "}"

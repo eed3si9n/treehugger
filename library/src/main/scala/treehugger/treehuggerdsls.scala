@@ -635,18 +635,18 @@ trait TreehuggerDSLs { self: Forest =>
       def bounds: Tree =
         if (_bounds.isEmpty) EmptyTree
         else TypeTree(TypeBounds(
-          (_bounds collect {
+          ((_bounds collect {
             case LowerTypeBoundsStart(lo) => lo
-          } headOption) getOrElse(NothingClass.tpe),
-          (_bounds collect {
+          }).headOption).getOrElse(NothingClass.tpe),
+          ((_bounds collect {
             case UpperTypeBoundsStart(hi) => hi
-          } headOption) getOrElse(NothingClass.tpe),
-          (_bounds collect {
+          }).headOption).getOrElse(NothingClass.tpe),
+          ((_bounds collect {
             case ViewBoundsStart(trg) => trg
-          } headOption) getOrElse(NothingClass.tpe),
-          (_bounds collect {
+          }).headOption).getOrElse(NothingClass.tpe),
+          ((_bounds collect {
             case ContextBoundsStart(typcon) => typcon
-          } headOption) getOrElse(NothingClass.tpe)
+          }).headOption).getOrElse(NothingClass.tpe)
         ))
     }
     
