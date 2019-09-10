@@ -218,7 +218,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     }
 
     def printComment(mods: Modifiers, comments: List[String]): Unit = {
-      val lines = comments flatMap {_.lines.toList}
+      val lines = comments flatMap {_.linesIterator.toList}
       val count = lines.size
       if (mods.flags == 0L)
         lines foreach { line =>
