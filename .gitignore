@@ -1,3 +1,4 @@
 rsync.sh
 www
 *.tar.gz
+target/
