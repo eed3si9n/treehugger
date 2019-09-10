@@ -22,6 +22,6 @@ trait DSLSpec extends Specification {
         (s == x, s + " doesn't equal " + x)
       case list    => 
         val s = treeToString(actual); println(s)
-        (s.lines.toList == list, s.lines.toList + " doesn't equal " + list)
+        (s.linesIterator.toList == list, s.linesIterator.toList + " doesn't equal " + list)
     }) 
 }

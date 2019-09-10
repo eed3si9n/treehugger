@@ -24,7 +24,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       Predef_println APPLY LIT("Hello, world!"))
     val s = treeToString(tree); println(s)
     
-    s.lines.toList must contain(allOf(
+    s.linesIterator.toList must contain(allOf(
       """def hello {""",
       """  println("Hello, world!")""",
       """}"""
@@ -47,7 +47,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
     
     val s = treeToString(tree); println(s)
     
-    s.lines.toList must contain(allOf(
+    s.linesIterator.toList must contain(allOf(
       "val greetStrings = new Array[String](3)",
       "",
       "greetStrings(0) = \"Hello\"",
@@ -83,7 +83,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       )) withComment("In file ChecksumAccumulator.scala")
     
     val out = treeToString(tree); println(out)
-    out.lines.toList must contain(allOf(
+    out.linesIterator.toList must contain(allOf(
       """// In file ChecksumAccumulator.scala""",
       """object ChecksumAccumulator {""",
       """  private val cache = scala.collection.mutable.Map[String, Int]()""",
@@ -131,7 +131,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       Nil
     
     val out = treeToString(trees: _*); println(out)
-    out.lines.toList must contain(allOf(
+    out.linesIterator.toList must contain(allOf(
       """abstract class IntQueue {""",
       """  def get: Int""",
       """  def put(x: Int)""",
@@ -170,7 +170,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       )) inPackage(ScalaPackageClass)
     
     val out = treeToString(tree); println(out)
-    out.lines.toList must contain(allOf(
+    out.linesIterator.toList must contain(allOf(
       """package scala""",
       """""",
       """object Predef {""",
@@ -202,7 +202,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
         ))
     
     val out = treeToString(tree); println(out)
-    out.lines.toList must contain(allOf(
+    out.linesIterator.toList must contain(allOf(
       """def maxListUpBound[T <: Ordered[T]](elements: List[T]): T =""",
       """  elements match {""",
       """    case List() => throw new IllegalArgumentException("empty list!")""",
@@ -236,7 +236,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       ))
       
     val out = treeToString(tree); println(out)
-    out.lines.toList must contain(allOf(
+    out.linesIterator.toList must contain(allOf(
       """case class Address[T <% List[T]](name: Option[T] = None) {""",
       """  def stringOnly(implicit ev: =:=[T, String]): Address = Address(this.name map { (nm: String) =>""",
       """    val list: List[T] = nm""",
@@ -257,7 +257,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       ))
     
     val out = treeToString(tree); println(out)
-    out.lines.toList must contain(allOf(
+    out.linesIterator.toList must contain(allOf(
       "new Addressable {",
       "  val street = \"123 Drive\"",
       "}"
@@ -287,7 +287,7 @@ class TreePrinterSpec extends DSLSpec { def is = sequential                   ^
       )))
     
     val out = treeToString(tree); println(out)
-    out.lines.toList must contain(allOf(
+    out.linesIterator.toList must contain(allOf(
       "implicit def mkPointed[M : Monoid] = new Pointed[({ type L[A] = Const[M, A] })#L] {",
       "  def point[A](a: => A) = Const[M, A](implicitly[Monoid[M]].z)",
       "}"
