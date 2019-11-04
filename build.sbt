@@ -13,8 +13,8 @@ val commonSettings = Seq(
     initialCommands in console := """import treehugger.forest._
                                     |import definitions._
                                     |import treehuggerDSL._""".stripMargin,
-    resolvers ++= Seq("sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-                      "sonatype releases"  at "http://oss.sonatype.org/content/repositories/releases")
+    resolvers ++= Seq("sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+                      "sonatype releases"  at "https://oss.sonatype.org/content/repositories/releases")
   ) ++ sonatypeSettings
 
 val library = project.in(file("library")).
