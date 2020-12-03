@@ -32,10 +32,10 @@ object Common {
     publishMavenStyle := true,
     publishArtifact in (Compile, packageBin) := true,
     publishArtifact in Test := false,
-    publishTo <<= version { (v: String) =>
+    publishTo := {
       val nexus = "https://oss.sonatype.org/"
-      if (v.trim.endsWith("SNAPSHOT")) 
-        Some("snapshots" at nexus + "content/repositories/snapshots") 
+      if (version.value.trim.endsWith("SNAPSHOT"))
+        Some("snapshots" at nexus + "content/repositories/snapshots")
       else
         Some("staging"  at nexus + "service/local/staging/deploy/maven2")
     },
