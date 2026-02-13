@@ -12,53 +12,56 @@ trait Constants extends api.Constants { self: Forest =>
 
   import definitions._
 
-  final val NoTag      = 0
-  final val UnitTag    = 1
+  final val NoTag = 0
+  final val UnitTag = 1
   final val BooleanTag = 2
-  final val ByteTag    = 3
-  final val ShortTag   = 4
-  final val CharTag    = 5
-  final val IntTag     = 6
-  final val LongTag    = 7
-  final val FloatTag   = 8
-  final val DoubleTag  = 9
-  final val StringTag  = 10
-  final val NullTag    = 11
-  final val ClassTag   = 12
+  final val ByteTag = 3
+  final val ShortTag = 4
+  final val CharTag = 5
+  final val IntTag = 6
+  final val LongTag = 7
+  final val FloatTag = 8
+  final val DoubleTag = 9
+  final val StringTag = 10
+  final val NullTag = 11
+  final val ClassTag = 12
   // For supporting java enumerations inside java annotations (see ClassfileParser)
-  final val EnumTag    = 13
+  final val EnumTag = 13
 
   // For scala.Symbol
-  final val SymbolTag  = 14
+  final val SymbolTag = 14
 
   case class Constant(value: Any) extends AbsConstant {
     lazy val tag: Int = value match {
-      case null         => NullTag
-      case x: Unit      => UnitTag
-      case x: Boolean   => BooleanTag
-      case x: Byte      => ByteTag
-      case x: Short     => ShortTag
-      case x: Int       => IntTag
-      case x: Long      => LongTag
-      case x: Float     => FloatTag
-      case x: Double    => DoubleTag
-      case x: String    => StringTag
-      case x: Char      => CharTag
-      case x: Type      => ClassTag
-      case x: Symbol    => EnumTag
+      case null            => NullTag
+      case x: Unit         => UnitTag
+      case x: Boolean      => BooleanTag
+      case x: Byte         => ByteTag
+      case x: Short        => ShortTag
+      case x: Int          => IntTag
+      case x: Long         => LongTag
+      case x: Float        => FloatTag
+      case x: Double       => DoubleTag
+      case x: String       => StringTag
+      case x: Char         => CharTag
+      case x: Type         => ClassTag
+      case x: Symbol       => EnumTag
       case x: scala.Symbol => SymbolTag
-      case _            => throw new Error("bad constant value: " + value)
+      case _               => throw new Error("bad constant value: " + value)
     }
 
-    def isByteRange: Boolean  = isIntRange && Byte.MinValue <= intValue && intValue <= Byte.MaxValue
-    def isShortRange: Boolean = isIntRange && Short.MinValue <= intValue && intValue <= Short.MaxValue
-    def isCharRange: Boolean  = isIntRange && Char.MinValue <= intValue && intValue <= Char.MaxValue
-    def isIntRange: Boolean   = ByteTag <= tag && tag <= IntTag
-    def isLongRange: Boolean  = ByteTag <= tag && tag <= LongTag
+    def isByteRange: Boolean =
+      isIntRange && Byte.MinValue <= intValue && intValue <= Byte.MaxValue
+    def isShortRange: Boolean =
+      isIntRange && Short.MinValue <= intValue && intValue <= Short.MaxValue
+    def isCharRange: Boolean =
+      isIntRange && Char.MinValue <= intValue && intValue <= Char.MaxValue
+    def isIntRange: Boolean = ByteTag <= tag && tag <= IntTag
+    def isLongRange: Boolean = ByteTag <= tag && tag <= LongTag
     def isFloatRange: Boolean = ByteTag <= tag && tag <= FloatTag
-    def isNumeric: Boolean    = ByteTag <= tag && tag <= DoubleTag
-    def isNonUnitAnyVal       = BooleanTag <= tag && tag <= DoubleTag
-    def isAnyVal              = UnitTag <= tag && tag <= DoubleTag
+    def isNumeric: Boolean = ByteTag <= tag && tag <= DoubleTag
+    def isNonUnitAnyVal = BooleanTag <= tag && tag <= DoubleTag
+    def isAnyVal = UnitTag <= tag && tag <= DoubleTag
 
     // def tpe: Type = tag match {
     //   case UnitTag    => UnitClass.tpe
@@ -82,7 +85,7 @@ trait Constants extends api.Constants { self: Forest =>
     // }
 
     /** We need the equals method to take account of tags as well as values.
-     */
+      */
     override def equals(other: Any): Boolean = other match {
       case that: Constant =>
         this.tag == that.tag &&
@@ -93,7 +96,7 @@ trait Constants extends api.Constants { self: Forest =>
     def isNaN = value match {
       case f: Float  => f.isNaN
       case d: Double => d.isNaN
-      case _ => false
+      case _         => false
     }
 
     def booleanValue: Boolean =
@@ -178,7 +181,7 @@ trait Constants extends api.Constants { self: Forest =>
     }
 
     /** Convert constant value to conform to given type.
-     */
+      */
     // def convertTo(pt: Type): Constant = {
     //   val target = pt.typeSymbol
     //   if (target == tpe.typeSymbol)
@@ -215,7 +218,8 @@ trait Constants extends api.Constants { self: Forest =>
       case '"'  => "\\\""
       case '\'' => "\\\'"
       case '\\' => "\\\\"
-      case _    => if (ch.isControl) "\\0" + toOctalString(ch) else String.valueOf(ch)
+      case _    =>
+        if (ch.isControl) "\\0" + toOctalString(ch) else String.valueOf(ch)
     }
 
     def escapedStringValue: String = {
@@ -230,7 +234,7 @@ trait Constants extends api.Constants { self: Forest =>
         case _         => String.valueOf(value)
       }
     }
-    def typeValue: Type     = value.asInstanceOf[Type]
+    def typeValue: Type = value.asInstanceOf[Type]
     def symbolValue: Symbol = value.asInstanceOf[Symbol]
 
     override def hashCode: Int = value.## * 41 + 17

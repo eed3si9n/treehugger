@@ -1,7 +1,7 @@
 package treehugger
 package api
 
-import java.io.{ PrintWriter, StringWriter }
+import java.io.{PrintWriter, StringWriter}
 
 trait TreePrinters { self: Universe =>
 
@@ -13,7 +13,10 @@ trait TreePrinters { self: Universe =>
     def withUniqueIds: this.type = { uniqueIds = true; this }
   }
 
-  def show(tree: Tree, mkPrinter: PrintWriter => TreePrinter = newTreePrinter): String = {
+  def show(
+      tree: Tree,
+      mkPrinter: PrintWriter => TreePrinter = newTreePrinter
+  ): String = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
     val printer = mkPrinter(writer)
@@ -25,7 +28,7 @@ trait TreePrinters { self: Universe =>
   def showRaw(tree: Tree): String = show(tree, new RawTreePrinter(_))
 
   /** Hook to define what `show(tree)` means.
-   */
+    */
   def newTreePrinter(out: PrintWriter): TreePrinter
 
   class RawTreePrinter(out: PrintWriter) extends TreePrinter {
@@ -39,11 +42,12 @@ trait TreePrinters { self: Universe =>
         else if (tree.original != null)
           print(".setOriginal(", tree.original, ")")
       case tree: Tree =>
-        print(tree.productPrefix+"(")
+        print(tree.productPrefix + "(")
         val it = tree.productIterator
         while (it.hasNext) {
           it.next() match {
-            case name: Name if uniqueIds && tree.hasSymbol && tree.symbol != NoSymbol =>
+            case name: Name
+                if uniqueIds && tree.hasSymbol && tree.symbol != NoSymbol =>
               print(tree.symbol.name, "#", tree.symbol.id)
             case arg =>
               print(arg)

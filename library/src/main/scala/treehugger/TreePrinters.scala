@@ -5,39 +5,41 @@
 
 package treehugger
 
-import java.io.{ OutputStream, PrintWriter, StringWriter, Writer }
+import java.io.{OutputStream, PrintWriter, StringWriter, Writer}
 import Flags._
 import treehugger.api.Modifier
 
 trait TreePrinters extends api.TreePrinters { self: Forest =>
 
-  //nsc import treeInfo.{ IsTrue, IsFalse }
+  // nsc import treeInfo.{ IsTrue, IsFalse }
 
   final val showOuterTests = false
 
   /** Adds backticks if the name is a scala keyword. */
   def quotedName(name: Name, decode: Boolean): String =
     name.toTermName match {
-      case nme.THIS => "this"
-      case term if nme.keywords(term) && term != nme.USCOREkw => "`%s`" format name.name
+      case nme.THIS                                           => "this"
+      case term if nme.keywords(term) && term != nme.USCOREkw =>
+        "`%s`" format name.name
       case _ => name.name
     }
   def quotedName(name: Name): String = quotedName(name, false)
 
-  /** Turns a path into a String, introducing backquotes
-   *  as necessary.
-   */
+  /** Turns a path into a String, introducing backquotes as necessary.
+    */
   def backquotedPath(t: Tree): String = t match {
-    case Select(qual, name) => "%s.%s".format(backquotedPath(qual), quotedName(name))
+    case Select(qual, name) =>
+      "%s.%s".format(backquotedPath(qual), quotedName(name))
     case id: Ident if id.symbol != NoSymbol => id.symbol.fullName
-    case Ident(name)        => quotedName(name)
-    case _                  => t.toString
+    case Ident(name)                        => quotedName(name)
+    case _                                  => t.toString
   }
 
   class TreePrinter(out: PrintWriter) extends super.TreePrinter {
     protected var indentMargin = 0
     protected val indentStep = 2
-    protected var indentString = "                                        " // 40
+    protected var indentString =
+      "                                        " // 40
 
     typesPrinted = false // settings.printtypes.value
     uniqueIds = false // settings.uniqid.value
@@ -46,7 +48,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     def indent() = indentMargin += indentStep
     def undent() = indentMargin -= indentStep
 
-    def printPosition(tree: Tree) = () // if (doPrintPositions) print(showPos(tree.pos))
+    def printPosition(tree: Tree) =
+      () // if (doPrintPositions) print(showPos(tree.pos))
 
     def println(): Unit = {
       out.println()
@@ -56,49 +59,69 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         out.write(indentString, 0, indentMargin)
     }
 
-    def printSeq[a](ls: List[a])(printelem: a => Unit)(printsep: => Unit): Unit = {
+    def printSeq[a](
+        ls: List[a]
+    )(printelem: a => Unit)(printsep: => Unit): Unit = {
       ls match {
-        case List() =>
-        case List(x) => printelem(x)
-        case x :: rest => printelem(x); printsep; printSeq(rest)(printelem)(printsep)
+        case List()    =>
+        case List(x)   => printelem(x)
+        case x :: rest =>
+          printelem(x); printsep; printSeq(rest)(printelem)(printsep)
       }
     }
 
-    def printColumn(ts: List[Tree], start: String, sep: String, end: String): Unit = {
+    def printColumn(
+        ts: List[Tree],
+        start: String,
+        sep: String,
+        end: String
+    ): Unit = {
       print(start); indent; println()
-      printSeq(ts){print(_)}{print(sep); println()}; undent; println(); print(end)
+      printSeq(ts) { print(_) } { print(sep); println() }; undent; println();
+      print(end)
     }
 
-    def printRow(ts: List[Tree], start: String, sep: String, end: String): Unit = {
-      print(start); printSeq(ts){print(_)}{print(sep)}; print(end)
+    def printRow(
+        ts: List[Tree],
+        start: String,
+        sep: String,
+        end: String
+    ): Unit = {
+      print(start); printSeq(ts) { print(_) } { print(sep) }; print(end)
     }
 
-    def printRow(ts: List[Tree], sep: String): Unit = { printRow(ts, "", sep, "") }
+    def printRow(ts: List[Tree], sep: String): Unit = {
+      printRow(ts, "", sep, "")
+    }
 
     def printTypeParams(ts: List[TypeDef]): Unit = {
       if (!ts.isEmpty) {
-        print("["); printSeq(ts){ t =>
+        print("[");
+        printSeq(ts) { t =>
           printAnnotations(t)
           printParam(t)
-        }{print(", ")}; print("]")
+        } { print(", ") };
+        print("]")
       }
     }
-    
+
     def printValueParams(ts: List[ValDef]): Unit = {
       printValueParams(ts, false)
     }
-    
+
     def printValueParams(ts: List[ValDef], isclass: Boolean): Unit = {
       print("(")
       if (!ts.isEmpty) printFlags(ts.head.mods.flags & IMPLICIT, "")
-      printSeq(ts){printParam(_, isclass)}{print(", ")}
+      printSeq(ts) { printParam(_, isclass) } { print(", ") }
       print(")")
     }
 
     def printLambdaParams(ts: List[ValDef]): Unit = {
-      if (ts.size == 1 &&
+      if (
+        ts.size == 1 &&
         !ts.head.mods.hasFlag(IMPLICIT) &&
-        !(ts.head.lhs.isInstanceOf[Typed]) ) printParam(ts.head, false)
+        !(ts.head.lhs.isInstanceOf[Typed])
+      ) printParam(ts.head, false)
       else printValueParams(ts)
     }
 
@@ -116,7 +139,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
           lhs match {
             case Typed(expr, tpt) => print(expr, ": ", tpt)
-            case _ => print(lhs)
+            case _                => print(lhs)
           }
           printOpt(" = ", rhs)
         case TypeDef(mods, name, tparams, rhs) =>
@@ -136,31 +159,38 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       }
     }
 
-    private def symFn[T](tree: Tree, f: Symbol => T, orElse: => T): T = tree.symbol match {
-      case null | NoSymbol  => orElse
-      case sym              => f(sym)
-    }
+    private def symFn[T](tree: Tree, f: Symbol => T, orElse: => T): T =
+      tree.symbol match {
+        case null | NoSymbol => orElse
+        case sym             => f(sym)
+      }
     private def ifSym(tree: Tree, p: Symbol => Boolean) = symFn(tree, p, false)
 
-    private def symNameInternal(tree: Tree, name: Name, decoded: Boolean): String = {
+    private def symNameInternal(
+        tree: Tree,
+        name: Name,
+        decoded: Boolean
+    ): String = {
       def nameFn(sym: Symbol) = {
         val prefix =
           (if (sym.isCovariant) "+"
-          else if (sym.isContravariant) "-"
-          // if (sym.isMixinConstructor) "/*%s*/".format(quotedName(sym.owner.name, decoded))
-          else "") +
-          (if (builtinFullNames(sym.fullName)) ""
-          else if (sym.owner.isEffectiveRoot) ""
-          else if (sym.owner.isModuleClass || sym.owner.isPackageClass) sym.ownerNames
-          else "")
+           else if (sym.isContravariant) "-"
+           // if (sym.isMixinConstructor) "/*%s*/".format(quotedName(sym.owner.name, decoded))
+           else "") +
+            (if (builtinFullNames(sym.fullName)) ""
+             else if (sym.owner.isEffectiveRoot) ""
+             else if (sym.owner.isModuleClass || sym.owner.isPackageClass)
+               sym.ownerNames
+             else "")
 
-        val suffix = if (uniqueIds) "#"+sym.id else ""
+        val suffix = if (uniqueIds) "#" + sym.id else ""
         prefix + tree.symbol.decodedName + suffix
       }
       symFn(tree, nameFn, quotedName(name, decoded))
     }
 
-    def decodedSymName(tree: Tree, name: Name) = symNameInternal(tree, name, true)
+    def decodedSymName(tree: Tree, name: Name) =
+      symNameInternal(tree, name, true)
     def symName(tree: Tree, name: Name) = symNameInternal(tree, name, false)
 
     def printOpt(prefix: String, tree: Tree): Unit = {
@@ -168,15 +198,17 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     }
 
     def printModifiers(tree: Tree, mods: Modifiers): Unit = printFlags(
-       if (tree.symbol == NoSymbol) mods.flags else tree.symbol.flags, "" + (
-         if (tree.symbol == NoSymbol) mods.privateWithin
-         else if (tree.symbol.hasAccessBoundary) tree.symbol.privateWithin.name
-         else ""
+      if (tree.symbol == NoSymbol) mods.flags else tree.symbol.flags,
+      "" + (
+        if (tree.symbol == NoSymbol) mods.privateWithin
+        else if (tree.symbol.hasAccessBoundary) tree.symbol.privateWithin.name
+        else ""
       )
     )
 
     def printFlags(flags: Long, privateWithin: String): Unit = {
-      var mask: Long = PrintableFlags // if (settings.debug.value) -1L else PrintableFlags
+      var mask: Long =
+        PrintableFlags // if (settings.debug.value) -1L else PrintableFlags
       val s = flagsToString(flags & mask, privateWithin)
       if (s != "") print(s + " ")
     }
@@ -188,7 +220,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       }
       annots foreach (printAnnotation)
     }
-    
+
     def printlnAnnotations(tree: Tree): Unit = {
       val annots = tree.symbol.annotations match {
         case Nil  => tree.asInstanceOf[MemberDef].mods.annotations
@@ -199,38 +231,42 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
     def printAnnotation(annot: AnnotationInfo): Unit = {
       print("@", annot.atp)
-      
+
       if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
       else if (!annot.assocs.isEmpty)
-        print(annot.assocs map { case (x, y) => x+" = "+y } mkString ("(", ", ", ")"))
-      
+        print(annot.assocs map { case (x, y) =>
+          x + " = " + y
+        } mkString ("(", ", ", ")"))
+
       print(" ")
     }
-    
+
     def printlnAnnotation(annot: AnnotationInfo): Unit = {
       print("@", annot.atp)
-      
+
       if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
       else if (!annot.assocs.isEmpty)
-        print(annot.assocs map { case (x, y) => x+" = "+y } mkString ("(", ", ", ")"))
-      
+        print(annot.assocs map { case (x, y) =>
+          x + " = " + y
+        } mkString ("(", ", ", ")"))
+
       println
     }
 
     def printComment(mods: Modifiers, comments: List[String]): Unit = {
-      val lines = comments flatMap {_.linesIterator.toList}
+      val lines = comments flatMap { _.linesIterator.toList }
       val count = lines.size
       if (mods.flags == 0L)
         lines foreach { line =>
           print("// ", line)
           println()
-        } 
+        }
       else if (count == 1) {
         print("/** ", lines.head, " */")
         println()
       } else {
         print("/**")
-        println()        
+        println()
         lines foreach { line =>
           print(" * ", line)
           println()
@@ -243,26 +279,29 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     def printInterpolatedString(tree: Interpolated): Unit = {
       print(tree.interpolator)
       print("\"")
-      tree.args foreach { _ match {
-        case Literal(x) if x.tag == StringTag =>
-          print((x.stringValue.map(x.escapedChar(_))) mkString "")
-        case Ident(x) =>
-          print("$", x)
-        case arg =>
-          print("${", arg, "}")
-      }}
+      tree.args foreach {
+        _ match {
+          case Literal(x) if x.tag == StringTag =>
+            print((x.stringValue.map(x.escapedChar(_))) mkString "")
+          case Ident(x) =>
+            print("$", x)
+          case arg =>
+            print("${", arg, "}")
+        }
+      }
       print("\"")
     }
 
     private var currentOwner: Symbol = NoSymbol
     private var selectorType: Type = NoType
-    
+
     def typeTreeToString(tt: TypeTree): String =
       if ((tt.tpe eq null) || (doPrintPositions && tt.original != null)) {
         if (tt.original != null) "<type: " + tt.original + ">"
         else "<type ?>"
-      }
-      else if ((tt.tpe.typeSymbol ne null) && tt.tpe.typeSymbol.isAnonymousClass) {
+      } else if (
+        (tt.tpe.typeSymbol ne null) && tt.tpe.typeSymbol.isAnonymousClass
+      ) {
         tt.tpe.typeSymbol.toString
       } else {
         tt.tpe.toString
@@ -270,32 +309,37 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
     private def isinline(tree: Tree): Boolean =
       tree match {
-        case x: Infix => true
-        case x: Apply => true
-        case x: Literal => true
-        case x: Ident => true
-        case x: Select => true
-        case x: Assign => true
-        case x: Return => true
-        case x: Throw => true
-        case x: New => true
-        case x: Typed => true
+        case x: Infix     => true
+        case x: Apply     => true
+        case x: Literal   => true
+        case x: Ident     => true
+        case x: Select    => true
+        case x: Assign    => true
+        case x: Return    => true
+        case x: Throw     => true
+        case x: New       => true
+        case x: Typed     => true
         case x: TypeApply => true
-        
+
         case _ => false
       }
 
     private def unaryop(name: Name): Option[String] =
-      Map(nme.UNARY_! -> "!", nme.UNARY_+ -> "+", nme.UNARY_- -> "-", nme.UNARY_~ -> "~").get(name)
+      Map(
+        nme.UNARY_! -> "!",
+        nme.UNARY_+ -> "+",
+        nme.UNARY_- -> "-",
+        nme.UNARY_~ -> "~"
+      ).get(name)
 
     def printTree(tree: Tree): Unit = {
       tree match {
         case EmptyTree =>
           print("")
-        
+
         case classdef: ClassDef if classdef.name == tpnme.ANON_CLASS_NAME =>
-           print(classdef.impl)
-        
+          print(classdef.impl)
+
         case ClassDef(mods, ctormods, name, tparams, vparams, impl) =>
           printlnAnnotations(tree)
           printModifiers(tree, mods)
@@ -310,16 +354,23 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             print(" ")
             printModifiers(tree, ctormods)
           }
-          if (vparams != Nil || modifiersOfFlags(mods.flags).contains(Modifier.`case`))
+          if (
+            vparams != Nil || modifiersOfFlags(mods.flags).contains(
+              Modifier.`case`
+            )
+          )
             printValueParams(vparams, true)
-          
-          print(if (mods.isDeferred) " <: "
-                else if (impl.parents.isEmpty) ""
-                else " extends ", impl)
+
+          print(
+            if (mods.isDeferred) " <: "
+            else if (impl.parents.isEmpty) ""
+            else " extends ",
+            impl
+          )
 
         case PackageDef(mods, packaged, stats) =>
           printlnAnnotations(tree)
-          
+
           if (packaged != NoPackage)
             print("package ", packaged)
 
@@ -328,16 +379,15 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               println(); println()
             }
 
-            printSeq(stats){print(_)}{println(); println()}
-          }
-          else printColumn(stats, " {", "", "}")
+            printSeq(stats) { print(_) } { println(); println() }
+          } else printColumn(stats, " {", "", "}")
 
         case ModuleDef(mods, name, impl) =>
           printlnAnnotations(tree)
           printModifiers(tree, mods);
           if (mods.hasFlag(Flags.PACKAGE)) print("package ")
           print("object " + symName(tree, name))
-          if (impl.parents.isEmpty) print("") 
+          if (impl.parents.isEmpty) print("")
           else print(" extends ")
           print(impl)
 
@@ -345,11 +395,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           printlnAnnotations(tree)
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ")
-          
+
           // , symName(tree, name)
           lhs match {
             case Typed(expr, tpt) => print(expr, ": ", tpt)
-            case _ => print(lhs)
+            case _                => print(lhs)
           }
           if (!mods.isDeferred && !rhs.isEmpty)
             print(" = ", rhs)
@@ -361,18 +411,18 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           printTypeParams(tparams)
           vparamss match {
             case List() => //
-            case _ => vparamss foreach printValueParams
+            case _      => vparamss foreach printValueParams
           }
           if (!rhs.isEmpty)
             rhs match {
               case b: Block => print(" ", b)
-              case _ =>
+              case _        =>
                 if (isinline(rhs)) print(" ", rhs)
                 else {
                   print(" "); indent; println(); print(rhs); undent
                 }
             }
-            
+
         case DefDef(mods, name, tparams, vparamss, tp, rhs) =>
           printlnAnnotations(tree)
           printModifiers(tree, mods)
@@ -380,19 +430,19 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           printTypeParams(tparams)
           vparamss match {
             case List() => //
-            case _ => vparamss foreach printValueParams
+            case _      => vparamss foreach printValueParams
           }
           printOpt(": ", tp)
           if (!rhs.isEmpty)
             rhs match {
               case b: Block => print(" = ", b)
-              case _ =>
+              case _        =>
                 if (isinline(rhs)) print(" = ", rhs)
                 else {
                   print(" ="); indent; println(); print(rhs); undent
                 }
             }
-        
+
         case AnonFunc(vparamss, tp: TypeTree, rhs: Block) =>
           print("{ ")
           if (vparamss.size == 1) printLambdaParams(vparamss.head)
@@ -400,13 +450,13 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           print(" =>")
           printColumn(rhs.stats ::: List(rhs.expr), "", "", "")
           print("}")
-          
+
         case AnonFunc(vparamss, tp: TypeTree, rhs) =>
           if (vparamss.size == 1) printLambdaParams(vparamss.head)
           else vparamss foreach printValueParams
           printOpt(": ", tp)
           if (!rhs.isEmpty) print(" => ", rhs)
-                              
+
         case TypeDef(mods, name, tparams, rhs) =>
           if (mods hasFlag (PARAM | DEFERRED)) {
             printAnnotations(tree)
@@ -419,7 +469,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               case tt: TypeTree =>
                 tt.tpe match {
                   case bounds: TypeBounds => print(" ", bounds)
-                  case _ => printOpt(" = ", rhs)
+                  case _                  => printOpt(" = ", rhs)
                 }
               case _ => printOpt(" = ", rhs)
             }
@@ -441,27 +491,29 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           }
         case Import(expr, selectors) =>
           // Is this selector remapping a name (i.e, {name1 => name2})
-          def isNotRemap(s: ImportSelector) : Boolean = (s.name == nme.WILDCARD || s.name == s.rename)
+          def isNotRemap(s: ImportSelector): Boolean =
+            (s.name == nme.WILDCARD || s.name == s.rename)
           def selectorToString(s: ImportSelector): String = {
             val from = quotedName(s.name)
             if (isNotRemap(s)) from
             else from + " => " + quotedName(s.rename)
           }
           print("import ", backquotedPath(expr))
-          
-          if (selectors.isEmpty) print("")
-          else selectors match {
-            case List(s) =>
-              print(".")
-              // If there is just one selector and it is not remapping a name, no braces are needed
-              if (isNotRemap(s)) print(selectorToString(s))
-              else print("{", selectorToString(s), "}")
-              // If there is more than one selector braces are always needed
-            case many =>
-              print(".", many.map(selectorToString).mkString("{", ", ", "}"))
-          }
 
-       case Template(parents, self, body) =>
+          if (selectors.isEmpty) print("")
+          else
+            selectors match {
+              case List(s) =>
+                print(".")
+                // If there is just one selector and it is not remapping a name, no braces are needed
+                if (isNotRemap(s)) print(selectorToString(s))
+                else print("{", selectorToString(s), "}")
+              // If there is more than one selector braces are always needed
+              case many =>
+                print(".", many.map(selectorToString).mkString("{", ", ", "}"))
+            }
+
+        case Template(parents, self, body) =>
           val currentOwner1 = currentOwner
           if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
           printRow(parents, " with ")
@@ -494,7 +546,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           print("case ")
           def patConstr(pat: Tree): Tree = pat match {
             case Apply(fn, args) => patConstr(fn)
-            case _ => pat
+            case _               => pat
           }
           // if (showOuterTests &&
           //    needsOuterTest(
@@ -520,7 +572,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
         case Function(vparams, body) =>
           print("("); printValueParams(vparams); print(" => ", body, ")")
-          if (uniqueIds && tree.symbol != null) print("#"+tree.symbol.id)
+          if (uniqueIds && tree.symbol != null) print("#" + tree.symbol.id)
 
         case Assign(lhs, rhs) =>
           print(lhs, " = ", rhs)
@@ -544,8 +596,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           print("throw ", expr)
 
         case New(classdef: ClassDef)
-        if classdef.name == tpnme.ANON_CLASS_NAME &&
-        classdef.impl.parents.isEmpty  =>
+            if classdef.name == tpnme.ANON_CLASS_NAME &&
+              classdef.impl.parents.isEmpty =>
           print("new", classdef)
 
         case New(tpe) =>
@@ -556,11 +608,13 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
         case TypeApply(fun, targs) =>
           print(fun); printRow(targs, "[", ", ", "]")
-        
+
         case Apply(fun, vargs) =>
           if (!isTupleTree(tree)) print(fun)
-          if (vargs.size == 1
-            && vargs.head.symbol == definitions.PartiallyAppliedParam) print(" _")
+          if (
+            vargs.size == 1
+            && vargs.head.symbol == definitions.PartiallyAppliedParam
+          ) print(" _")
           else printRow(vargs, "(", ", ", ")")
 
         case ApplyDynamic(qual, vargs) =>
@@ -568,7 +622,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           printRow(vargs, ", (", ", ", "))")
 
         case Super(This(qual), mix) =>
-          if (!qual.isEmpty || tree.symbol != NoSymbol) print(symName(tree, qual) + ".")
+          if (!qual.isEmpty || tree.symbol != NoSymbol)
+            print(symName(tree, qual) + ".")
           print("super")
           if (!mix.isEmpty)
             print("[" + mix + "]")
@@ -582,7 +637,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case This(qual) =>
           if (!qual.isEmpty) print(symName(tree, qual) + ".")
           print("this")
-        
+
         case Select(qualifier, name) if unaryop(name).isDefined =>
           print(unaryop(name).get, "(", qualifier, ")")
 
@@ -591,11 +646,11 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
         case Select(Literal(x), name) =>
           print(x.escapedStringValue, ".", symName(tree, name))
-        
+
         case Select(qualifier, name) =>
           print(qualifier, ".", symName(tree, name))
-          // print(backquotedPath(qualifier), ".", symName(tree, name))
-                
+        // print(backquotedPath(qualifier), ".", symName(tree, name))
+
         case Ident(name) =>
           tree match {
             case BackQuotedIdent(name) =>
@@ -608,7 +663,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
         case tt: TypeTree =>
           print(typeTreeToString(tt))
-          
+
         case Annotated(Apply(Select(New(tpt), nme.CONSTRUCTOR), args), tree) =>
           def printAnnot(): Unit = {
             print("@", tpt)
@@ -645,8 +700,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             indent(); println();
             print(body)
             undent()
-          } 
-          else {
+          } else {
             printColumn(enumerators, "{", "", "} ")
             print(body)
           }
@@ -657,41 +711,40 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             indent(); println();
             print("yield "); print(body)
             undent()
-          } 
-          else {
+          } else {
             printColumn(enumerators, "{", "", "} ")
             print("yield "); print(body)
-          }          
+          }
         case ForValFrom(_, name, tp, rhs) =>
           print(symName(tree, name))
           printOpt(": ", tp)
-          print(" <- ", rhs)  
+          print(" <- ", rhs)
         case ForValDef(_, name, tp, rhs) =>
           print(symName(tree, name))
           printOpt(": ", tp)
-          print(" = ", rhs)  
+          print(" = ", rhs)
         case ForFilter(_, test: Tree) =>
           print("if ", test)
         case Infix(Literal(x), name, args) =>
           print(x.escapedStringValue, " ", symName(tree, name))
           if (!args.isEmpty) {
             print(" ")
-            if (args.size == 1) 
-             args(0) match {
-                case x: Infix => print("(", x, ")") 
+            if (args.size == 1)
+              args(0) match {
+                case x: Infix => print("(", x, ")")
                 case _        => print(args(0))
-             }
+              }
             else printRow(args, "(", ", ", ")")
           }
         case Infix(qualifier, name, args) =>
           print(qualifier, " ", symName(tree, name))
           if (!args.isEmpty) {
             print(" ")
-            if (args.size == 1) 
-             args(0) match {
-                case x: Infix => print("(", x, ")") 
+            if (args.size == 1)
+              args(0) match {
+                case x: Infix => print("(", x, ")")
                 case _        => print(args(0))
-             }
+              }
             else printRow(args, "(", ", ", ")")
           }
         case InfixUnApply(Literal(x), name, args) =>
@@ -700,9 +753,9 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
           else printRow(args, "(", ", ", ")")
         case InfixUnApply(qualifier, name, args) =>
           print(qualifier, " ", symName(tree, name), " ")
-          if (args.size == 1) 
+          if (args.size == 1)
             args(0) match {
-              case x: Infix => print("(", x, ")") 
+              case x: Infix => print("(", x, ")")
               case _        => print(args(0))
             }
           else printRow(args, "(", ", ", ")")
@@ -736,34 +789,39 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
   /** Hook for extensions */
   def xprintTree(treePrinter: TreePrinter, tree: Tree) =
-    treePrinter.print(tree.productPrefix+tree.productIterator.mkString("(", ", ", ")"))
+    treePrinter.print(
+      tree.productPrefix + tree.productIterator.mkString("(", ", ", ")")
+    )
 
   def newTreePrinter(writer: PrintWriter): TreePrinter = new TreePrinter(writer)
-  def newTreePrinter(stream: OutputStream): TreePrinter = newTreePrinter(new PrintWriter(stream))
-  def newTreePrinter(): TreePrinter = newTreePrinter(new PrintWriter(ConsoleWriter))
-    
+  def newTreePrinter(stream: OutputStream): TreePrinter = newTreePrinter(
+    new PrintWriter(stream)
+  )
+  def newTreePrinter(): TreePrinter = newTreePrinter(
+    new PrintWriter(ConsoleWriter)
+  )
+
   def treeToString(args: Any*): String = {
     val sw = new StringWriter
     val writer = new PrintWriter(sw)
-    val printer = newTreePrinter(writer)  
+    val printer = newTreePrinter(writer)
     args.toList match {
-      case Nil => //
+      case Nil     => //
       case List(x) => printer.print(x)
       case x :: xs =>
         printer.print(x)
         xs foreach { arg =>
           printer.println()
-          printer.print(arg) 
+          printer.print(arg)
         }
     }
 
     sw.toString
   }
-  
-  /** A writer that writes to the current Console and
-   * is sensitive to replacement of the Console's
-   * output stream.
-   */
+
+  /** A writer that writes to the current Console and is sensitive to
+    * replacement of the Console's output stream.
+    */
   object ConsoleWriter extends Writer {
     override def write(str: String): Unit = { Console.print(str) }
 
