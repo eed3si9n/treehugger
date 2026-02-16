@@ -21,19 +21,19 @@ trait DocGen { self: Forest =>
     def Author(args: Any*)  = DocTag("@author", args.toList)
     def Version(args: Any*) = DocTag("@version", args.toList)
     def Since(args: Any*)   = DocTag("@since", args.toList)
-    def ToDo(args: Any*)    = DocTag("@todo", args.toList) 
+    def ToDo(args: Any*)    = DocTag("@todo", args.toList)
   }
   case class DocTag(tag: String, args: List[Any]) extends DocElement {
     override def toString: String =
       tag + (args match {
         case Nil => ""
-        case _ =>
+        case _   =>
           " " + (args map {
             case sym: Symbol => sym.fullName
-            case x => x.toString
+            case x           => x.toString
           }).mkString(" ")
       })
   }
   def mkScalaDoc(target: Tree, elems: List[DocElement]): Commented =
-    Commented(Modifiers(SCALADOC_COMMENT), elems.map(_.toString), target) 
+    Commented(Modifiers(SCALADOC_COMMENT), elems.map(_.toString), target)
 }

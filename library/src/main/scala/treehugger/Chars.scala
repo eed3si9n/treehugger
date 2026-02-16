@@ -4,8 +4,8 @@
  */
 package treehugger
 
-import annotation.{ tailrec, switch }
-import java.lang.{ Character => JCharacter }
+import annotation.{tailrec, switch}
+import java.lang.{Character => JCharacter}
 
 /** Contains constants and classifier methods for characters */
 trait Chars {
@@ -20,8 +20,10 @@ trait Chars {
   final val CR = '\u000D'
   final val SU = '\u001A'
 
-  /** Convert a character digit to an Int according to given base,
-   *  -1 if no success */
+  /**
+   * Convert a character digit to an Int according to given base, -1 if no
+   * success
+   */
   def digit2int(ch: Char, base: Int): Int = {
     if ('0' <= ch && ch <= '9' && ch < '0' + base)
       ch - '0'
@@ -36,7 +38,7 @@ trait Chars {
   /** Convert a character to a backslash-u escape */
   def char2uescape(c: Char): String = {
     var rest = c.toInt
-    val buf = new StringBuilder
+    val buf  = new StringBuilder
     for (i <- 1 to 4) {
       buf ++= (rest % 16).toHexString
       rest = rest / 16
@@ -46,8 +48,8 @@ trait Chars {
 
   /** Is character a line break? */
   @inline def isLineBreakChar(c: Char) = (c: @switch) match {
-    case LF|FF|CR|SU  => true
-    case _            => false
+    case LF | FF | CR | SU => true
+    case _                 => false
   }
 
   /** Is character a whitespace character (but not a new line)? */
@@ -65,27 +67,33 @@ trait Chars {
   def isIdentifierPart(c: Char) =
     (c == '$') || Character.isUnicodeIdentifierPart(c)
 
-  /** Is character a math or other symbol in Unicode?  */
+  /** Is character a math or other symbol in Unicode? */
   def isSpecial(c: Char) = {
     val chtp = Character.getType(c)
     chtp == Character.MATH_SYMBOL.toInt || chtp == Character.OTHER_SYMBOL.toInt
   }
 
-  private final val otherLetters = Set[Char]('\u0024', '\u005F')  // '$' and '_'
+  private final val otherLetters = Set[Char]('\u0024', '\u005F') // '$' and '_'
   private final val letterGroups = {
     import JCharacter._
-    Set[Byte](LOWERCASE_LETTER, UPPERCASE_LETTER, OTHER_LETTER, TITLECASE_LETTER, LETTER_NUMBER)
+    Set[Byte](
+      LOWERCASE_LETTER,
+      UPPERCASE_LETTER,
+      OTHER_LETTER,
+      TITLECASE_LETTER,
+      LETTER_NUMBER
+    )
   }
-  def isScalaLetter(ch: Char) = letterGroups(JCharacter.getType(ch).toByte) || otherLetters(ch)
+  def isScalaLetter(ch: Char) =
+    letterGroups(JCharacter.getType(ch).toByte) || otherLetters(ch)
 
   /** Can character form part of a Scala operator name? */
-  def isOperatorPart(c : Char) : Boolean = (c: @switch) match {
-    case '~' | '!' | '@' | '#' | '%' |
-         '^' | '*' | '+' | '-' | '<' |
-         '>' | '?' | ':' | '=' | '&' |
-         '|' | '/' | '\\' => true
+  def isOperatorPart(c: Char): Boolean = (c: @switch) match {
+    case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' |
+        '|' | '/' | '\\' =>
+      true
     case c => isSpecial(c)
   }
 }
 
-object Chars extends Chars { }
+object Chars extends Chars {}
