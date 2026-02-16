@@ -17,11 +17,11 @@ class Forest
     with TreehuggerDSLs {
   type Position = String
   val NoPosition: Position = ""
-  val forMSIL: Boolean = false
+  val forMSIL: Boolean     = false
 
   type TreeCopier = TreeCopierOps
   def newStrictTreeCopier: TreeCopier = new StrictTreeCopier
-  def newLazyTreeCopier: TreeCopier = new LazyTreeCopier
+  def newLazyTreeCopier: TreeCopier   = new LazyTreeCopier
 
   definitions.init()
   val Flags = treehugger.Flags

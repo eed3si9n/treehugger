@@ -20,9 +20,10 @@ trait Chars {
   final val CR = '\u000D'
   final val SU = '\u001A'
 
-  /** Convert a character digit to an Int according to given base, -1 if no
-    * success
-    */
+  /**
+   * Convert a character digit to an Int according to given base, -1 if no
+   * success
+   */
   def digit2int(ch: Char, base: Int): Int = {
     if ('0' <= ch && ch <= '9' && ch < '0' + base)
       ch - '0'
@@ -37,7 +38,7 @@ trait Chars {
   /** Convert a character to a backslash-u escape */
   def char2uescape(c: Char): String = {
     var rest = c.toInt
-    val buf = new StringBuilder
+    val buf  = new StringBuilder
     for (i <- 1 to 4) {
       buf ++= (rest % 16).toHexString
       rest = rest / 16
@@ -88,8 +89,8 @@ trait Chars {
 
   /** Can character form part of a Scala operator name? */
   def isOperatorPart(c: Char): Boolean = (c: @switch) match {
-    case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' |
-        ':' | '=' | '&' | '|' | '/' | '\\' =>
+    case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' |
+        '|' | '/' | '\\' =>
       true
     case c => isSpecial(c)
   }

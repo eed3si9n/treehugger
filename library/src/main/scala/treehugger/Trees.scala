@@ -10,14 +10,15 @@ import api.Modifier
 
 trait Trees extends api.Trees { self: Forest =>
 
-  /** @param privateWithin
-    *   the qualifier for a private (a type name) or tpnme.EMPTY, if none is
-    *   given.
-    * @param annotations
-    *   the annotations for the definition. '''Note:''' the typechecker drops
-    *   these annotations, use the AnnotationInfo's (Symbol.annotations) in
-    *   later phases.
-    */
+  /**
+   * @param privateWithin
+   *   the qualifier for a private (a type name) or tpnme.EMPTY, if none is
+   *   given.
+   * @param annotations
+   *   the annotations for the definition. '''Note:''' the typechecker drops
+   *   these annotations, use the AnnotationInfo's (Symbol.annotations) in
+   *   later phases.
+   */
   case class Modifiers(
       flags: Long,
       privateWithin: Name,
@@ -31,18 +32,18 @@ trait Trees extends api.Trees { self: Forest =>
     }
 
     /* Abstract types from HasFlags. */
-    type FlagsType = Long
+    type FlagsType          = Long
     type AccessBoundaryType = Name
-    type AnnotationType = AnnotationInfo
+    type AnnotationType     = AnnotationInfo
 
-    def hasAccessBoundary = privateWithin != tpnme.EMPTY
-    def hasAllFlags(mask: Long): Boolean = (flags & mask) == mask
-    def hasFlag(flag: Long) = (flag & flags) != 0L
+    def hasAccessBoundary                    = privateWithin != tpnme.EMPTY
+    def hasAllFlags(mask: Long): Boolean     = (flags & mask) == mask
+    def hasFlag(flag: Long)                  = (flag & flags) != 0L
     def hasFlagsToString(mask: Long): String = flagsToString(
       flags & mask,
       if (hasAccessBoundary) privateWithin.toString else ""
     )
-    def defaultFlagString = hasFlagsToString(-1L)
+    def defaultFlagString        = hasFlagsToString(-1L)
     def &(flag: Long): Modifiers = {
       val flags1 = flags & flag
       if (flags1 == flags) this
@@ -92,22 +93,24 @@ trait Trees extends api.Trees { self: Forest =>
 
   // ---- values and creators ---------------------------------------
 
-  /** @param sym
-    *   the class symbol
-    * @return
-    *   the implementation template
-    */
+  /**
+   * @param sym
+   *   the class symbol
+   * @return
+   *   the implementation template
+   */
   // def ClassDef(sym: Symbol, impl: Template): ClassDef =
   //   ClassDef(Modifiers(sym.flags),
   //              sym.name.toTypeName,
   //              sym.typeParams map TypeDef,
   //              impl) setSymbol sym
 
-  /** @param sym
-    *   the class symbol
-    * @param impl
-    *   the implementation template
-    */
+  /**
+   * @param sym
+   *   the class symbol
+   * @param impl
+   *   the implementation template
+   */
   def ModuleDef(sym: Symbol, impl: Template): ModuleDef =
     ModuleDef(Modifiers(sym.flags), sym.name, impl) setSymbol sym
 
@@ -121,24 +124,25 @@ trait Trees extends api.Trees { self: Forest =>
 
   def ValDef(sym: Symbol): ValDef = ValDef(sym, EmptyTree)
 
-  object emptyValDef
-      extends ValDef(Modifiers(PRIVATE), Ident(nme.WILDCARD), EmptyTree) {
+  object emptyValDef extends ValDef(Modifiers(PRIVATE), Ident(nme.WILDCARD), EmptyTree) {
     override def isEmpty = true
     super.setPos(NoPosition)
     override def setPos(pos: Position) = { assert(false); this }
   }
 
-  /** A TypeDef node which defines given `sym` with given tight hand side `rhs`.
-    */
+  /**
+   * A TypeDef node which defines given `sym` with given tight hand side `rhs`.
+   */
   def TypeDef(sym: Symbol, rhs: Tree): TypeDef =
     // TypeDef(Modifiers(sym.flags), sym.name.toTypeName, sym.typeParams map TypeDef, rhs) setSymbol sym
     TypeDef(Modifiers(sym.flags), sym.name.toTypeName, Nil, rhs) setSymbol sym
 
   def TypeDef(sym: Symbol): TypeDef = TypeDef(sym, EmptyTree)
 
-  /** A TypeDef node which defines abstract type or type parameter for given
-    * `sym`
-    */
+  /**
+   * A TypeDef node which defines abstract type or type parameter for given
+   * `sym`
+   */
   // def TypeDef(sym: Symbol): TypeDef =
   //   TypeDef(sym, TypeBoundsTree(TypeTree(sym.info.bounds.lo), TypeTree(sym.info.bounds.hi)))
 
@@ -151,17 +155,19 @@ trait Trees extends api.Trees { self: Forest =>
   def Bind(sym: Symbol, body: Tree): Bind =
     Bind(sym.name, body) setSymbol sym
 
-  /** Factory method for object creation `new tpt(args_1)...(args_n)` A
-    * `New(t, as)` is expanded to: `(new t).<init>(as)`
-    */
+  /**
+   * Factory method for object creation `new tpt(args_1)...(args_n)` A
+   * `New(t, as)` is expanded to: `(new t).<init>(as)`
+   */
   def New(tpt: Tree, argss: List[List[Tree]]): Tree = {
     assert(!argss.isEmpty)
     val superRef: Tree = Select(New(tpt), nme.CONSTRUCTOR)
     (superRef /: argss)(Apply)
   }
 
-  /** 0-1 argument list new, based on a symbol.
-    */
+  /**
+   * 0-1 argument list new, based on a symbol.
+   */
   def New(sym: Symbol, args: Tree*): Tree =
     if (args.isEmpty) New(TypeTree(sym.tpe))
     else New(TypeTree(sym.tpe), List(args.toList))
@@ -177,8 +183,9 @@ trait Trees extends api.Trees { self: Forest =>
 
   def This(sym: Symbol): This = This(sym.name.toTypeName) setSymbol sym
 
-  /** Block factory that flattens directly nested blocks.
-    */
+  /**
+   * Block factory that flattens directly nested blocks.
+   */
   def Block(stats: Tree*): Block = stats match {
     case Seq(b @ Block(_, _)) => b
     case Seq(stat)            => Block(Nil, stat)

@@ -54,8 +54,9 @@ trait StandardDefinitions { self: Universe =>
     // fundamental type constructions
     // def ClassType(arg: Type): Type
 
-    /** The string representation used by the given type in the VM.
-      */
+    /**
+     * The string representation used by the given type in the VM.
+     */
     // def signature(tp: Type): String
 
     /** Is symbol one of the value classes? */

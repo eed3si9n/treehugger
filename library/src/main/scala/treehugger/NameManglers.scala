@@ -9,43 +9,45 @@ import java.security.MessageDigest
 import scala.io.Codec
 import Chars.isOperatorPart
 
-/** A trait to encapsulate name mangling. It's intended for the values and
-  * methods involved in assembling names out of other names, and not for simple
-  * synthetically named locals.
-  */
+/**
+ * A trait to encapsulate name mangling. It's intended for the values and
+ * methods involved in assembling names out of other names, and not for simple
+ * synthetically named locals.
+ */
 trait NameManglers { self: Forest =>
 
   trait NameManglingCommon {
     self: CommonNames =>
 
     val MODULE_SUFFIX_STRING = "$" // NameTransformer.MODULE_SUFFIX_STRING
-    val NAME_JOIN_STRING = "$" // NameTransformer.NAME_JOIN_STRING
+    val NAME_JOIN_STRING     = "$" // NameTransformer.NAME_JOIN_STRING
 
     def flattenedName(segments: Name*): NameType = compactedString(
       segments mkString NAME_JOIN_STRING
     )
 
-    /** COMPACTIFY
-      *
-      * The hashed name has the form (prefix + marker + md5 + marker + suffix),
-      * where
-      *   - prefix/suffix.length = MaxNameLength / 4
-      *   - md5.length = 32
-      *
-      * We obtain the formula:
-      *
-      * FileNameLength = 2*(MaxNameLength / 4) + 2.marker.length + 32 + 6
-      *
-      * (+6 for ".class"). MaxNameLength can therefore be computed as follows:
-      */
-    private final val marker = "$$$$"
-    private final val MaxNameLength = 1024
-    private lazy val md5 = MessageDigest.getInstance("MD5")
+    /**
+     * COMPACTIFY
+     *
+     * The hashed name has the form (prefix + marker + md5 + marker + suffix),
+     * where
+     *   - prefix/suffix.length = MaxNameLength / 4
+     *   - md5.length = 32
+     *
+     * We obtain the formula:
+     *
+     * FileNameLength = 2*(MaxNameLength / 4) + 2.marker.length + 32 + 6
+     *
+     * (+6 for ".class"). MaxNameLength can therefore be computed as follows:
+     */
+    private final val marker                = "$$$$"
+    private final val MaxNameLength         = 1024
+    private lazy val md5                    = MessageDigest.getInstance("MD5")
     private def toMD5(s: String, edge: Int) = {
       val prefix = s take edge
       val suffix = s takeRight edge
 
-      val cs = s.toArray
+      val cs    = s.toArray
       val bytes = Codec.toUTF8(s).array
       md5 update bytes
       val md5chars = (md5.digest() map (b => (b & 0xff).toHexString)).mkString
@@ -65,13 +67,13 @@ trait NameManglers { self: Forest =>
   trait TermNameMangling extends NameManglingCommon {
     self: nme.type =>
 
-    val IMPL_CLASS_SUFFIX = "$class"
-    val LOCALDUMMY_PREFIX = "<local " // owner of local blocks
-    val PROTECTED_PREFIX = "protected$"
-    val PROTECTED_SET_PREFIX = PROTECTED_PREFIX + "set"
-    val SETTER_SUFFIX = encode("_=")
-    val SINGLETON_SUFFIX = ".type"
-    val SUPER_PREFIX_STRING = "super$"
+    val IMPL_CLASS_SUFFIX             = "$class"
+    val LOCALDUMMY_PREFIX             = "<local " // owner of local blocks
+    val PROTECTED_PREFIX              = "protected$"
+    val PROTECTED_SET_PREFIX          = PROTECTED_PREFIX + "set"
+    val SETTER_SUFFIX                 = encode("_=")
+    val SINGLETON_SUFFIX              = ".type"
+    val SUPER_PREFIX_STRING           = "super$"
     val TRAIT_SETTER_SEPARATOR_STRING = "$_setter_$"
 
     def isConstructorName(name: Name) =
@@ -80,18 +82,18 @@ trait NameManglers { self: Forest =>
       name startsWith EXCEPTION_RESULT_PREFIX
     def isImplClassName(name: Name) =
       stripAnonNumberSuffix(name) endsWith IMPL_CLASS_SUFFIX
-    def isLocalDummyName(name: Name) = name startsWith LOCALDUMMY_PREFIX
-    def isLocalName(name: Name) = name endsWith LOCAL_SUFFIX_STRING
+    def isLocalDummyName(name: Name)  = name startsWith LOCALDUMMY_PREFIX
+    def isLocalName(name: Name)       = name endsWith LOCAL_SUFFIX_STRING
     def isLoopHeaderLabel(name: Name) =
       (name startsWith WHILE_PREFIX) || (name startsWith DO_WHILE_PREFIX)
     def isProtectedAccessorName(name: Name) = name startsWith PROTECTED_PREFIX
-    def isReplWrapperName(name: Name) =
+    def isReplWrapperName(name: Name)       =
       name containsName INTERPRETER_IMPORT_WRAPPER
-    def isSetterName(name: Name) = name endsWith SETTER_SUFFIX
+    def isSetterName(name: Name)      = name endsWith SETTER_SUFFIX
     def isTraitSetterName(name: Name) =
       isSetterName(name) && (name containsName TRAIT_SETTER_SEPARATOR_STRING)
     def isSingletonName(name: Name) = name endsWith SINGLETON_SUFFIX
-    def isModuleName(name: Name) = name endsWith MODULE_SUFFIX_STRING
+    def isModuleName(name: Name)    = name endsWith MODULE_SUFFIX_STRING
 
     def isOpAssignmentName(name: Name) = name match {
       case raw.NE | raw.LE | raw.GE | EMPTY => false
@@ -101,20 +103,23 @@ trait NameManglers { self: Forest =>
         )
     }
 
-    /** The expanded name of `name` relative to this class `base` with given
-      * `separator`
-      */
+    /**
+     * The expanded name of `name` relative to this class `base` with given
+     * `separator`
+     */
     // def expandedName(name: TermName, base: Symbol, separator: String = EXPAND_SEPARATOR_STRING): TermName =
     //  newTermName(base.fullName('$') + separator + name)
 
-    /** The expanded setter name of `name` relative to this class `base`
-      */
+    /**
+     * The expanded setter name of `name` relative to this class `base`
+     */
     // def expandedSetterName(name: TermName, base: Symbol): TermName =
     //  expandedName(name, base, separator = TRAIT_SETTER_SEPARATOR_STRING)
 
-    /** If `name` is an expandedName name, the original name. Otherwise `name`
-      * itself.
-      */
+    /**
+     * If `name` is an expandedName name, the original name. Otherwise `name`
+     * itself.
+     */
     def originalName(name: Name): Name = {
       var i = name.length
       while (i >= 2 && !(name(i - 1) == '$' && name(i - 2) == '$')) i -= 1
@@ -127,8 +132,8 @@ trait NameManglers { self: Forest =>
     def splitSpecializedName(name: Name): (Name, String, String) =
       if (name.endsWith("$sp")) {
         val name1 = name stripEnd "$sp"
-        val idxC = name1 lastIndexOf 'c'
-        val idxM = name1 lastIndexOf 'm'
+        val idxC  = name1 lastIndexOf 'c'
+        val idxM  = name1 lastIndexOf 'm'
 
         (
           name1.subName(0, idxM - 1),
@@ -181,9 +186,10 @@ trait NameManglers { self: Forest =>
       if (isModuleName(name)) name stripEnd MODULE_SUFFIX_STRING else name
     )
 
-    /** Note that for performance reasons, stripEnd does not verify that the
-      * suffix is actually the suffix specified.
-      */
+    /**
+     * Note that for performance reasons, stripEnd does not verify that the
+     * suffix is actually the suffix specified.
+     */
     def dropSingletonName(name: Name): TypeName =
       (name stripEnd SINGLETON_SUFFIX).toTypeName
     def singletonName(name: Name): TypeName =
@@ -196,16 +202,17 @@ trait NameManglers { self: Forest =>
       LOCALDUMMY_PREFIX + clazz.name + ">"
     )
     def productAccessorName(i: Int): TermName = newTermName("_" + i)
-    def superName(name: Name): TermName = newTermName(
+    def superName(name: Name): TermName       = newTermName(
       SUPER_PREFIX_STRING + name
     )
 
     /** The name of an accessor for protected symbols. */
     def protName(name: Name): TermName = newTermName(PROTECTED_PREFIX + name)
 
-    /** The name of a setter for protected symbols. Used for inherited Java
-      * fields.
-      */
+    /**
+     * The name of a setter for protected symbols. Used for inherited Java
+     * fields.
+     */
     def protSetterName(name: Name): TermName = newTermName(
       PROTECTED_SET_PREFIX + name
     )

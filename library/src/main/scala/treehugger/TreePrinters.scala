@@ -25,8 +25,9 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     }
   def quotedName(name: Name): String = quotedName(name, false)
 
-  /** Turns a path into a String, introducing backquotes as necessary.
-    */
+  /**
+   * Turns a path into a String, introducing backquotes as necessary.
+   */
   def backquotedPath(t: Tree): String = t match {
     case Select(qual, name) =>
       "%s.%s".format(backquotedPath(qual), quotedName(name))
@@ -37,12 +38,12 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
 
   class TreePrinter(out: PrintWriter) extends super.TreePrinter {
     protected var indentMargin = 0
-    protected val indentStep = 2
+    protected val indentStep   = 2
     protected var indentString =
       "                                        " // 40
 
     typesPrinted = false // settings.printtypes.value
-    uniqueIds = false // settings.uniqid.value
+    uniqueIds = false    // settings.uniqid.value
     protected def doPrintPositions = false // settings.Xprintpos.value
 
     def indent() = indentMargin += indentStep
@@ -293,15 +294,13 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     }
 
     private var currentOwner: Symbol = NoSymbol
-    private var selectorType: Type = NoType
+    private var selectorType: Type   = NoType
 
     def typeTreeToString(tt: TypeTree): String =
       if ((tt.tpe eq null) || (doPrintPositions && tt.original != null)) {
         if (tt.original != null) "<type: " + tt.original + ">"
         else "<type ?>"
-      } else if (
-        (tt.tpe.typeSymbol ne null) && tt.tpe.typeSymbol.isAnonymousClass
-      ) {
+      } else if ((tt.tpe.typeSymbol ne null) && tt.tpe.typeSymbol.isAnonymousClass) {
         tt.tpe.typeSymbol.toString
       } else {
         tt.tpe.toString
@@ -793,7 +792,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       tree.productPrefix + tree.productIterator.mkString("(", ", ", ")")
     )
 
-  def newTreePrinter(writer: PrintWriter): TreePrinter = new TreePrinter(writer)
+  def newTreePrinter(writer: PrintWriter): TreePrinter  = new TreePrinter(writer)
   def newTreePrinter(stream: OutputStream): TreePrinter = newTreePrinter(
     new PrintWriter(stream)
   )
@@ -802,8 +801,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
   )
 
   def treeToString(args: Any*): String = {
-    val sw = new StringWriter
-    val writer = new PrintWriter(sw)
+    val sw      = new StringWriter
+    val writer  = new PrintWriter(sw)
     val printer = newTreePrinter(writer)
     args.toList match {
       case Nil     => //
@@ -819,9 +818,10 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     sw.toString
   }
 
-  /** A writer that writes to the current Console and is sensitive to
-    * replacement of the Console's output stream.
-    */
+  /**
+   * A writer that writes to the current Console and is sensitive to
+   * replacement of the Console's output stream.
+   */
   object ConsoleWriter extends Writer {
     override def write(str: String): Unit = { Console.print(str) }
 

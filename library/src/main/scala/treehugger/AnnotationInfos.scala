@@ -47,22 +47,23 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
     )
   }
 
-  /** Typed information about an annotation. It can be attached to either a
-    * symbol or an annotated type.
-    *
-    * Annotations are written to the classfile as Java annotations if `atp`
-    * conforms to `ClassfileAnnotation` (the classfile parser adds this
-    * interface to any Java annotation class).
-    *
-    * Annotations are pickled (written to scala symtab attribute in the
-    * classfile) if `atp` inherits form `StaticAnnotation`.
-    *
-    * `args` stores arguments to Scala annotations, represented as typed trees.
-    * Note that these trees are not transformed by any phases following the
-    * type-checker.
-    *
-    * `assocs` stores arguments to classfile annotations as name-value pairs.
-    */
+  /**
+   * Typed information about an annotation. It can be attached to either a
+   * symbol or an annotated type.
+   *
+   * Annotations are written to the classfile as Java annotations if `atp`
+   * conforms to `ClassfileAnnotation` (the classfile parser adds this
+   * interface to any Java annotation class).
+   *
+   * Annotations are pickled (written to scala symtab attribute in the
+   * classfile) if `atp` inherits form `StaticAnnotation`.
+   *
+   * `args` stores arguments to Scala annotations, represented as typed trees.
+   * Note that these trees are not transformed by any phases following the
+   * type-checker.
+   *
+   * `assocs` stores arguments to classfile annotations as name-value pairs.
+   */
   sealed abstract class AnnotationInfo
       extends AbsAnnotationInfo
       with Product3[Type, List[Tree], List[(Name, ClassfileAnnotArg)]] {
@@ -71,40 +72,43 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
     def assocs: List[(Name, ClassfileAnnotArg)]
 
     /** Hand rolling Product. */
-    def _1 = atp
-    def _2 = args
-    def _3 = assocs
-    def canEqual(other: Any) = other.isInstanceOf[AnnotationInfo]
+    def _1                     = atp
+    def _2                     = args
+    def _3                     = assocs
+    def canEqual(other: Any)   = other.isInstanceOf[AnnotationInfo]
     override def productPrefix = "AnnotationInfo"
 
     // see annotationArgRewriter
     // lazy val isTrivial = atp.isTrivial && !hasArgWhich(_.isInstanceOf[This])
 
-    private var rawpos: Position = NoPosition
-    def pos = rawpos
+    private var rawpos: Position         = NoPosition
+    def pos                              = rawpos
     def setPos(pos: Position): this.type = {
       rawpos = pos
       this
     }
 
-    /** Annotations annotating annotations are confusing so I drew an example.
-      */
+    /**
+     * Annotations annotating annotations are confusing so I drew an example.
+     */
     def symbol = atp.typeSymbol
 
-    /** These are meta-annotations attached at the use site; they only apply to
-      * this annotation usage. For instance, in
-      * `@(deprecated @setter @field) val ...` metaAnnotations = List(setter,
-      * field).
-      */
+    /**
+     * These are meta-annotations attached at the use site; they only apply to
+     * this annotation usage. For instance, in
+     * `@(deprecated @setter @field) val ...` metaAnnotations = List(setter,
+     * field).
+     */
     def metaAnnotations: List[AnnotationInfo] = atp match {
       case AnnotatedType(metas, _, _) => metas
       case _                          => Nil
     }
 
-    /** The default kind of members to which this annotation is attached. For
-      * instance, for scala.deprecated defaultTargets = List(getter, setter,
-      * beanGetter, beanSetter).
-      */
+    /**
+     * The default kind of members to which this annotation is attached. For
+     * instance, for scala.deprecated defaultTargets = List(getter, setter,
+     * beanGetter, beanSetter).
+     */
     // def defaultTargets = symbol.annotations map (_.symbol) filter isMetaAnnotation
 
     // Test whether the typeSymbol of atp conforms to the given class.
@@ -127,10 +131,9 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
     // }
 
     def stringArg(index: Int) = constantAtIndex(index) map (_.stringValue)
-    def intArg(index: Int) = constantAtIndex(index) map (_.intValue)
+    def intArg(index: Int)    = constantAtIndex(index) map (_.intValue)
     def symbolArg(index: Int) = argAtIndex(index) collect {
-      case Apply(fun, Literal(str) :: Nil)
-          if fun.symbol == definitions.Symbol_apply =>
+      case Apply(fun, Literal(str) :: Nil) if fun.symbol == definitions.Symbol_apply =>
         newTermName(str.stringValue)
     }
 
@@ -143,7 +146,7 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
     def argAtIndex(index: Int): Option[Tree] =
       if (index < args.size) Some(args(index)) else None
 
-    override def hashCode = atp.## + args.## + assocs.##
+    override def hashCode           = atp.## + args.## + assocs.##
     override def equals(other: Any) = other match {
       case x: AnnotationInfo =>
         (atp == x.atp) && (args == x.args) && (assocs == x.assocs)
@@ -151,19 +154,21 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
     }
   }
 
-  /** Arguments to classfile annotations (which are written to bytecode as java
-    * annotations) are either:
-    *
-    *   - constants
-    *   - arrays of constants
-    *   - or nested classfile annotations
-    */
+  /**
+   * Arguments to classfile annotations (which are written to bytecode as java
+   * annotations) are either:
+   *
+   *   - constants
+   *   - arrays of constants
+   *   - or nested classfile annotations
+   */
   abstract class ClassfileAnnotArg extends Product
 
-  /** Represents a compile-time Constant (`Boolean`, `Byte`, `Short`, `Char`,
-    * `Int`, `Long`, `Float`, `Double`, `String`, `java.lang.Class` or an
-    * instance of a Java enumeration value).
-    */
+  /**
+   * Represents a compile-time Constant (`Boolean`, `Byte`, `Short`, `Char`,
+   * `Int`, `Long`, `Float`, `Double`, `String`, `java.lang.Class` or an
+   * instance of a Java enumeration value).
+   */
   case class LiteralAnnotArg(const: Constant) extends ClassfileAnnotArg {
     override def toString = const.escapedStringValue
   }

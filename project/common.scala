@@ -29,15 +29,15 @@ object Common {
           <url>http://eed3si9n.com</url>
         </developer>
       </developers>),
-    publishMavenStyle := true,
+    publishMavenStyle                        := true,
     publishArtifact in (Compile, packageBin) := true,
-    publishArtifact in Test := false,
-    publishTo := {
+    publishArtifact in Test                  := false,
+    publishTo                                := {
       val nexus = "https://oss.sonatype.org/"
       if (version.value.trim.endsWith("SNAPSHOT"))
         Some("snapshots" at nexus + "content/repositories/snapshots")
       else
-        Some("staging"  at nexus + "service/local/staging/deploy/maven2")
+        Some("staging" at nexus + "service/local/staging/deploy/maven2")
     },
     pomIncludeRepository := { x => false }
   )

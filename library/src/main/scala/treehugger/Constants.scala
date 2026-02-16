@@ -12,19 +12,19 @@ trait Constants extends api.Constants { self: Forest =>
 
   import definitions._
 
-  final val NoTag = 0
-  final val UnitTag = 1
+  final val NoTag      = 0
+  final val UnitTag    = 1
   final val BooleanTag = 2
-  final val ByteTag = 3
-  final val ShortTag = 4
-  final val CharTag = 5
-  final val IntTag = 6
-  final val LongTag = 7
-  final val FloatTag = 8
-  final val DoubleTag = 9
-  final val StringTag = 10
-  final val NullTag = 11
-  final val ClassTag = 12
+  final val ByteTag    = 3
+  final val ShortTag   = 4
+  final val CharTag    = 5
+  final val IntTag     = 6
+  final val LongTag    = 7
+  final val FloatTag   = 8
+  final val DoubleTag  = 9
+  final val StringTag  = 10
+  final val NullTag    = 11
+  final val ClassTag   = 12
   // For supporting java enumerations inside java annotations (see ClassfileParser)
   final val EnumTag = 13
 
@@ -56,12 +56,12 @@ trait Constants extends api.Constants { self: Forest =>
       isIntRange && Short.MinValue <= intValue && intValue <= Short.MaxValue
     def isCharRange: Boolean =
       isIntRange && Char.MinValue <= intValue && intValue <= Char.MaxValue
-    def isIntRange: Boolean = ByteTag <= tag && tag <= IntTag
-    def isLongRange: Boolean = ByteTag <= tag && tag <= LongTag
+    def isIntRange: Boolean   = ByteTag <= tag && tag <= IntTag
+    def isLongRange: Boolean  = ByteTag <= tag && tag <= LongTag
     def isFloatRange: Boolean = ByteTag <= tag && tag <= FloatTag
-    def isNumeric: Boolean = ByteTag <= tag && tag <= DoubleTag
-    def isNonUnitAnyVal = BooleanTag <= tag && tag <= DoubleTag
-    def isAnyVal = UnitTag <= tag && tag <= DoubleTag
+    def isNumeric: Boolean    = ByteTag <= tag && tag <= DoubleTag
+    def isNonUnitAnyVal       = BooleanTag <= tag && tag <= DoubleTag
+    def isAnyVal              = UnitTag <= tag && tag <= DoubleTag
 
     // def tpe: Type = tag match {
     //   case UnitTag    => UnitClass.tpe
@@ -84,8 +84,9 @@ trait Constants extends api.Constants { self: Forest =>
     //     symbolValue.owner.linkedClassOfClass.tpe
     // }
 
-    /** We need the equals method to take account of tags as well as values.
-      */
+    /**
+     * We need the equals method to take account of tags as well as values.
+     */
     override def equals(other: Any): Boolean = other match {
       case that: Constant =>
         this.tag == that.tag &&
@@ -180,8 +181,9 @@ trait Constants extends api.Constants { self: Forest =>
       case _         => throw new Error("value " + value + " is not a Double")
     }
 
-    /** Convert constant value to conform to given type.
-      */
+    /**
+     * Convert constant value to conform to given type.
+     */
     // def convertTo(pt: Type): Constant = {
     //   val target = pt.typeSymbol
     //   if (target == tpe.typeSymbol)
@@ -234,7 +236,7 @@ trait Constants extends api.Constants { self: Forest =>
         case _         => String.valueOf(value)
       }
     }
-    def typeValue: Type = value.asInstanceOf[Type]
+    def typeValue: Type     = value.asInstanceOf[Type]
     def symbolValue: Symbol = value.asInstanceOf[Symbol]
 
     override def hashCode: Int = value.## * 41 + 17

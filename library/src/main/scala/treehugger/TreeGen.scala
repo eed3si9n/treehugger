@@ -3,16 +3,16 @@ package treehugger
 trait TreeGen { self: Forest =>
   import definitions._
 
-  def rootId(name: Name) = Select(Ident(nme.ROOTPKG), name)
+  def rootId(name: Name)       = Select(Ident(nme.ROOTPKG), name)
   def rootScalaDot(name: Name) =
     Select(rootId(nme.scala_) setSymbol ScalaPackage, name)
   def scalaDot(name: Name) =
     Select(Ident(nme.scala_) setSymbol ScalaPackage, name)
-  def scalaAnyRefConstr = scalaDot(tpnme.AnyRef)
-  def scalaUnitConstr = scalaDot(tpnme.Unit)
+  def scalaAnyRefConstr      = scalaDot(tpnme.AnyRef)
+  def scalaUnitConstr        = scalaDot(tpnme.Unit)
   def scalaScalaObjectConstr = scalaDot(tpnme.ScalaObject)
-  def productConstr = scalaDot(tpnme.Product)
-  def serializableConstr = scalaDot(tpnme.Serializable)
+  def productConstr          = scalaDot(tpnme.Product)
+  def serializableConstr     = scalaDot(tpnme.Serializable)
 
   def scalaFunctionConstr(
       argtpes: List[Tree],
@@ -27,20 +27,21 @@ trait TreeGen { self: Forest =>
     AppliedTypeTree(cls, argtpes :+ restpe)
   }
 
-  /** A creator for method calls, e.g. fn[T1, T2, ...](v1, v2, ...) There are a
-    * number of variations.
-    *
-    * @param receiver
-    *   symbol of the method receiver
-    * @param methodName
-    *   name of the method to call
-    * @param targs
-    *   type arguments (if Nil, no TypeApply node will be generated)
-    * @param args
-    *   value arguments
-    * @return
-    *   the newly created trees.
-    */
+  /**
+   * A creator for method calls, e.g. fn[T1, T2, ...](v1, v2, ...) There are a
+   * number of variations.
+   *
+   * @param receiver
+   *   symbol of the method receiver
+   * @param methodName
+   *   name of the method to call
+   * @param targs
+   *   type arguments (if Nil, no TypeApply node will be generated)
+   * @param args
+   *   value arguments
+   * @return
+   *   the newly created trees.
+   */
   def mkMethodCall(
       receiver: Symbol,
       methodName: Name,
@@ -67,18 +68,20 @@ trait TreeGen { self: Forest =>
   def mkMethodCall(target: Tree, targs: List[Type], args: List[Tree]): Tree =
     Apply(mkTypeApply(target, targs map TypeTree), args)
 
-  /** Builds a reference to value whose type is given stable prefix. The type
-    * must be suitable for this. For example, it must not be a TypeRef pointing
-    * to an abstract type variable.
-    */
+  /**
+   * Builds a reference to value whose type is given stable prefix. The type
+   * must be suitable for this. For example, it must not be a TypeRef pointing
+   * to an abstract type variable.
+   */
   def mkAttributedQualifier(tpe: Type): Tree =
     mkAttributedQualifier(tpe, NoSymbol)
 
-  /** Builds a reference to value whose type is given stable prefix. If the type
-    * is unsuitable, e.g. it is a TypeRef for an abstract type variable, then an
-    * Ident will be made using termSym as the Ident's symbol. In that case,
-    * termSym must not be NoSymbol.
-    */
+  /**
+   * Builds a reference to value whose type is given stable prefix. If the type
+   * is unsuitable, e.g. it is a TypeRef for an abstract type variable, then an
+   * Ident will be made using termSym as the Ident's symbol. In that case,
+   * termSym must not be NoSymbol.
+   */
   def mkAttributedQualifier(tpe: Type, termSym: Symbol): Tree = {
     def failMessage = "mkAttributedQualifier(" + tpe + ", " + termSym + ")"
     tpe match {
@@ -121,9 +124,10 @@ trait TreeGen { self: Forest =>
     }
   }
 
-  /** If this is a reference to a method with an empty parameter list, wrap it
-    * in an apply.
-    */
+  /**
+   * If this is a reference to a method with an empty parameter list, wrap it
+   * in an apply.
+   */
   def mkApplyIfNeeded(qual: Tree) = qual.tpe match {
     case MethodType(Nil, restpe) => Apply(qual, Nil)
     case _                       => qual
@@ -135,7 +139,7 @@ trait TreeGen { self: Forest =>
     qual match {
       case EmptyTree                                  => mkAttributedIdent(sym)
       case This(clazz) if qual.symbol.isEffectiveRoot => mkAttributedIdent(sym)
-      case _ => mkAttributedSelect(qual, sym)
+      case _                                          => mkAttributedSelect(qual, sym)
     }
   }
 
@@ -196,9 +200,7 @@ trait TreeGen { self: Forest =>
 
   def mkAttributedSelect(qual: Tree, sym: Symbol): Tree = {
     // Tests involving the repl fail without the .isEmptyPackage condition.
-    if (
-      qual.symbol != null && (qual.symbol.isEffectiveRoot || qual.symbol.isEmptyPackage)
-    )
+    if (qual.symbol != null && (qual.symbol.isEffectiveRoot || qual.symbol.isEmptyPackage))
       mkAttributedIdent(sym)
     else {
       val pkgQualifier =
@@ -276,17 +278,18 @@ trait TreeGen { self: Forest =>
     if ((pt == UnitClass.tpe)) tree // || (tpe <:< pt)
     else mkAsInstanceOf(tree, pt, any = true, wrapInApply = !beforeRefChecks)
 
-  /** Apparently we smuggle a Type around as a Literal(Constant(tp)) and the
-    * implementation of Constant#tpe is such that x.tpe becomes
-    * ClassType(value.asInstanceOf[Type]), i.e. java.lang.Class[Type]. Can't
-    * find any docs on how/why it's done this way. See ticket SI-490 for some
-    * interesting comments from lauri alanko suggesting that the type given by
-    * classOf[T] is too strong and should be weakened so as not to suggest that
-    * classOf[List[String]] is any different from classOf[List[Int]].
-    *
-    * !!! See deconstMap in Erasure for one bug this encoding has induced: I
-    * would be very surprised if there aren't more.
-    */
+  /**
+   * Apparently we smuggle a Type around as a Literal(Constant(tp)) and the
+   * implementation of Constant#tpe is such that x.tpe becomes
+   * ClassType(value.asInstanceOf[Type]), i.e. java.lang.Class[Type]. Can't
+   * find any docs on how/why it's done this way. See ticket SI-490 for some
+   * interesting comments from lauri alanko suggesting that the type given by
+   * classOf[T] is too strong and should be weakened so as not to suggest that
+   * classOf[List[String]] is any different from classOf[List[Int]].
+   *
+   * !!! See deconstMap in Erasure for one bug this encoding has induced: I
+   * would be very surprised if there aren't more.
+   */
   def mkClassOf(tp: Type): Tree =
     Literal(Constant(tp)) setType ConstantType(Constant(tp))
 
@@ -297,9 +300,10 @@ trait TreeGen { self: Forest =>
   /** Builds a list with given head and tail. */
   def mkNil: Tree = mkAttributedRef(NilModule)
 
-  /** Builds a tree representing an undefined local, as in var x: T = _ which is
-    * appropriate to the given Type.
-    */
+  /**
+   * Builds a tree representing an undefined local, as in var x: T = _ which is
+   * appropriate to the given Type.
+   */
   def mkZero(tp: Type): Tree = {
     val tree = tp.typeSymbol match {
       case UnitClass    => Literal(Constant(()))

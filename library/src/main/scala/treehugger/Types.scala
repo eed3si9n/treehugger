@@ -13,7 +13,7 @@ trait Types extends api.Types { self: Forest =>
     /** Is this type higher-kinded, i.e., is it a type constructor */
     def isHigherKinded: Boolean = false
 
-    protected def objectPrefix = "object "
+    protected def objectPrefix  = "object "
     protected def packagePrefix = "package "
     def trimPrefix(str: String) =
       str stripPrefix objectPrefix stripPrefix packagePrefix
@@ -21,10 +21,11 @@ trait Types extends api.Types { self: Forest =>
     /** The string representation of this type used as a prefix */
     def prefixString = trimPrefix(toString) + "#"
 
-    /** Convert toString avoiding infinite recursions by cutting off after
-      * `maxTostringRecursions` recursion levels. Uses `safeToString` to produce
-      * a string on each level.
-      */
+    /**
+     * Convert toString avoiding infinite recursions by cutting off after
+     * `maxTostringRecursions` recursion levels. Uses `safeToString` to produce
+     * a string on each level.
+     */
     override def toString: String =
       if (tostringRecursions >= maxTostringRecursions)
         "..."
@@ -36,97 +37,111 @@ trait Types extends api.Types { self: Forest =>
           tostringRecursions -= 1
         }
 
-    /** Method to be implemented in subclasses. Converts this type to a string
-      * in calling toString for its parts.
-      */
+    /**
+     * Method to be implemented in subclasses. Converts this type to a string
+     * in calling toString for its parts.
+     */
     def safeToString: String = super.toString
 
-    /** The term symbol associated with the type Note that the symbol of the
-      * normalized type is returned (@see normalize)
-      */
+    /**
+     * The term symbol associated with the type Note that the symbol of the
+     * normalized type is returned (@see normalize)
+     */
     def termSymbol: Symbol = NoSymbol
 
-    /** The type symbol associated with the type Note that the symbol of the
-      * normalized type is returned (@see normalize)
-      */
+    /**
+     * The type symbol associated with the type Note that the symbol of the
+     * normalized type is returned (@see normalize)
+     */
     def typeSymbol: Symbol = NoSymbol
 
     /** The base type underlying a type proxy, identity on all other types */
     def underlying: Type = this
 
-    /** Widen from singleton type to its underlying non-singleton base type by
-      * applying one or more `underlying` dereferences, identity for all other
-      * types.
-      *
-      * class Outer { class C ; val x: C } val o: Outer <o.x.type>.widen = o.C
-      */
+    /**
+     * Widen from singleton type to its underlying non-singleton base type by
+     * applying one or more `underlying` dereferences, identity for all other
+     * types.
+     *
+     * class Outer { class C ; val x: C } val o: Outer <o.x.type>.widen = o.C
+     */
     def widen: Type = this
 
-    /** For a class or intersection type, its parents. For a TypeBounds type,
-      * the parents of its hi bound. inherited by typerefs, singleton types, and
-      * refinement types, The empty list for all other types
-      */
+    /**
+     * For a class or intersection type, its parents. For a TypeBounds type,
+     * the parents of its hi bound. inherited by typerefs, singleton types, and
+     * refinement types, The empty list for all other types
+     */
     def parents: List[Type] = List()
 
-    /** For a typeref or single-type, the prefix of the normalized type (@see
-      * normalize). NoType for all other types.
-      */
+    /**
+     * For a typeref or single-type, the prefix of the normalized type (@see
+     * normalize). NoType for all other types.
+     */
     def prefix: Type = NoType
 
-    /** A chain of all typeref or singletype prefixes of this type, longest
-      * first. (Only used from safeToString.)
-      */
+    /**
+     * A chain of all typeref or singletype prefixes of this type, longest
+     * first. (Only used from safeToString.)
+     */
     def prefixChain: List[Type] = this match {
       case TypeRef(pre, _, _) => pre :: pre.prefixChain
       case SingleType(pre, _) => pre :: pre.prefixChain
       case _                  => List()
     }
 
-    /** For a classtype or refined type, its defined or declared members;
-      * inherited by subtypes and typerefs. The empty scope for all other types.
-      */
+    /**
+     * For a classtype or refined type, its defined or declared members;
+     * inherited by subtypes and typerefs. The empty scope for all other types.
+     */
     def decls: List[Tree] = Nil
     // def decls: Scope = EmptyScope
 
     /** For a typeref, its arguments. The empty list for all other types */
     def typeArgs: List[Type] = List()
 
-    /** For a (nullary) method or poly type, its direct result type, the type
-      * itself for all other types.
-      */
+    /**
+     * For a (nullary) method or poly type, its direct result type, the type
+     * itself for all other types.
+     */
     def resultType: Type = this
 
-    /** For a curried/nullary method or poly type its non-method result type,
-      * the type itself for all other types
-      */
+    /**
+     * For a curried/nullary method or poly type its non-method result type,
+     * the type itself for all other types
+     */
     def finalResultType: Type = this
 
-    /** For a method or poly type, its first value parameter section, the empty
-      * list for all other types
-      */
+    /**
+     * For a method or poly type, its first value parameter section, the empty
+     * list for all other types
+     */
     def params: List[Symbol] = List()
 
-    /** For a (potentially wrapped) poly type, its type parameters, the empty
-      * list for all other types
-      */
+    /**
+     * For a (potentially wrapped) poly type, its type parameters, the empty
+     * list for all other types
+     */
     def typeParams: List[Symbol] = List()
 
-    /** Replace formal type parameter symbols with actual type arguments.
-      *
-      * Amounts to substitution except for higher-kinded types. (See overridden
-      * method in TypeRef) -- @M
-      */
+    /**
+     * Replace formal type parameter symbols with actual type arguments.
+     *
+     * Amounts to substitution except for higher-kinded types. (See overridden
+     * method in TypeRef) -- @M
+     */
     // def instantiateTypeParams(formals: List[Symbol], actuals: List[Type]): Type =
     //  if (sameLength(formals, actuals)) this.subst(formals, actuals) else ErrorType
 
-    /** Reduce to beta eta-long normal form. Expands type aliases and converts
-      * higher-kinded TypeRefs to PolyTypes. Functions on types are also
-      * implemented as PolyTypes.
-      *
-      * Example: (in the below, <List> is the type constructor of List)
-      * TypeRef(pre, <List>, List()) is replaced by PolyType(X, TypeRef(pre,
-      * <List>, List(X)))
-      */
+    /**
+     * Reduce to beta eta-long normal form. Expands type aliases and converts
+     * higher-kinded TypeRefs to PolyTypes. Functions on types are also
+     * implemented as PolyTypes.
+     *
+     * Example: (in the below, <List> is the type constructor of List)
+     * TypeRef(pre, <List>, List()) is replaced by PolyType(X, TypeRef(pre,
+     * <List>, List(X)))
+     */
     def normalize = this // @MAT
   }
 
@@ -134,9 +149,10 @@ trait Types extends api.Types { self: Forest =>
     final override val hashCode = scala.runtime.ScalaRunTime._hashCode(this)
   }
 
-  /** A base class for types that defer some operations to their immediate
-    * supertype.
-    */
+  /**
+   * A base class for types that defer some operations to their immediate
+   * supertype.
+   */
   abstract class SubType extends Type {
     def supertype: Type
     // override def parents: List[Type] = supertype.parents
@@ -149,26 +165,24 @@ trait Types extends api.Types { self: Forest =>
   }
 
   case class NotNullType(override val underlying: Type) extends SubType {
-    def supertype = underlying
+    def supertype                     = underlying
     override def safeToString: String = underlying.toString + " with NotNull"
   }
 
-  /** A proxy for a type (identified by field `underlying`) that forwards most
-    * operations to it (for exceptions, see WrappingProxy, which forwards even
-    * more operations). every operation that is overridden for some kind of
-    * types should be forwarded.
-    */
+  /**
+   * A proxy for a type (identified by field `underlying`) that forwards most
+   * operations to it (for exceptions, see WrappingProxy, which forwards even
+   * more operations). every operation that is overridden for some kind of
+   * types should be forwarded.
+   */
   trait SimpleTypeProxy extends Type {
     def underlying: Type
     override def typeSymbol = underlying.typeSymbol
   }
 
-  abstract class SingletonType
-      extends SubType
-      with SimpleTypeProxy
-      with AbsSingletonType {
-    def supertype = underlying
-    override def widen: Type = underlying.widen
+  abstract class SingletonType extends SubType with SimpleTypeProxy with AbsSingletonType {
+    def supertype               = underlying
+    override def widen: Type    = underlying.widen
     override def isHigherKinded =
       false // singleton type classifies objects, thus must be kind *
     override def safeToString: String = prefixString + "type"
@@ -179,9 +193,10 @@ trait Types extends api.Types { self: Forest =>
     override def safeToString: String = "<error>"
   }
 
-  /** An object representing an unknown type, used during type inference. If you
-    * see WildcardType outside of inference it is almost certainly a bug.
-    */
+  /**
+   * An object representing an unknown type, used during type inference. If you
+   * see WildcardType outside of inference it is almost certainly a bug.
+   */
   case object WildcardType extends Type {
     override def safeToString: String = "?"
   }
@@ -197,13 +212,14 @@ trait Types extends api.Types { self: Forest =>
   /** An object representing a non-existing prefix */
   case object NoPrefix extends Type {
     override def safeToString: String = "<noprefix>"
-    override def prefixString = ""
+    override def prefixString         = ""
     // override def isNullable: Boolean = true
     // override def kind = "NoPrefixType"
   }
 
-  /** A class for this-types of the form <sym>.this.type
-    */
+  /**
+   * A class for this-types of the form <sym>.this.type
+   */
   abstract case class ThisType(sym: Symbol) extends SingletonType {
     override def isHigherKinded =
       sym.isRefinementClass && underlying.isHigherKinded
@@ -216,20 +232,19 @@ trait Types extends api.Types { self: Forest =>
     override def safeToString: String = super.safeToString
   }
 
-  final class UniqueThisType(sym: Symbol)
-      extends ThisType(sym)
-      with UniqueType {}
+  final class UniqueThisType(sym: Symbol) extends ThisType(sym) with UniqueType {}
 
   object ThisType extends ThisTypeExtractor {
     def apply(sym: Symbol): Type = new UniqueThisType(sym)
   }
 
-  /** A class for singleton types of the form `<prefix>.<sym.name>.type`. Cannot
-    * be created directly; one should always use `singleType` for creation.
-    */
+  /**
+   * A class for singleton types of the form `<prefix>.<sym.name>.type`. Cannot
+   * be created directly; one should always use `singleType` for creation.
+   */
   abstract case class SingleType(pre: Type, sym: Symbol) extends SingletonType {
-    override def underlying = pre
-    override def termSymbol = sym
+    override def underlying   = pre
+    override def termSymbol   = sym
     override def prefix: Type = pre
     override def prefixString = (
       if (sym == NoSymbol) pre.toString + "."
@@ -249,10 +264,9 @@ trait Types extends api.Types { self: Forest =>
     }
   }
 
-  abstract case class SuperType(thistpe: Type, supertpe: Type)
-      extends SingletonType {
-    override def typeSymbol = thistpe.typeSymbol
-    override def underlying = supertpe
+  abstract case class SuperType(thistpe: Type, supertpe: Type) extends SingletonType {
+    override def typeSymbol   = thistpe.typeSymbol
+    override def underlying   = supertpe
     override def prefix: Type = supertpe.prefix
     override def prefixString =
       thistpe.prefixString.replaceAll("""\bthis\.$""", "super.")
@@ -267,10 +281,10 @@ trait Types extends api.Types { self: Forest =>
       new UniqueSuperType(thistp, supertp)
   }
 
-  /** A class for the bounds of abstract types and type parameters
-    */
-  abstract case class TypeBounds(lo: Type, hi: Type, view: Type, context: Type)
-      extends SubType {
+  /**
+   * A class for the bounds of abstract types and type parameters
+   */
+  abstract case class TypeBounds(lo: Type, hi: Type, view: Type, context: Type) extends SubType {
     def supertype = hi
     // override val isTrivial: Boolean = lo.isTrivial && hi.isTrivial
     // override def bounds: TypeBounds = this
@@ -292,9 +306,9 @@ trait Types extends api.Types { self: Forest =>
       with UniqueType {}
 
   object TypeBounds extends TypeBoundsExtractor {
-    def empty: TypeBounds = apply(NothingClass.tpe, NothingClass.tpe)
-    def upper(hi: Type): TypeBounds = apply(NothingClass.tpe, hi)
-    def lower(lo: Type): TypeBounds = apply(lo, NothingClass.tpe)
+    def empty: TypeBounds                     = apply(NothingClass.tpe, NothingClass.tpe)
+    def upper(hi: Type): TypeBounds           = apply(NothingClass.tpe, hi)
+    def lower(lo: Type): TypeBounds           = apply(lo, NothingClass.tpe)
     def apply(lo: Type, hi: Type): TypeBounds =
       apply(lo, hi, NothingClass.tpe, NothingClass.tpe)
     def apply(lo: Type, hi: Type, view: Type, context: Type): TypeBounds = {
@@ -302,8 +316,9 @@ trait Types extends api.Types { self: Forest =>
     }
   }
 
-  /** A common base class for intersection types and class types
-    */
+  /**
+   * A common base class for intersection types and class types
+   */
   abstract class CompoundType extends Type {
     def customToString: String
     override def safeToString: String =
@@ -315,10 +330,11 @@ trait Types extends api.Types { self: Forest =>
            else "")
   }
 
-  /** A class representing intersection types with refinements of the form
-    * `<parents_0> with ... with <parents_n> { decls }` Cannot be created
-    * directly; one should always use `refinedType` for creation.
-    */
+  /**
+   * A class representing intersection types with refinements of the form
+   * `<parents_0> with ... with <parents_n> { decls }` Cannot be created
+   * directly; one should always use `refinedType` for creation.
+   */
   case class RefinedType(
       override val parents: List[Type],
       override val decls: List[Tree]
@@ -341,7 +357,7 @@ trait Types extends api.Types { self: Forest =>
       clazz: Symbol,
       customToString0: String
   ) extends RefinedType(parents, decls) {
-    override def typeSymbol = clazz
+    override def typeSymbol     = clazz
     override def customToString = customToString0
   }
 
@@ -362,17 +378,17 @@ trait Types extends api.Types { self: Forest =>
       new RefinedType0(parents, decls, clazz, customToString0)
   }
 
-  /** A class representing a path dependent type
-    */
+  /**
+   * A class representing a path dependent type
+   */
   case class PathType(tree: Tree) extends Type {
-    def customToString: String = ""
+    def customToString: String        = ""
     override def safeToString: String =
       if (customToString != "") customToString
       else "<path>"
   }
 
-  final class PathType0(tree: Tree, customToString0: String)
-      extends PathType(tree) {
+  final class PathType0(tree: Tree, customToString0: String) extends PathType(tree) {
     override def customToString = customToString0
   }
 
@@ -381,8 +397,9 @@ trait Types extends api.Types { self: Forest =>
       new PathType0(tree, customToString0)
   }
 
-  /** A class representing a class info
-    */
+  /**
+   * A class representing a class info
+   */
   case class ClassInfoType(
       override val parents: List[Type],
       override val decls: List[Tree],
@@ -396,20 +413,19 @@ trait Types extends api.Types { self: Forest =>
   class PackageClassInfoType(decls: List[Tree], clazz: Symbol)
       extends ClassInfoType(List(), decls, clazz)
 
-  /** A class representing a constant type.
-    *
-    * @param value
-    *   ...
-    */
+  /**
+   * A class representing a constant type.
+   *
+   * @param value
+   *   ...
+   */
   abstract case class ConstantType(value: Constant) extends SingletonType {
     // override def underlying: Type = value.tpe
     override def safeToString: String =
       underlying.toString + "(" + value.escapedStringValue + ")"
   }
 
-  final class UniqueConstantType(value: Constant)
-      extends ConstantType(value)
-      with UniqueType {}
+  final class UniqueConstantType(value: Constant) extends ConstantType(value) with UniqueType {}
 
   object ConstantType extends ConstantTypeExtractor {
     def apply(value: Constant): ConstantType = {
@@ -417,20 +433,20 @@ trait Types extends api.Types { self: Forest =>
     }
   }
 
-  /** A class for named types of the form `<prefix>.<sym.name>[args]` Cannot be
-    * created directly; one should always use `typeRef` for creation.
-    *
-    * @param pre
-    *   ...
-    * @param sym
-    *   ...
-    * @param args
-    *   ...
-    */
-  abstract case class TypeRef(pre: Type, sym: Symbol, args: List[Type])
-      extends Type {
-    private var normalized: Type = null
-    override def prefix: Type = pre
+  /**
+   * A class for named types of the form `<prefix>.<sym.name>[args]` Cannot be
+   * created directly; one should always use `typeRef` for creation.
+   *
+   * @param pre
+   *   ...
+   * @param sym
+   *   ...
+   * @param args
+   *   ...
+   */
+  abstract case class TypeRef(pre: Type, sym: Symbol, args: List[Type]) extends Type {
+    private var normalized: Type      = null
+    override def prefix: Type         = pre
     override def typeArgs: List[Type] = args
 
     // @MAT was typeSymbol.unsafeTypeParams, but typeSymbol normalizes now
@@ -550,11 +566,12 @@ trait Types extends api.Types { self: Forest =>
     }
   }
 
-  /** A class representing a method type with parameters. Note that a
-    * parameterless method is represented by a NullaryMethodType:
-    *
-    * def m(): Int MethodType(Nil, Int) def m: Int NullaryMethodType(Int)
-    */
+  /**
+   * A class representing a method type with parameters. Note that a
+   * parameterless method is represented by a NullaryMethodType:
+   *
+   * def m(): Int MethodType(Nil, Int) def m: Int NullaryMethodType(Int)
+   */
   case class MethodType(
       override val params: List[Symbol],
       override val resultType: Type
@@ -569,8 +586,7 @@ trait Types extends api.Types { self: Forest =>
     def isJava = true
   }
 
-  case class NullaryMethodType(override val resultType: Type)
-      extends SimpleTypeProxy {
+  case class NullaryMethodType(override val resultType: Type) extends SimpleTypeProxy {
     override def params = Nil
     // override def paramTypes        = Nil
     override def safeToString = "=> " + resultType
@@ -578,26 +594,27 @@ trait Types extends api.Types { self: Forest =>
 
   object NullaryMethodType extends NullaryMethodTypeExtractor
 
-  /** A type function or the type of a polymorphic value (and thus of kind *).
-    *
-    * Before the introduction of NullaryMethodType, a polymorphic nullary method
-    * (e.g, def isInstanceOf[T]: Boolean) used to be typed as PolyType(tps,
-    * restpe), and a monomorphic one as PolyType(Nil, restpe) This is now:
-    * PolyType(tps, NullaryMethodType(restpe)) and NullaryMethodType(restpe) by
-    * symmetry to MethodTypes: PolyType(tps, MethodType(params, restpe)) and
-    * MethodType(params, restpe)
-    *
-    * Thus, a PolyType(tps, TypeRef(...)) unambiguously indicates a type
-    * function (which results from eta-expanding a type constructor alias).
-    * Similarly, PolyType(tps, ClassInfoType(...)) is a type constructor.
-    *
-    * A polytype is of kind * iff its resultType is a (nullary) method type.
-    */
+  /**
+   * A type function or the type of a polymorphic value (and thus of kind *).
+   *
+   * Before the introduction of NullaryMethodType, a polymorphic nullary method
+   * (e.g, def isInstanceOf[T]: Boolean) used to be typed as PolyType(tps,
+   * restpe), and a monomorphic one as PolyType(Nil, restpe) This is now:
+   * PolyType(tps, NullaryMethodType(restpe)) and NullaryMethodType(restpe) by
+   * symmetry to MethodTypes: PolyType(tps, MethodType(params, restpe)) and
+   * MethodType(params, restpe)
+   *
+   * Thus, a PolyType(tps, TypeRef(...)) unambiguously indicates a type
+   * function (which results from eta-expanding a type constructor alias).
+   * Similarly, PolyType(tps, ClassInfoType(...)) is a type constructor.
+   *
+   * A polytype is of kind * iff its resultType is a (nullary) method type.
+   */
   case class PolyType(
       override val typeParams: List[Symbol],
       override val resultType: Type
   ) extends Type {
-    override def params: List[Symbol] = resultType.params
+    override def params: List[Symbol]  = resultType.params
     override def finalResultType: Type = resultType.finalResultType
 
     override def isHigherKinded = !typeParams.isEmpty
@@ -642,11 +659,11 @@ trait Types extends api.Types { self: Forest =>
 
   object ExistentialType extends ExistentialTypeExtractor
 
-  /** A class containing the alternatives and type prefix of an overloaded
-    * symbol. Not used after phase `typer`.
-    */
-  case class OverloadedType(pre: Type, alternatives: List[Symbol])
-      extends Type {
+  /**
+   * A class containing the alternatives and type prefix of an overloaded
+   * symbol. Not used after phase `typer`.
+   */
+  case class OverloadedType(pre: Type, alternatives: List[Symbol]) extends Type {
     override def prefix: Type = pre
     // override def safeToString =
     //  (alternatives map pre.memberType).mkString("", " <and> ", "")
@@ -676,13 +693,14 @@ trait Types extends api.Types { self: Forest =>
       new TypeVar(origin, constr, args, params)
   }
 
-  /** A class representing a type variable: not used after phase `typer`.
-    *
-    * A higher-kinded TypeVar has params (Symbols) and typeArgs (Types). A
-    * TypeVar with nonEmpty typeArgs can only be instantiated by a higher-kinded
-    * type that can be applied to those args. A TypeVar is much like a TypeRef,
-    * except it has special logic for equality and subtyping.
-    */
+  /**
+   * A class representing a type variable: not used after phase `typer`.
+   *
+   * A higher-kinded TypeVar has params (Symbols) and typeArgs (Types). A
+   * TypeVar with nonEmpty typeArgs can only be instantiated by a higher-kinded
+   * type that can be applied to those args. A TypeVar is much like a TypeRef,
+   * except it has special logic for equality and subtyping.
+   */
   class TypeVar(
       val origin: Type,
       val constr0: TypeConstraint,
@@ -700,14 +718,15 @@ trait Types extends api.Types { self: Forest =>
     /** The constraint associated with the variable */
     var constr = constr0
 
-    /** Two occurrences of a higher-kinded typevar, e.g. `?CC[Int]` and
-      * `?CC[String]`, correspond to ''two instances'' of `TypeVar` that share
-      * the ''same'' `TypeConstraint`.
-      *
-      * `constr` for `?CC` only tracks type constructors anyway, so when
-      * `?CC[Int] <:< List[Int]` and `?CC[String] <:< Iterable[String]` `?CC's`
-      * hibounds contains List and Iterable.
-      */
+    /**
+     * Two occurrences of a higher-kinded typevar, e.g. `?CC[Int]` and
+     * `?CC[String]`, correspond to ''two instances'' of `TypeVar` that share
+     * the ''same'' `TypeConstraint`.
+     *
+     * `constr` for `?CC` only tracks type constructors anyway, so when
+     * `?CC[Int] <:< List[Int]` and `?CC[String] <:< Iterable[String]` `?CC's`
+     * hibounds contains List and Iterable.
+     */
     def applyArgs(newArgs: List[Type]): TypeVar =
       if (newArgs.isEmpty)
         this // SubstMap relies on this (though this check is redundant when called from appliedType...)
@@ -720,17 +739,18 @@ trait Types extends api.Types { self: Forest =>
         ) // @M TODO: interaction with undoLog??
   }
 
-  /** A type carrying some annotations. Created by the typechecker when
-    * eliminating ''Annotated'' trees (see typedAnnotated).
-    *
-    * @param annotations
-    *   the list of annotations on the type
-    * @param underlying
-    *   the type without the annotation
-    * @param selfsym
-    *   a "self" symbol with type `underlying`; only available if
-    *   -Yself-in-annots is turned on. Can be `NoSymbol` if it is not used.
-    */
+  /**
+   * A type carrying some annotations. Created by the typechecker when
+   * eliminating ''Annotated'' trees (see typedAnnotated).
+   *
+   * @param annotations
+   *   the list of annotations on the type
+   * @param underlying
+   *   the type without the annotation
+   * @param selfsym
+   *   a "self" symbol with type `underlying`; only available if
+   *   -Yself-in-annots is turned on. Can be `NoSymbol` if it is not used.
+   */
   case class AnnotatedType(
       val annotations: List[AnnotationInfo],
       override val underlying: Type,
@@ -741,9 +761,10 @@ trait Types extends api.Types { self: Forest =>
       else annotations.mkString(underlying + " @", " @", "")
   }
 
-  /** Creator for AnnotatedTypes. It returns the underlying type if
-    * annotations.isEmpty rather than walking into the assertion.
-    */
+  /**
+   * Creator for AnnotatedTypes. It returns the underlying type if
+   * annotations.isEmpty rather than walking into the assertion.
+   */
   def annotatedType(
       annots: List[AnnotationInfo],
       underlying: Type,
@@ -754,10 +775,11 @@ trait Types extends api.Types { self: Forest =>
 
   object AnnotatedType extends AnnotatedTypeExtractor
 
-  /** A class representing types with a name. When an application uses named
-    * arguments, the named argument types for calling isApplicable are
-    * represented as NamedType.
-    */
+  /**
+   * A class representing types with a name. When an application uses named
+   * arguments, the named argument types for calling isApplicable are
+   * represented as NamedType.
+   */
   case class NamedType(name: Name, tp: Type) extends Type {
     override def safeToString: String = name.toString + ": " + tp
   }
@@ -777,7 +799,7 @@ trait Types extends api.Types { self: Forest =>
       decls: List[Tree],
       customToString: String
   ): Type = {
-    val clazz = owner.newRefinementClass(NoPosition)
+    val clazz  = owner.newRefinementClass(NoPosition)
     val result = RefinedType(parents, decls, clazz, customToString)
     // clazz.setInfo(result)
     result
@@ -811,8 +833,8 @@ trait Types extends api.Types { self: Forest =>
       tycon match {
         case TypeRef(pre, sym @ (NothingClass | AnyClass), _) =>
           copyTypeRef(tycon, pre, sym, Nil) // @M drop type args to Any/Nothing
-        case TypeRef(pre, sym, _)      => copyTypeRef(tycon, pre, sym, args)
-        case PolyType(tparams, restpe) => PolyType(tparams, restpe) // args
+        case TypeRef(pre, sym, _)             => copyTypeRef(tycon, pre, sym, args)
+        case PolyType(tparams, restpe)        => PolyType(tparams, restpe) // args
         case ExistentialType(tparams, restpe) =>
           ExistentialType(tparams, appliedType(restpe, args))
         case st: SingletonType =>
@@ -839,9 +861,10 @@ trait Types extends api.Types { self: Forest =>
 
 // Helper Classes ---------------------------------------------------------
 
-  /** A class expressing upper and lower bounds constraints of type variables,
-    * as well as their instantiations.
-    */
+  /**
+   * A class expressing upper and lower bounds constraints of type variables,
+   * as well as their instantiations.
+   */
   class TypeConstraint(
       lo0: List[Type],
       hi0: List[Type],
@@ -852,10 +875,10 @@ trait Types extends api.Types { self: Forest =>
     def this(lo0: List[Type], hi0: List[Type]) = this(lo0, hi0, NoType, NoType)
     def this() = this(List(), List())
 
-    private var lobounds = lo0
-    private var hibounds = hi0
-    private var numlo = numlo0
-    private var numhi = numhi0
+    private var lobounds      = lo0
+    private var hibounds      = hi0
+    private var numlo         = numlo0
+    private var numhi         = numhi0
     private var avoidWidening = avoidWidening0
 
     def loBounds: List[Type] =
@@ -873,9 +896,10 @@ trait Types extends api.Types { self: Forest =>
 
 // Helper Methods  -------------------------------------------------------------
 
-  /** True if two lists have the same length. Since calling length on linear
-    * sequences is O(n), it is an inadvisable way to test length equality.
-    */
+  /**
+   * True if two lists have the same length. Since calling length on linear
+   * sequences is O(n), it is an inadvisable way to test length equality.
+   */
   final def sameLength(xs1: List[_], xs2: List[_]) =
     compareLengths(xs1, xs2) == 0
   @tailrec final def compareLengths(xs1: List[_], xs2: List[_]): Int =
@@ -883,8 +907,9 @@ trait Types extends api.Types { self: Forest =>
     else if (xs2.isEmpty) 1
     else compareLengths(xs1.tail, xs2.tail)
 
-  /** Again avoiding calling length, but the lengthCompare interface is clunky.
-    */
+  /**
+   * Again avoiding calling length, but the lengthCompare interface is clunky.
+   */
   final def hasLength(xs: List[_], len: Int) = xs.lengthCompare(len) == 0
 
   val builtinFullNames = Set(
@@ -935,8 +960,9 @@ trait Types extends api.Types { self: Forest =>
     "scala.annotation.serializable"
   )
 
-  /** The maximum number of recursions allowed in toString
-    */
+  /**
+   * The maximum number of recursions allowed in toString
+   */
   final val maxTostringRecursions = 50
 
   private var tostringRecursions = 0

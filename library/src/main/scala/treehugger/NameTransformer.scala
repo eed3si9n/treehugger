@@ -8,9 +8,10 @@
 
 package treehugger
 
-/** @author
-  *   Martin Odersky
-  */
+/**
+ * @author
+ *   Martin Odersky
+ */
 object NameTransformer {
   // XXX Short term: providing a way to alter these without having to recompile
   // the compiler before recompiling the compiler.
@@ -20,13 +21,13 @@ object NameTransformer {
     "$" // sys.props.getOrElse("SCALA_NAME_JOIN_STRING", "$")
   val MODULE_INSTANCE_NAME = "MODULE$"
 
-  private val nops = 128
+  private val nops   = 128
   private val ncodes = 26 * 26
 
   private class OpCodes(val op: Char, val code: String, val next: OpCodes)
 
-  private val op2code = new Array[String](nops)
-  private val code2op = new Array[OpCodes](ncodes)
+  private val op2code                         = new Array[String](nops)
+  private val code2op                         = new Array[OpCodes](ncodes)
   private def enterOp(op: Char, code: String) = {
     op2code(op) = code
     val c = (code.charAt(1) - 'a') * 26 + code.charAt(2) - 'a'
@@ -53,17 +54,18 @@ object NameTransformer {
   enterOp('?', "$qmark")
   enterOp('@', "$at")
 
-  /** Replace operator symbols by corresponding `\$opname`.
-    *
-    * @param name
-    *   the string to encode
-    * @return
-    *   the string with all recognized opchars replaced with their encoding
-    */
+  /**
+   * Replace operator symbols by corresponding `\$opname`.
+   *
+   * @param name
+   *   the string to encode
+   * @return
+   *   the string with all recognized opchars replaced with their encoding
+   */
   def encode(name: String): String = {
     var buf: StringBuilder = null
-    val len = name.length()
-    var i = 0
+    val len                = name.length()
+    var i                  = 0
     while (i < len) {
       val c = name charAt i
       if (c < nops && (op2code(c) ne null)) {
@@ -87,14 +89,15 @@ object NameTransformer {
     if (buf eq null) name else buf.toString()
   }
 
-  /** Replace `\$opname` by corresponding operator symbol.
-    *
-    * @param name0
-    *   the string to decode
-    * @return
-    *   the string with all recognized operator symbol encodings replaced with
-    *   their name
-    */
+  /**
+   * Replace `\$opname` by corresponding operator symbol.
+   *
+   * @param name0
+   *   the string to decode
+   * @return
+   *   the string with all recognized operator symbol encodings replaced with
+   *   their name
+   */
   def decode(name0: String): String = {
     // System.out.println("decode: " + name);//DEBUG
     val name =
@@ -102,12 +105,12 @@ object NameTransformer {
         name0.substring(0, name0.length() - ("<init>").length()) + "this"
       else name0;
     var buf: StringBuilder = null
-    val len = name.length()
-    var i = 0
+    val len                = name.length()
+    var i                  = 0
     while (i < len) {
       var ops: OpCodes = null
-      var unicode = false
-      val c = name charAt i
+      var unicode      = false
+      val c            = name charAt i
       if (c == '$' && i + 2 < len) {
         val ch1 = name.charAt(i + 1)
         if ('a' <= ch1 && ch1 <= 'z') {

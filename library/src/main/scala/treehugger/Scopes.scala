@@ -8,8 +8,9 @@ package treehugger
 trait Scopes extends api.Scopes { self: Forest =>
   type Scope = List[Tree]
 
-  /** The empty scope (immutable).
-    */
+  /**
+   * The empty scope (immutable).
+   */
   val EmptyScope = Nil
 
   /** Create a new scope */

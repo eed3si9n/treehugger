@@ -9,9 +9,10 @@ package treehugger
 import PartialFunction._
 import Flags._
 
-/** A DSL for generating scala code. The goal is that the code generating code
-  * should look a lot like the code it generates.
-  */
+/**
+ * A DSL for generating scala code. The goal is that the code generating code
+ * should look a lot like the code it generates.
+ */
 
 trait TreehuggerDSLs { self: Forest =>
 
@@ -26,7 +27,7 @@ trait TreehuggerDSLs { self: Forest =>
     // def returning[T](x: T)(f: T => Unit): T = util.returning(x)(f)
 
     object LIT extends (Any => Literal) {
-      def apply(x: Any) = Literal(Constant(x))
+      def apply(x: Any)   = Literal(Constant(x))
       def unapply(x: Any) = condOpt(x) { case Literal(Constant(value)) =>
         value
       }
@@ -36,20 +37,20 @@ trait TreehuggerDSLs { self: Forest =>
     // at least in the case of UNIT the compiler breaks if you re-use trees.
     // However we need stable identifiers to have attractive pattern matching.
     // So it's inconsistent until I devise a better way.
-    val TRUE = LIT(true)
-    val FALSE = LIT(false)
-    val ZERO = LIT(0)
-    def NULL = LIT(null)
-    def UNIT = LIT(())
-    val WILDCARD = Ident(nme.WILDCARD)
+    val TRUE         = LIT(true)
+    val FALSE        = LIT(false)
+    val ZERO         = LIT(0)
+    def NULL         = LIT(null)
+    def UNIT         = LIT(())
+    val WILDCARD     = Ident(nme.WILDCARD)
     val SEQ_WILDCARD = Ident(tpnme.WILDCARD_STAR)
-    val NIL = REF(NilModule)
-    val NONE = REF(NoneModule)
-    val PARTIALLY = Ident(PartiallyAppliedParam) setSymbol PartiallyAppliedParam
+    val NIL          = REF(NilModule)
+    val NONE         = REF(NoneModule)
+    val PARTIALLY    = Ident(PartiallyAppliedParam) setSymbol PartiallyAppliedParam
 
     object WILD {
-      def empty = Ident(nme.WILDCARD)
-      def apply(tpe: Type) = Ident(nme.WILDCARD) setType tpe
+      def empty               = Ident(nme.WILDCARD)
+      def apply(tpe: Type)    = Ident(nme.WILDCARD) setType tpe
       def unapply(other: Any) = cond(other) { case Ident(nme.WILDCARD) => true }
     }
 
@@ -79,29 +80,30 @@ trait TreehuggerDSLs { self: Forest =>
       def TYPE_#(name: Name, args: Iterable[Type]): Type =
         TYPE_#(name, args.toList: _*)
 
-      def TYPE_OF(args: Type*): Type = appliedType(target, args: _*)
+      def TYPE_OF(args: Type*): Type          = appliedType(target, args: _*)
       def TYPE_OF(args: Iterable[Type]): Type = TYPE_OF(args.toList: _*)
 
       def TYPE_FORSOME(trees: Tree*): Type =
         ExistentialType(trees.toList, target)
       def TYPE_FORSOME(trees: Iterable[Tree]): Type = TYPE_FORSOME(trees.toList)
 
-      def TYPE_=>(typ: Type) = TYPE_FUNCTION(target, typ)
+      def TYPE_=>(typ: Type)           = TYPE_FUNCTION(target, typ)
       def TYPE_WITH(args: Type*): Type = makeRefinedType(target :: args.toList)
     }
 
     class TreeMethods(target: Tree) {
 
       /** logical/comparison ops * */
-      def OR(other: Tree) = mkInfixOr(target, other)
+      def OR(other: Tree)  = mkInfixOr(target, other)
       def AND(other: Tree) = mkInfixAnd(target, other)
 
-      /** Note - calling ANY_== in the matcher caused primitives to get boxed
-        * for the comparison, whereas looking up nme.EQ does not. See #3570 for
-        * an example of how target.tpe can be non-null, yet it claims not to
-        * have a member called nme.EQ. Not sure if that should happen, but we
-        * can be robust by dragging in Any regardless.
-        */
+      /**
+       * Note - calling ANY_== in the matcher caused primitives to get boxed
+       * for the comparison, whereas looking up nme.EQ does not. See #3570 for
+       * an example of how target.tpe can be non-null, yet it claims not to
+       * have a member called nme.EQ. Not sure if that should happen, but we
+       * can be robust by dragging in Any regardless.
+       */
       def MEMBER_==(other: Tree) = {
         val opSym =
           NoSymbol // if (target.tpe == null) NoSymbol else target.tpe member nme.EQ
@@ -129,10 +131,10 @@ trait TreehuggerDSLs { self: Forest =>
         infix(target, getMember(IntClass, nme.NE), other)
       def INT_<=(other: Tree) =
         infix(target, getMember(IntClass, nme.LE), other)
-      def INT_<(other: Tree) = infix(target, getMember(IntClass, nme.LT), other)
-      def INT_>(other: Tree) = infix(target, getMember(IntClass, nme.GT), other)
+      def INT_<(other: Tree)  = infix(target, getMember(IntClass, nme.LT), other)
+      def INT_>(other: Tree)  = infix(target, getMember(IntClass, nme.GT), other)
       def INT_TO(other: Tree) = infix(target, getMember(IntClass, "to"), other)
-      def INT_+(other: Tree) =
+      def INT_+(other: Tree)  =
         infix(target, getMember(IntClass, nme.ADD), other)
       def INT_-(other: Tree) =
         infix(target, getMember(IntClass, nme.MINUS), other)
@@ -147,12 +149,12 @@ trait TreehuggerDSLs { self: Forest =>
       def OR_PATTERN(other: Tree) = INFIXUNAPPLY("|", other)
 
       /** Apply, Select, Match * */
-      def APPLY(params: Tree*): Apply = Apply(target, params.toList)
-      def APPLY(params: Iterable[Tree]): Apply = Apply(target, params.toList)
-      def MATCH(cases: CaseDef*): Match = Match(target, cases.toList)
+      def APPLY(params: Tree*): Apply            = Apply(target, params.toList)
+      def APPLY(params: Iterable[Tree]): Apply   = Apply(target, params.toList)
+      def MATCH(cases: CaseDef*): Match          = Match(target, cases.toList)
       def MATCH(cases: Iterable[CaseDef]): Match = Match(target, cases.toList)
 
-      def UNAPPLY(params: Tree*): UnApply = UnApply(target, params.toList)
+      def UNAPPLY(params: Tree*): UnApply          = UnApply(target, params.toList)
       def UNAPPLY(params: Iterable[Tree]): UnApply =
         UnApply(target, params.toList)
 
@@ -162,9 +164,9 @@ trait TreehuggerDSLs { self: Forest =>
         TypeApply(target, typs.toList map { TypeTree(_) })
 
       def DOT(member: Name) = SelectStart(Select(target, member))
-      def DOT(sym: Symbol) = SelectStart(Select(target, sym))
+      def DOT(sym: Symbol)  = SelectStart(Select(target, sym))
 
-      def POSTFIX(name: Name): Infix = infix(target, name, List[Tree](): _*)
+      def POSTFIX(name: Name): Infix  = infix(target, name, List[Tree](): _*)
       def POSTFIX(sym: Symbol): Infix = infix(target, sym, List[Tree](): _*)
 
       def INFIX(name: Name, param0: Tree, params: Tree*): Infix =
@@ -172,7 +174,7 @@ trait TreehuggerDSLs { self: Forest =>
       def INFIX(sym: Symbol, param0: Tree, params: Tree*): Infix =
         infix(target, sym, List(param0) ::: params.toList: _*)
 
-      def INFIX(name: Name): InfixStart = InfixStart(target, name)
+      def INFIX(name: Name): InfixStart     = InfixStart(target, name)
       def INFIX(sym: Symbol): InfixSymStart = InfixSymStart(target, sym)
 
       def INFIXUNAPPLY(name: Name, param0: Tree, params: Tree*) =
@@ -180,9 +182,9 @@ trait TreehuggerDSLs { self: Forest =>
       def INFIXUNAPPLY(sym: Symbol, param0: Tree, params: Tree*) =
         InfixUnApply(target, sym, List(param0) ::: params.toList)
 
-      def inPackage(name: Name): PackageDef = PACKAGEHEADER(name) := target
-      def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym) := target
-      def withoutPackage: PackageDef = PACKAGEHEADER(NoSymbol) := target
+      def inPackage(name: Name): PackageDef  = PACKAGEHEADER(name)     := target
+      def inPackage(sym: Symbol): PackageDef = PACKAGEHEADER(sym)      := target
+      def withoutPackage: PackageDef         = PACKAGEHEADER(NoSymbol) := target
 
       def withComment(comments: String*): Commented = withComments(
         comments.toList
@@ -202,48 +204,48 @@ trait TreehuggerDSLs { self: Forest =>
 
       def withType(tp: Type): Typed = Typed(target, TypeTree(tp))
 
-      def DO_WHILE(cond: Tree) = LabelDef(nme.DOkw, cond, target)
-      def withBinder(sym: Symbol) = Bind(sym, target)
-      def withBinder(name: Name) = Bind(name, target)
-      def withAnnots(annots: AnnotationInfo*): Typed = withAnnots(annots.toList)
+      def DO_WHILE(cond: Tree)                                = LabelDef(nme.DOkw, cond, target)
+      def withBinder(sym: Symbol)                             = Bind(sym, target)
+      def withBinder(name: Name)                              = Bind(name, target)
+      def withAnnots(annots: AnnotationInfo*): Typed          = withAnnots(annots.toList)
       def withAnnots(annots: Iterable[AnnotationInfo]): Typed =
         withType(annotatedType(annots.toList, NoType))
 
       /** Assignment */
       def :=(rhs: Tree) = Assign(target, rhs)
 
-      def LIST_::(lhs: Tree) = lhs INFIX ("::", target)
-      def LIST_:::(lhs: Tree) = lhs INFIX (":::", target)
+      def LIST_::(lhs: Tree)   = lhs INFIX ("::", target)
+      def LIST_:::(lhs: Tree)  = lhs INFIX (":::", target)
       def UNLIST_::(lhs: Tree) = lhs INFIX (ConsClass) UNAPPLY (target)
 
       def SEQ_++(rhs: Tree) = target INFIX ("++", rhs)
       def SEQ_/:(lhs: Tree) = PAREN(lhs INFIX ("/:", target))
       def SEQ_:\(rhs: Tree) = PAREN(target INFIX (":\\", rhs))
 
-      val FOREACH: Tree => Tree = APPLYFUNC(Traversable_foreach) _
-      val MAP: Tree => Tree = APPLYFUNC(Traversable_map) _
-      val FILTER: Tree => Tree = APPLYFUNC(Traversable_filter) _
-      val FLATMAP: Tree => Tree = APPLYFUNC(Traversable_flatMap) _
-      val COLLECT: Tree => Tree = APPLYFUNC(Traversable_collect) _
-      val FIND: Tree => Tree = APPLYFUNC(Traversable_find) _
+      val FOREACH: Tree => Tree       = APPLYFUNC(Traversable_foreach) _
+      val MAP: Tree => Tree           = APPLYFUNC(Traversable_map) _
+      val FILTER: Tree => Tree        = APPLYFUNC(Traversable_filter) _
+      val FLATMAP: Tree => Tree       = APPLYFUNC(Traversable_flatMap) _
+      val COLLECT: Tree => Tree       = APPLYFUNC(Traversable_collect) _
+      val FIND: Tree => Tree          = APPLYFUNC(Traversable_find) _
       def SLICE(from: Tree, to: Tree) = (target DOT "slice")(from, to)
-      def TAKE(n: Tree) = (target DOT Traversable_take)(n)
-      def DROP(n: Tree) = (target DOT Traversable_drop)(n)
-      val TAKEWHILE: Tree => Tree = APPLYFUNC(Traversable_takeWhile) _
-      val DROPWHILE: Tree => Tree = APPLYFUNC(Traversable_dropWhile) _
-      val WITHFILTER: Tree => Tree = APPLYFUNC(Traversable_withFilter) _
-      val FILTERNOT: Tree => Tree = APPLYFUNC(Traversable_filterNot) _
-      def SPLITAT(n: Tree) = (target DOT "splitAt")(n)
-      val SPAN: Tree => Tree = APPLYFUNC(Traversable_span) _
-      val PARTITION: Tree => Tree = APPLYFUNC(Traversable_partition) _
-      val GROUPBY: Tree => Tree = APPLYFUNC(Traversable_groupBy) _
-      val FORALL: Tree => Tree = APPLYFUNC(Traversable_forall) _
-      val EXISTS: Tree => Tree = APPLYFUNC(Traversable_exists) _
-      val COUNT: Tree => Tree = APPLYFUNC(Traversable_count) _
-      val FOLDLEFT: Tree => Tree = APPLYFUNC(Traversable_foldLeft) _
-      val FOLDRIGHT: Tree => Tree = APPLYFUNC(Traversable_foldRight) _
-      val REDUCELEFT: Tree => Tree = APPLYFUNC(Traversable_reduceLeft) _
-      val REDUCERIGHT: Tree => Tree = APPLYFUNC(Traversable_reduceRight) _
+      def TAKE(n: Tree)               = (target DOT Traversable_take)(n)
+      def DROP(n: Tree)               = (target DOT Traversable_drop)(n)
+      val TAKEWHILE: Tree => Tree     = APPLYFUNC(Traversable_takeWhile) _
+      val DROPWHILE: Tree => Tree     = APPLYFUNC(Traversable_dropWhile) _
+      val WITHFILTER: Tree => Tree    = APPLYFUNC(Traversable_withFilter) _
+      val FILTERNOT: Tree => Tree     = APPLYFUNC(Traversable_filterNot) _
+      def SPLITAT(n: Tree)            = (target DOT "splitAt")(n)
+      val SPAN: Tree => Tree          = APPLYFUNC(Traversable_span) _
+      val PARTITION: Tree => Tree     = APPLYFUNC(Traversable_partition) _
+      val GROUPBY: Tree => Tree       = APPLYFUNC(Traversable_groupBy) _
+      val FORALL: Tree => Tree        = APPLYFUNC(Traversable_forall) _
+      val EXISTS: Tree => Tree        = APPLYFUNC(Traversable_exists) _
+      val COUNT: Tree => Tree         = APPLYFUNC(Traversable_count) _
+      val FOLDLEFT: Tree => Tree      = APPLYFUNC(Traversable_foldLeft) _
+      val FOLDRIGHT: Tree => Tree     = APPLYFUNC(Traversable_foldRight) _
+      val REDUCELEFT: Tree => Tree    = APPLYFUNC(Traversable_reduceLeft) _
+      val REDUCERIGHT: Tree => Tree   = APPLYFUNC(Traversable_reduceRight) _
 
       def APPLYFUNC(sym: Symbol)(f: Tree): Tree = f match {
         case Block(stats, expr) if (stats ::: List(expr)) forall {
@@ -254,11 +256,12 @@ trait TreehuggerDSLs { self: Forest =>
         case _                          => target DOT sym APPLY f
       }
 
-      /** Casting & type tests -- working our way toward understanding exactly
-        * what differs between the different forms of IS and AS.
-        *
-        * See ticket #2168 for one illustration of AS vs. AS_ANY.
-        */
+      /**
+       * Casting & type tests -- working our way toward understanding exactly
+       * what differs between the different forms of IS and AS.
+       *
+       * See ticket #2168 for one illustration of AS vs. AS_ANY.
+       */
       def AS(tpe: Type) =
         mkAsInstanceOf(target, tpe, any = true, wrapInApply = false)
       def IS(tpe: Type) = mkIsInstanceOf(target, tpe, true, wrapInApply = false)
@@ -286,24 +289,24 @@ trait TreehuggerDSLs { self: Forest =>
       }
 
     case class InfixStart(target: Tree, name: Name) {
-      def APPLY(args: Tree*): Infix = APPLY(args.toList)
-      def APPLY(args: Iterable[Tree]): Infix = Infix(target, name, args.toList)
-      def UNAPPLY(args: Tree*): InfixUnApply = UNAPPLY(args.toList)
+      def APPLY(args: Tree*): Infix                   = APPLY(args.toList)
+      def APPLY(args: Iterable[Tree]): Infix          = Infix(target, name, args.toList)
+      def UNAPPLY(args: Tree*): InfixUnApply          = UNAPPLY(args.toList)
       def UNAPPLY(args: Iterable[Tree]): InfixUnApply =
         InfixUnApply(target, name, args.toList)
     }
 
     case class InfixSymStart(target: Tree, sym: Symbol) {
-      def APPLY(args: Tree*): Infix = APPLY(args.toList)
+      def APPLY(args: Tree*): Infix          = APPLY(args.toList)
       def APPLY(args: Iterable[Tree]): Infix = Infix(target, sym, args.toList)
 
-      def UNAPPLY(args: Tree*): InfixUnApply = UNAPPLY(args.toList)
+      def UNAPPLY(args: Tree*): InfixUnApply          = UNAPPLY(args.toList)
       def UNAPPLY(args: Iterable[Tree]): InfixUnApply =
         InfixUnApply(target, sym, args.toList)
     }
 
     case class SelectStart(tree: Select) {
-      def apply(args: Tree*): Apply = apply(args.toList)
+      def apply(args: Tree*): Apply          = apply(args.toList)
       def apply(args: Iterable[Tree]): Apply = Apply(tree, args.toList)
 
       def empty = tree
@@ -312,9 +315,9 @@ trait TreehuggerDSLs { self: Forest =>
     case class SuperStart(tree: Super) {
       def APPLYTYPE(typ: Type): Super =
         Super(tree.qual, typ.toString.toTypeName)
-      def APPLYTYPE(name: Name): Super = Super(tree.qual, name.toTypeName)
+      def APPLYTYPE(name: Name): Super   = Super(tree.qual, name.toTypeName)
       def APPLYTYPE(name: String): Super = APPLYTYPE(name: Name)
-      def empty = tree
+      def empty                          = tree
     }
 
     case class CaseStart(pat: Tree, guard: Tree) {
@@ -331,10 +334,10 @@ trait TreehuggerDSLs { self: Forest =>
       def mkTree(rhs: Tree): ResultTreeType
       def :=(rhs: RhsTreeType): ResultTreeType
       final def empty: ResultTreeType = mkTree(EmptyTree)
-      final def tree: ResultTreeType = empty
+      final def tree: ResultTreeType  = empty
 
-      private var _mods: Modifiers = null
-      private var _pos: Position = null
+      private var _mods: Modifiers                   = null
+      private var _pos: Position                     = null
       private var _annotations: List[AnnotationInfo] = Nil
 
       def withFlags(flags: Long*): this.type = {
@@ -372,7 +375,7 @@ trait TreehuggerDSLs { self: Forest =>
       }
 
       final def mods = if (_mods == null) defaultMods else _mods
-      final def pos = if (_pos == null) defaultPos else _pos
+      final def pos  = if (_pos == null) defaultPos else _pos
     }
 
     trait TptStart {
@@ -405,7 +408,7 @@ trait TreehuggerDSLs { self: Forest =>
     trait VparamssStart {
       private var _vparamss: List[List[ValDef]] = Nil
 
-      def withParams(param: ValDef*): this.type = withParams(param.toList)
+      def withParams(param: ValDef*): this.type          = withParams(param.toList)
       def withParams(param: Iterable[ValDef]): this.type = {
         if (_vparamss == List(Nil))
           _vparamss = List(param.toList)
@@ -417,10 +420,11 @@ trait TreehuggerDSLs { self: Forest =>
       def vparamss: List[List[ValDef]] = _vparamss
     }
 
-    /** VODD, if it is not obvious, means ValOrDefDef. This is the common code
-      * between a tree based on a pre-existing symbol and one being built from
-      * scratch.
-      */
+    /**
+     * VODD, if it is not obvious, means ValOrDefDef. This is the common code
+     * between a tree based on a pre-existing symbol and one being built from
+     * scratch.
+     */
     trait VODDStart[ResultTreeType <: Tree, RhsTreeType <: Tree]
         extends DefStart[ResultTreeType, RhsTreeType]
         with TptStart
@@ -429,10 +433,10 @@ trait TreehuggerDSLs { self: Forest =>
         extends VODDStart[ResultTreeType, RhsTreeType] {
       def sym: Symbol
 
-      def name = sym.name
+      def name        = sym.name
       def defaultMods = Modifiers(sym.flags)
-      def defaultTpt = TypeTree() // setPos sym.pos.focus
-      def defaultPos = sym.pos
+      def defaultTpt  = TypeTree() // setPos sym.pos.focus
+      def defaultPos  = sym.pos
 
       def :=(rhs: RhsTreeType): ResultTreeType =
         mkTree(rhs) // setSymbol (sym resetFlag mods.flags)
@@ -457,17 +461,15 @@ trait TreehuggerDSLs { self: Forest =>
         with DefCreator
         with TparamsStart
         with VparamssStart
-    class ValSymStart(val sym: Symbol)
-        extends SymVODDStart[ValDef, Tree]
-        with ValCreator
+    class ValSymStart(val sym: Symbol) extends SymVODDStart[ValDef, Tree] with ValCreator
     class ProcSymStart(val sym: Symbol)
         extends DefStart[ProcDef, Block]
         with ProcCreator
         with TparamsStart
         with VparamssStart {
-      def name = sym.name
+      def name        = sym.name
       def defaultMods = Modifiers(sym.flags)
-      def defaultPos = sym.pos
+      def defaultPos  = sym.pos
 
       final def :=(rhs: Block): ProcDef =
         mkTree(rhs)
@@ -485,8 +487,8 @@ trait TreehuggerDSLs { self: Forest =>
 
     trait TreeDefStart[ResultTreeType <: Tree, RhsTreeType <: Tree]
         extends DefStart[ResultTreeType, RhsTreeType] {
-      def defaultMods = NoMods
-      def defaultPos = NoPosition
+      def defaultMods                          = NoMods
+      def defaultPos                           = NoPosition
       def :=(rhs: RhsTreeType): ResultTreeType = mkTree(rhs)
     }
 
@@ -496,12 +498,8 @@ trait TreehuggerDSLs { self: Forest =>
       def defaultTpt = TypeTree()
     }
 
-    class ValNameStart(val name: Name)
-        extends TreeVODDStart[ValDef]
-        with ValCreator {}
-    class ValTreeStart(val lhs: Tree)
-        extends TreeVODDStart[ValDef]
-        with ValCreator {
+    class ValNameStart(val name: Name) extends TreeVODDStart[ValDef] with ValCreator {}
+    class ValTreeStart(val lhs: Tree)  extends TreeVODDStart[ValDef] with ValCreator {
       val name = newTermName("")
 
       override def mkTree(rhs: Tree): ValDef = ValDef(mods, lhs, rhs)
@@ -530,46 +528,43 @@ trait TreehuggerDSLs { self: Forest =>
       override def :=(rhs: Tree): DefDef = mkTree(rhs)
     }
 
-    class AnonFuncStart
-        extends TreeDefStart[AnonFunc, Tree]
-        with TptStart
-        with VparamssStart {
-      def name = ""
+    class AnonFuncStart extends TreeDefStart[AnonFunc, Tree] with TptStart with VparamssStart {
+      def name       = ""
       def defaultTpt = TypeTree()
 
       def mkTree(rhs: Tree): AnonFunc = AnonFunc(vparamss, tpt, rhs)
-      final def ==>(rhs: Tree) = mkTree(rhs)
+      final def ==>(rhs: Tree)        = mkTree(rhs)
     }
 
     case class IfStart(cond: Tree, thenp: Tree) {
-      def THEN(x: Tree) = IfStart(cond, x)
+      def THEN(x: Tree)     = IfStart(cond, x)
       def ELSE(elsep: Tree) = If(cond, thenp, elsep)
-      def ENDIF = If(cond, thenp, EmptyTree)
+      def ENDIF             = If(cond, thenp, EmptyTree)
 
       def enumerator = ForFilter(cond)
     }
     case class TryStart(body: Tree, catches: List[CaseDef], fin: Tree) {
-      def CATCH(xs: CaseDef*): TryStart = CATCH(xs.toList)
+      def CATCH(xs: CaseDef*): TryStart          = CATCH(xs.toList)
       def CATCH(xs: Iterable[CaseDef]): TryStart =
         TryStart(body, xs.toList, fin)
 
       def FINALLY(x: Tree) = Try(body, catches, x)
-      def ENDTRY = Try(body, catches, fin)
+      def ENDTRY           = Try(body, catches, fin)
     }
     case class ForStart(enums: List[Enumerator]) {
-      def DO(body: Tree) = ForTree(enums, body)
+      def DO(body: Tree)    = ForTree(enums, body)
       def YIELD(body: Tree) = ForYieldTree(enums, body)
     }
     case class WhileStart(cond: Tree) {
       def DO(body: Tree) = LabelDef(nme.WHILEkw, cond, body)
     }
-    def CASE(pat: Tree): CaseStart = new CaseStart(pat, EmptyTree)
+    def CASE(pat: Tree): CaseStart               = new CaseStart(pat, EmptyTree)
     def CASE(pat: Tree, ifs: IfStart): CaseStart = CaseStart(pat, ifs.cond)
-    def DEFAULT: CaseStart = new CaseStart(WILD.empty, EmptyTree)
+    def DEFAULT: CaseStart                       = new CaseStart(WILD.empty, EmptyTree)
 
     class SymbolMethods(target: Symbol) {
       // def BIND(body: Tree) = Bind(target, body)
-      def IS_NULL() = REF(target) OBJ_EQ NULL
+      def IS_NULL()  = REF(target) OBJ_EQ NULL
       def NOT_NULL() = REF(target) OBJ_NE NULL
 
       def GET() = fn(REF(target), nme.get)
@@ -585,9 +580,9 @@ trait TreehuggerDSLs { self: Forest =>
     }
 
     trait ParentsStart {
-      private var _parents: List[Tree] = Nil
+      private var _parents: List[Tree]      = Nil
       private var _earlydefs: Option[Block] = None
-      private var _selfDef: ValDef = emptyValDef
+      private var _selfDef: ValDef          = emptyValDef
 
       def withParents(parent0: Type, parents: Type*): this.type = withParents(
         parent0 :: parents.toList
@@ -601,7 +596,7 @@ trait TreehuggerDSLs { self: Forest =>
         this
       }
 
-      def withEarlyDefs(trees: Tree*): this.type = withEarlyDefs(trees.toList)
+      def withEarlyDefs(trees: Tree*): this.type          = withEarlyDefs(trees.toList)
       def withEarlyDefs(trees: Iterable[Tree]): this.type = {
         trees.toList match {
           case List(b: Block) => _earlydefs = Some(b)
@@ -629,7 +624,7 @@ trait TreehuggerDSLs { self: Forest =>
         })
 
       final def parents: List[Tree] = _earlydefs.toList ::: _parents
-      final def selfDef: ValDef = _selfDef
+      final def selfDef: ValDef     = _selfDef
     }
 
     class ClassDefStart(val name: TypeName)
@@ -637,9 +632,9 @@ trait TreehuggerDSLs { self: Forest =>
         with TparamsStart
         with ParentsStart {
       private var _vparams: List[ValDef] = Nil
-      private var _ctormods: Modifiers = NoMods
+      private var _ctormods: Modifiers   = NoMods
 
-      def withParams(param: ValDef*): this.type = withParams(param.toList)
+      def withParams(param: ValDef*): this.type          = withParams(param.toList)
       def withParams(param: Iterable[ValDef]): this.type = {
         _vparams = param.toList
         this
@@ -655,7 +650,7 @@ trait TreehuggerDSLs { self: Forest =>
       }
 
       def vparams: List[ValDef] = _vparams
-      def ctormods: Modifiers = _ctormods
+      def ctormods: Modifiers   = _ctormods
 
       def mkTree(rhs: Tree): ClassDef = rhs match {
         case Block(xs, x) => mkTree(xs ::: List(x))
@@ -715,24 +710,22 @@ trait TreehuggerDSLs { self: Forest =>
       }
     }
 
-    class PackageDefStart(val name: TermName, val header: Boolean)
-        extends PackageCreator {
+    class PackageDefStart(val name: TermName, val header: Boolean) extends PackageCreator {
       def mkTree(body: List[Tree]): PackageDef =
         PackageDef(mods, Ident(name), body)
     }
 
-    class PackageSymStart(val sym: Symbol, val header: Boolean)
-        extends PackageCreator {
-      def name = sym.name
+    class PackageSymStart(val sym: Symbol, val header: Boolean) extends PackageCreator {
+      def name                                 = sym.name
       def mkTree(body: List[Tree]): PackageDef =
         if (sym == NoSymbol) PackageDef(mods, NoPackage, body)
         else PackageDef(mods, Ident(sym), body) setSymbol sym
     }
 
     sealed trait TypeBoundsStart
-    case class LowerTypeBoundsStart(lo: Type) extends TypeBoundsStart
-    case class UpperTypeBoundsStart(hi: Type) extends TypeBoundsStart
-    case class ViewBoundsStart(target: Type) extends TypeBoundsStart
+    case class LowerTypeBoundsStart(lo: Type)   extends TypeBoundsStart
+    case class UpperTypeBoundsStart(hi: Type)   extends TypeBoundsStart
+    case class ViewBoundsStart(target: Type)    extends TypeBoundsStart
     case class ContextBoundsStart(typcon: Type) extends TypeBoundsStart
 
     trait TypeDefStart extends TreeDefStart[TypeDef, Tree] with TparamsStart {
@@ -745,9 +738,9 @@ trait TreehuggerDSLs { self: Forest =>
 
       def mkTree(typ: Type): TypeDef = mkTree(TypeTree(typ))
 
-      def LOWER(lo: Type) = withBounds(LowerTypeBoundsStart(lo))
-      def UPPER(hi: Type) = withBounds(UpperTypeBoundsStart(hi))
-      def VIEWBOUNDS(target: Type) = withBounds(ViewBoundsStart(target))
+      def LOWER(lo: Type)             = withBounds(LowerTypeBoundsStart(lo))
+      def UPPER(hi: Type)             = withBounds(UpperTypeBoundsStart(hi))
+      def VIEWBOUNDS(target: Type)    = withBounds(ViewBoundsStart(target))
       def CONTEXTBOUNDS(typcon: Type) = withBounds(ContextBoundsStart(typcon))
 
       def bounds: Tree =
@@ -808,7 +801,7 @@ trait TreehuggerDSLs { self: Forest =>
     )
 
     /** !!! should generalize null guard from match error here. */
-    def THROW(typ: Type): Throw = Throw(New(TypeTree(typ), List(Nil)))
+    def THROW(typ: Type): Throw              = Throw(New(TypeTree(typ), List(Nil)))
     def THROW(typ: Type, msg: String): Throw = Throw(
       New(TypeTree(typ), List(List(LIT(msg))))
     )
@@ -817,7 +810,7 @@ trait TreehuggerDSLs { self: Forest =>
     )
     def THROW(tree: Tree): Throw = Throw(tree)
 
-    def NEW(tp: Type, args: Tree*): Tree = NEW(TypeTree(tp), args: _*)
+    def NEW(tp: Type, args: Tree*): Tree  = NEW(TypeTree(tp), args: _*)
     def NEW(tpt: Tree, args: Tree*): Tree =
       if (args.toList.isEmpty) New(tpt)
       else New(tpt, List(args.toList))
@@ -828,24 +821,24 @@ trait TreehuggerDSLs { self: Forest =>
 
     def DEF(name: Name, tp: Type): DefTreeStart =
       new DefTreeStart(name) withType tp
-    def DEF(name: Name) = new NoBlockDefTreeStart(name)
+    def DEF(name: Name)                         = new NoBlockDefTreeStart(name)
     def DEF(sym: Symbol, tp: Type): DefSymStart =
       new DefSymStart(sym) withType tp
-    def DEF(sym: Symbol) = new NoBlockDefSymStart(sym)
+    def DEF(sym: Symbol)                   = new NoBlockDefSymStart(sym)
     def DEFINFER(sym: Symbol): DefSymStart = new DefSymStart(sym)
     def DEFINFER(name: Name): DefTreeStart = new DefTreeStart(name)
 
     def DEFTHIS: DefTreeStart = new DefTreeStart(nme.THIS)
 
     def VAL(name: Name, tp: Type): ValNameStart = VAL(name) withType tp
-    def VAL(name: Name): ValNameStart = new ValNameStart(name)
+    def VAL(name: Name): ValNameStart           = new ValNameStart(name)
     def VAL(sym: Symbol, tp: Type): ValSymStart = VAL(sym) withType tp
-    def VAL(sym: Symbol): ValSymStart = new ValSymStart(sym)
-    def VAL(tree: Tree): ValTreeStart = new ValTreeStart(tree)
+    def VAL(sym: Symbol): ValSymStart           = new ValSymStart(sym)
+    def VAL(tree: Tree): ValTreeStart           = new ValTreeStart(tree)
 
     def VAR(name: Name, tp: Type): ValNameStart =
       VAL(name, tp) withFlags Flags.MUTABLE
-    def VAR(name: Name): ValNameStart = VAL(name) withFlags Flags.MUTABLE
+    def VAR(name: Name): ValNameStart           = VAL(name) withFlags Flags.MUTABLE
     def VAR(sym: Symbol, tp: Type): ValSymStart =
       VAL(sym, tp) withFlags Flags.MUTABLE
     def VAR(sym: Symbol): ValSymStart = VAL(sym) withFlags Flags.MUTABLE
@@ -853,7 +846,7 @@ trait TreehuggerDSLs { self: Forest =>
 
     def PARAM(name: Name, tp: Type): ValNameStart =
       VAL(name, tp) withFlags Flags.PARAM
-    def PARAM(name: Name): ValNameStart = VAL(name) withFlags Flags.PARAM
+    def PARAM(name: Name): ValNameStart           = VAL(name) withFlags Flags.PARAM
     def PARAM(sym: Symbol, tp: Type): ValSymStart =
       VAL(sym, tp) withFlags Flags.PARAM
     def PARAM(sym: Symbol): ValSymStart = VAL(sym) withFlags Flags.PARAM
@@ -861,7 +854,7 @@ trait TreehuggerDSLs { self: Forest =>
 
     def LAZYVAL(name: Name, tp: Type): ValNameStart =
       VAL(name, tp) withFlags Flags.LAZY
-    def LAZYVAL(name: Name): ValNameStart = VAL(name) withFlags Flags.LAZY
+    def LAZYVAL(name: Name): ValNameStart           = VAL(name) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol, tp: Type): ValSymStart =
       VAL(sym, tp) withFlags Flags.LAZY
     def LAZYVAL(sym: Symbol): ValSymStart = VAL(sym) withFlags Flags.LAZY
@@ -870,7 +863,7 @@ trait TreehuggerDSLs { self: Forest =>
       VALFROM(name) withType tp
     def VALFROM(name: Name): ForValFromStart = new ForValFromStart(name)
 
-    def CLASSDEF(name: Name): ClassDefStart = new ClassDefStart(name.toTypeName)
+    def CLASSDEF(name: Name): ClassDefStart  = new ClassDefStart(name.toTypeName)
     def CLASSDEF(sym: Symbol): ClassDefStart = new ClassDefStart(
       sym.name.toTypeName
     )
@@ -887,12 +880,12 @@ trait TreehuggerDSLs { self: Forest =>
     def ANONDEF(trees: Tree*): ClassDefStart =
       CLASSDEF(tpnme.ANON_CLASS_NAME) withParents (trees: _*)
 
-    def TRAITDEF(name: Name): ClassDefStart = new TraitDefStart(name.toTypeName)
+    def TRAITDEF(name: Name): ClassDefStart  = new TraitDefStart(name.toTypeName)
     def TRAITDEF(sym: Symbol): ClassDefStart = new TraitDefStart(
       sym.name.toTypeName
     )
 
-    def OBJECTDEF(name: Name): ModuleDefStart = new ModuleDefStart(name)
+    def OBJECTDEF(name: Name): ModuleDefStart  = new ModuleDefStart(name)
     def OBJECTDEF(sym: Symbol): ModuleDefStart = new ModuleDefStart(sym.name)
 
     def CASEOBJECTDEF(name: Name): ModuleDefStart =
@@ -905,8 +898,8 @@ trait TreehuggerDSLs { self: Forest =>
     def PACKAGEOBJECTDEF(sym: Symbol): ModuleDefStart =
       OBJECTDEF(sym) withFlags Flags.PACKAGE
 
-    def PACKAGE(name: Name): PackageDefStart = new PackageDefStart(name, false)
-    def PACKAGE(sym: Symbol): PackageSymStart = new PackageSymStart(sym, false)
+    def PACKAGE(name: Name): PackageDefStart       = new PackageDefStart(name, false)
+    def PACKAGE(sym: Symbol): PackageSymStart      = new PackageSymStart(sym, false)
     def PACKAGEHEADER(name: Name): PackageDefStart =
       new PackageDefStart(name, true)
     def PACKAGEHEADER(sym: Symbol): PackageSymStart =
@@ -915,7 +908,7 @@ trait TreehuggerDSLs { self: Forest =>
     def TYPEVAR(name: Name): TypeDefTreeStart = new TypeDefTreeStart(name)
     def TYPEVAR(sym: Symbol): TypeDefSymStart = new TypeDefSymStart(sym)
 
-    def LAMBDA(param: ValDef*): AnonFuncStart = LAMBDA(param.toList)
+    def LAMBDA(param: ValDef*): AnonFuncStart          = LAMBDA(param.toList)
     def LAMBDA(param: Iterable[ValDef]): AnonFuncStart =
       new AnonFuncStart() withParams (param)
 
@@ -923,19 +916,19 @@ trait TreehuggerDSLs { self: Forest =>
       name
     )
 
-    def AND(guards: Tree*): Tree = AND(guards.toList)
+    def AND(guards: Tree*): Tree          = AND(guards.toList)
     def AND(guards: Iterable[Tree]): Tree =
       if (guards.isEmpty) EmptyTree
       else guards reduceLeft mkInfixAnd
 
-    def OR(guards: Tree*): Tree = OR(guards.toList)
+    def OR(guards: Tree*): Tree          = OR(guards.toList)
     def OR(guards: Iterable[Tree]): Tree =
       if (guards.isEmpty) EmptyTree
       else guards reduceLeft mkInfixOr
 
     def IF(tree: Tree) = new IfStart(tree, EmptyTree)
 
-    def TRY(xs: Tree*): TryStart = TRY(xs.toList)
+    def TRY(xs: Tree*): TryStart          = TRY(xs.toList)
     def TRY(xs: Iterable[Tree]): TryStart =
       new TryStart(
         xs.toList match {
@@ -946,9 +939,9 @@ trait TreehuggerDSLs { self: Forest =>
         EmptyTree
       )
 
-    def FOR(xs: Enumerator*): ForStart = FOR(xs.toList)
+    def FOR(xs: Enumerator*): ForStart          = FOR(xs.toList)
     def FOR(xs: Iterable[Enumerator]): ForStart = new ForStart(xs.toList)
-    def WHILE(tree: Tree) = new WhileStart(tree)
+    def WHILE(tree: Tree)                       = new WhileStart(tree)
 
     def INTERP(sym: Symbol, args: Tree*): Interpolated =
       Interpolated(sym, args.toList)
@@ -956,10 +949,10 @@ trait TreehuggerDSLs { self: Forest =>
       Interpolated(name, args.toList)
 
     def BLOCK(xs: Iterable[Tree]): Block = Block(xs.toList: _*)
-    def BLOCK(xs: Tree*): Block = Block(xs: _*)
-    def NOT(tree: Tree) = Select(tree, Boolean_not)
+    def BLOCK(xs: Tree*): Block          = Block(xs: _*)
+    def NOT(tree: Tree)                  = Select(tree, Boolean_not)
 
-    def PLUS(tree: Tree) = Select(tree, Int_plus)
+    def PLUS(tree: Tree)  = Select(tree, Int_plus)
     def MINUS(tree: Tree) = Select(tree, Int_minus)
     def TILDE(tree: Tree) = Select(tree, Int_tilde)
 
@@ -980,34 +973,34 @@ trait TreehuggerDSLs { self: Forest =>
 
     /** Typed trees from symbols. */
     def THIS(sym: Symbol) = mkAttributedThis(sym)
-    def THIS(name: Name) = This(name.toTypeName)
-    def THIS = This(EmptyTypeName)
+    def THIS(name: Name)  = This(name.toTypeName)
+    def THIS              = This(EmptyTypeName)
 
-    val SUPER = SuperStart(Super(EmptyTree))
+    val SUPER              = SuperStart(Super(EmptyTree))
     def SUPER(sym: Symbol) = SuperStart(Super(THIS(sym)))
-    def SUPER(name: Name) = SuperStart(Super(THIS(name)))
+    def SUPER(name: Name)  = SuperStart(Super(THIS(name)))
 
-    def ID(sym: Symbol) = mkAttributedIdent(sym)
-    def ID(name: Name) = Ident(name)
-    def BACKQUOTED(sym: Symbol) = BackQuotedIdent(sym)
-    def BACKQUOTED(name: Name) = BackQuotedIdent(name)
-    def REF(sym: Symbol) = mkAttributedIdent(sym)
+    def ID(sym: Symbol)             = mkAttributedIdent(sym)
+    def ID(name: Name)              = Ident(name)
+    def BACKQUOTED(sym: Symbol)     = BackQuotedIdent(sym)
+    def BACKQUOTED(name: Name)      = BackQuotedIdent(name)
+    def REF(sym: Symbol)            = mkAttributedIdent(sym)
     def REF(pre: Type, sym: Symbol) = mkAttributedRef(pre, sym)
-    def REF(name: Name) = Ident(name)
+    def REF(name: Name)             = Ident(name)
 
-    def COVARIANT(name: Name): Name = newTypeName("+" + name.name)
+    def COVARIANT(name: Name): Name       = newTypeName("+" + name.name)
     def COVARIANT(symbol: Symbol): Symbol =
       symbol.owner.newAliasType(symbol.name).setFlag(Flags.COVARIANT)
-    def CONTRAVARIANT(name: Name): Name = newTypeName("-" + name.name)
+    def CONTRAVARIANT(name: Name): Name       = newTypeName("-" + name.name)
     def CONTRAVARIANT(symbol: Symbol): Symbol =
       symbol.owner.newAliasType(symbol.name).setFlag(Flags.CONTRAVARIANT)
 
     case class PRIVATEWITHIN(name: Name)
 
-    def PAREN(trees: Tree*): Tree = TUPLE(trees.toList)
+    def PAREN(trees: Tree*): Tree          = TUPLE(trees.toList)
     def PAREN(trees: Iterable[Tree]): Tree = TUPLE(trees)
 
-    def TUPLE(trees: Tree*): Tree = TUPLE(trees.toList)
+    def TUPLE(trees: Tree*): Tree                                         = TUPLE(trees.toList)
     def TUPLE(trees: Iterable[Tree], flattenUnary: Boolean = false): Tree =
       trees.toList match {
         case Nil                        => UNIT
@@ -1022,31 +1015,31 @@ trait TreehuggerDSLs { self: Forest =>
       trees match {
         case Nil                        => scalaUnitConstr
         case List(tree) if flattenUnary => tree
-        case _ => AppliedTypeTree(REF(TupleClass(trees.length)), trees)
+        case _                          => AppliedTypeTree(REF(TupleClass(trees.length)), trees)
       }
 
-    def ANNOT(typ: Type, args: Tree*): AnnotationInfo = ANNOT(typ, args.toList)
+    def ANNOT(typ: Type, args: Tree*): AnnotationInfo          = ANNOT(typ, args.toList)
     def ANNOT(typ: Type, args: Iterable[Tree]): AnnotationInfo =
       AnnotationInfo(typ, args.toList, Nil)
 
-    def LIST(xs: Tree*): Tree = LIST(xs.toList)
-    def LIST(xs: Iterable[Tree]): Tree = ID("List") APPLY xs
-    def SOME(xs: Tree*): Tree = SOME(xs.toList)
-    def SOME(xs: Iterable[Tree]): Tree = Apply(SomeModule, TUPLE(xs, true))
-    def RIGHT(tree: Tree): Tree = RightClass.module APPLY tree
-    def LEFT(tree: Tree): Tree = LeftClass.module APPLY tree
-    def ARRAY(xs: Tree*): Tree = ARRAY(xs.toList)
-    def ARRAY(xs: Iterable[Tree]): Tree = ArrayClass.module APPLY xs
-    def SEQ(xs: Tree*): Tree = SEQ(xs.toList)
-    def SEQ(xs: Iterable[Tree]): Tree = SeqClass.module APPLY xs
-    def VECTOR(xs: Tree*): Tree = VECTOR(xs.toList)
-    def VECTOR(xs: Iterable[Tree]): Tree = VectorClass.module APPLY xs
-    def MAKE_MAP(xs: Tree*): Tree = MAKE_MAP(xs.toList)
+    def LIST(xs: Tree*): Tree              = LIST(xs.toList)
+    def LIST(xs: Iterable[Tree]): Tree     = ID("List") APPLY xs
+    def SOME(xs: Tree*): Tree              = SOME(xs.toList)
+    def SOME(xs: Iterable[Tree]): Tree     = Apply(SomeModule, TUPLE(xs, true))
+    def RIGHT(tree: Tree): Tree            = RightClass.module APPLY tree
+    def LEFT(tree: Tree): Tree             = LeftClass.module APPLY tree
+    def ARRAY(xs: Tree*): Tree             = ARRAY(xs.toList)
+    def ARRAY(xs: Iterable[Tree]): Tree    = ArrayClass.module APPLY xs
+    def SEQ(xs: Tree*): Tree               = SEQ(xs.toList)
+    def SEQ(xs: Iterable[Tree]): Tree      = SeqClass.module APPLY xs
+    def VECTOR(xs: Tree*): Tree            = VECTOR(xs.toList)
+    def VECTOR(xs: Iterable[Tree]): Tree   = VectorClass.module APPLY xs
+    def MAKE_MAP(xs: Tree*): Tree          = MAKE_MAP(xs.toList)
     def MAKE_MAP(xs: Iterable[Tree]): Tree = ID("Map") APPLY xs
 
-    def TYPE_*(typ: Type): Type = repeatedParamType(typ)
-    def TYPE_BYNAME(typ: Type): Type = byNameParamType(typ)
-    def TYPE_STRUCT(tree: Tree*): Type = TYPE_STRUCT(tree.toList)
+    def TYPE_*(typ: Type): Type                 = repeatedParamType(typ)
+    def TYPE_BYNAME(typ: Type): Type            = byNameParamType(typ)
+    def TYPE_STRUCT(tree: Tree*): Type          = TYPE_STRUCT(tree.toList)
     def TYPE_STRUCT(tree: Iterable[Tree]): Type =
       tree.toList match {
         case List(Block(xs, x)) => makeStructuralType(xs ::: List(x))
@@ -1059,35 +1052,35 @@ trait TreehuggerDSLs { self: Forest =>
     }
     def makeRefinedType(args: List[Type]): Type =
       refinedType(args, NoSymbol, Nil, "")
-    def TYPE_REF(sym: Symbol): Type = typeRef(sym)
-    def TYPE_REF(name: Name): Type = TYPE_REF(RootClass.newClass(name))
-    def TYPE_REF(tree: Tree): Type = makePathType(tree)
+    def TYPE_REF(sym: Symbol): Type    = typeRef(sym)
+    def TYPE_REF(name: Name): Type     = TYPE_REF(RootClass.newClass(name))
+    def TYPE_REF(tree: Tree): Type     = makePathType(tree)
     def makePathType(tree: Tree): Type = {
       val customString = treeToString(tree)
       PathType(tree, customString)
     }
 
-    def TYPE_TUPLE(typs: Type*): Type = tupleType(typs.toList)
-    def TYPE_TUPLE(typs: Iterable[Type]): Type = tupleType(typs.toList)
-    def TYPE_ARRAY(typ: Type): Type = ArrayClass TYPE_OF typ
-    def TYPE_LIST(typ: Type): Type = ListClass TYPE_OF typ
-    def TYPE_SEQ(typ: Type): Type = SeqClass TYPE_OF typ
-    def TYPE_VECTOR(typ: Type): Type = VectorClass TYPE_OF typ
-    def TYPE_ITERATOR(typ: Type): Type = IteratorClass TYPE_OF typ
-    def TYPE_MAP(k: Type, v: Type): Type = immutableMapType(k, v)
-    def TYPE_SET(typ: Type): Type = immutableSetType(typ)
-    def TYPE_OPTION(typ: Type): Type = optionType(typ)
-    def TYPE_SOME(typ: Type): Type = someType(typ)
-    def TYPE_EITHER(arg1: Type, arg2: Type): Type = eitherType(arg1, arg2)
-    def TYPE_RIGHT(arg1: Type, arg2: Type): Type = rightType(arg1, arg2)
-    def TYPE_LEFT(arg1: Type, arg2: Type): Type = leftType(arg1, arg2)
-    def TYPE_ORDERED(typ: Type): Type = orderedType(typ)
-    def TYPE_=:=(arg1: Type, arg2: Type) = tpEqualsType(arg1, arg2)
-    def TYPE_<:<(arg1: Type, arg2: Type) = conformsType(arg1, arg2)
-    def TYPE_<%<(arg1: Type, arg2: Type) = conformsOrViewAsType(arg1, arg2)
+    def TYPE_TUPLE(typs: Type*): Type                     = tupleType(typs.toList)
+    def TYPE_TUPLE(typs: Iterable[Type]): Type            = tupleType(typs.toList)
+    def TYPE_ARRAY(typ: Type): Type                       = ArrayClass TYPE_OF typ
+    def TYPE_LIST(typ: Type): Type                        = ListClass TYPE_OF typ
+    def TYPE_SEQ(typ: Type): Type                         = SeqClass TYPE_OF typ
+    def TYPE_VECTOR(typ: Type): Type                      = VectorClass TYPE_OF typ
+    def TYPE_ITERATOR(typ: Type): Type                    = IteratorClass TYPE_OF typ
+    def TYPE_MAP(k: Type, v: Type): Type                  = immutableMapType(k, v)
+    def TYPE_SET(typ: Type): Type                         = immutableSetType(typ)
+    def TYPE_OPTION(typ: Type): Type                      = optionType(typ)
+    def TYPE_SOME(typ: Type): Type                        = someType(typ)
+    def TYPE_EITHER(arg1: Type, arg2: Type): Type         = eitherType(arg1, arg2)
+    def TYPE_RIGHT(arg1: Type, arg2: Type): Type          = rightType(arg1, arg2)
+    def TYPE_LEFT(arg1: Type, arg2: Type): Type           = leftType(arg1, arg2)
+    def TYPE_ORDERED(typ: Type): Type                     = orderedType(typ)
+    def TYPE_=:=(arg1: Type, arg2: Type)                  = tpEqualsType(arg1, arg2)
+    def TYPE_<:<(arg1: Type, arg2: Type)                  = conformsType(arg1, arg2)
+    def TYPE_<%<(arg1: Type, arg2: Type)                  = conformsOrViewAsType(arg1, arg2)
     def TYPE_FUNCTION(args: Iterable[Type], result: Type) =
       functionType(args.toList, result)
-    def TYPE_FUNCTION(typs: Type*): Type = TYPE_FUNCTION(typs.toList)
+    def TYPE_FUNCTION(typs: Type*): Type          = TYPE_FUNCTION(typs.toList)
     def TYPE_FUNCTION(typs: Iterable[Type]): Type =
       typs.toList match {
         case Nil => sys.error("TYPE_FUNCTION must take at least one Type.")
@@ -1133,20 +1126,22 @@ trait TreehuggerDSLs { self: Forest =>
     ): Seq[Tree] =
       in.toSeq map { x: A => (x: Tree) }
 
-    /** (foo DOT bar) might be simply a Select, but more likely it is to be
-      * immediately followed by an Apply. We don't want to add an actual apply
-      * method to arbitrary trees, so SelectStart is created with an apply - and
-      * if apply is not the next thing called, the implicit from SelectStart ->
-      * Tree will provide the tree.
-      */
+    /**
+     * (foo DOT bar) might be simply a Select, but more likely it is to be
+     * immediately followed by an Apply. We don't want to add an actual apply
+     * method to arbitrary trees, so SelectStart is created with an apply - and
+     * if apply is not the next thing called, the implicit from SelectStart ->
+     * Tree will provide the tree.
+     */
     implicit def mkTreeFromSelectStart(ss: SelectStart): Select = ss.tree
     implicit def mkSeqTreeFromSelectStarts[M[A] <: Iterable[A]](
         in: M[SelectStart]
     ): Seq[Select] =
       in.toSeq map { x => (x: Select) }
 
-    /** (SUPER) might be simply a Super.
-      */
+    /**
+     * (SUPER) might be simply a Super.
+     */
     implicit def mkTreeFromSuperStart(ss: SuperStart): Super = ss.tree
     implicit def mkSeqTreeFromSuperStarts[M[A] <: Iterable[A]](
         in: M[SuperStart]
