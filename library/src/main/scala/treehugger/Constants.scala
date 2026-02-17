@@ -242,5 +242,7 @@ trait Constants extends api.Constants { self: Forest =>
     override def hashCode: Int = value.## * 41 + 17
   }
 
-  object Constant extends ConstantExtractor
+  object Constant extends ConstantExtractor {
+    def unapply(arg: Constant): Option[Any] = Some(arg.value)
+  }
 }

@@ -235,14 +235,15 @@ trait Types extends api.Types { self: Forest =>
   final class UniqueThisType(sym: Symbol) extends ThisType(sym) with UniqueType {}
 
   object ThisType extends ThisTypeExtractor {
-    def apply(sym: Symbol): Type = new UniqueThisType(sym)
+    override def unapply(tpe: ThisType): Option[Symbol] = Some(tpe.sym)
+    def apply(sym: Symbol): Type                        = new UniqueThisType(sym)
   }
 
   /**
    * A class for singleton types of the form `<prefix>.<sym.name>.type`. Cannot
    * be created directly; one should always use `singleType` for creation.
    */
-  abstract case class SingleType(pre: Type, sym: Symbol) extends SingletonType {
+  abstract class SingleType(pre: Type, sym: Symbol) extends SingletonType {
     override def underlying   = pre
     override def termSymbol   = sym
     override def prefix: Type = pre
@@ -254,17 +255,18 @@ trait Types extends api.Types { self: Forest =>
     )
   }
 
-  final class UniqueSingleType(pre: Type, sym: Symbol)
+  final case class UniqueSingleType(pre: Type, sym: Symbol)
       extends SingleType(pre, sym)
       with UniqueType {}
 
   object SingleType extends SingleTypeExtractor {
     def apply(pre: Type, sym: Symbol): Type = {
-      new UniqueSingleType(pre, sym)
+      UniqueSingleType(pre, sym)
     }
+    def unapply(tpe: SingleType): Option[(Type, Symbol)] = Some((tpe.underlying, tpe.termSymbol))
   }
 
-  abstract case class SuperType(thistpe: Type, supertpe: Type) extends SingletonType {
+  abstract class SuperType(thistpe: Type, supertpe: Type) extends SingletonType {
     override def typeSymbol   = thistpe.typeSymbol
     override def underlying   = supertpe
     override def prefix: Type = supertpe.prefix
@@ -272,19 +274,22 @@ trait Types extends api.Types { self: Forest =>
       thistpe.prefixString.replaceAll("""\bthis\.$""", "super.")
   }
 
-  final class UniqueSuperType(thistp: Type, supertp: Type)
+  final case class UniqueSuperType(thistp: Type, supertp: Type)
       extends SuperType(thistp, supertp)
       with UniqueType {}
 
   object SuperType extends SuperTypeExtractor {
     def apply(thistp: Type, supertp: Type): Type =
-      new UniqueSuperType(thistp, supertp)
+      UniqueSuperType(thistp, supertp)
+
+    def unapply(tpe: SuperType): Option[(Type, Type)] = Some((tpe.underlying, tpe.supertype))
   }
 
   /**
    * A class for the bounds of abstract types and type parameters
    */
-  abstract case class TypeBounds(lo: Type, hi: Type, view: Type, context: Type) extends SubType {
+  abstract class TypeBounds(val lo: Type, val hi: Type, val view: Type, val context: Type)
+      extends SubType {
     def supertype = hi
     // override val isTrivial: Boolean = lo.isTrivial && hi.isTrivial
     // override def bounds: TypeBounds = this
@@ -301,8 +306,12 @@ trait Types extends api.Types { self: Forest =>
         .mkString(" ")
   }
 
-  final class UniqueTypeBounds(lo: Type, hi: Type, view: Type, context: Type)
-      extends TypeBounds(lo, hi, view, context)
+  final case class UniqueTypeBounds(
+      override val lo: Type,
+      override val hi: Type,
+      override val view: Type,
+      override val context: Type
+  ) extends TypeBounds(lo, hi, view, context)
       with UniqueType {}
 
   object TypeBounds extends TypeBoundsExtractor {
@@ -312,8 +321,11 @@ trait Types extends api.Types { self: Forest =>
     def apply(lo: Type, hi: Type): TypeBounds =
       apply(lo, hi, NothingClass.tpe, NothingClass.tpe)
     def apply(lo: Type, hi: Type, view: Type, context: Type): TypeBounds = {
-      new UniqueTypeBounds(lo, hi, view, context).asInstanceOf[TypeBounds]
+      UniqueTypeBounds(lo, hi, view, context).asInstanceOf[TypeBounds]
     }
+    def unapply(tpe: TypeBounds): Option[(Type, Type, Type, Type)] = Some(
+      (tpe.lo, tpe.hi, tpe.view, tpe.context)
+    )
   }
 
   /**
@@ -374,8 +386,13 @@ trait Types extends api.Types { self: Forest =>
         decls: List[Tree],
         clazz: Symbol,
         customToString0: String
-    ): RefinedType =
+    ): RefinedType = {
       new RefinedType0(parents, decls, clazz, customToString0)
+    }
+
+    def unapply(tpe: RefinedType): Option[(List[Type], Scope)] = Some(
+      (tpe.parents, tpe.decls)
+    )
   }
 
   /**
@@ -401,14 +418,18 @@ trait Types extends api.Types { self: Forest =>
    * A class representing a class info
    */
   case class ClassInfoType(
-      parents: List[Type],
-      decls: List[Tree],
-      typeSymbol: Symbol
+      override val parents: List[Type],
+      override val decls: List[Tree],
+      override val typeSymbol: Symbol
   ) extends CompoundType {
     def customToString: String = ""
   }
 
-  object ClassInfoType extends ClassInfoTypeExtractor
+  object ClassInfoType extends ClassInfoTypeExtractor {
+    def unapply(tpe: ClassInfoType): Option[(List[Type], Scope, Symbol)] = Some(
+      (tpe.parents, tpe.decls, tpe.typeSymbol)
+    )
+  }
 
   class PackageClassInfoType(decls: List[Tree], clazz: Symbol)
       extends ClassInfoType(List(), decls, clazz)
@@ -419,18 +440,21 @@ trait Types extends api.Types { self: Forest =>
    * @param value
    *   ...
    */
-  abstract case class ConstantType(value: Constant) extends SingletonType {
+  abstract class ConstantType(val value: Constant) extends SingletonType {
     // override def underlying: Type = value.tpe
     override def safeToString: String =
       underlying.toString + "(" + value.escapedStringValue + ")"
   }
 
-  final class UniqueConstantType(value: Constant) extends ConstantType(value) with UniqueType {}
+  final case class UniqueConstantType(override val value: Constant)
+      extends ConstantType(value)
+      with UniqueType {}
 
   object ConstantType extends ConstantTypeExtractor {
     def apply(value: Constant): ConstantType = {
-      new UniqueConstantType(value).asInstanceOf[ConstantType]
+      UniqueConstantType(value).asInstanceOf[ConstantType]
     }
+    def unapply(tpe: ConstantType): Option[Constant] = Some(tpe.value)
   }
 
   /**
@@ -444,7 +468,7 @@ trait Types extends api.Types { self: Forest =>
    * @param args
    *   ...
    */
-  abstract case class TypeRef(pre: Type, sym: Symbol, args: List[Type]) extends Type {
+  abstract class TypeRef(pre: Type, sym: Symbol, args: List[Type]) extends Type {
     private var normalized: Type      = null
     override def prefix: Type         = pre
     override def typeArgs: List[Type] = args
@@ -556,14 +580,17 @@ trait Types extends api.Types { self: Forest =>
     )
   }
 
-  final class UniqueTypeRef(pre: Type, sym: Symbol, args: List[Type])
+  final case class UniqueTypeRef(pre: Type, sym: Symbol, args: List[Type])
       extends TypeRef(pre, sym, args)
       with UniqueType {}
 
   object TypeRef extends TypeRefExtractor {
-    def apply(pre: Type, sym: Symbol, args: List[Type]): Type = {
-      new UniqueTypeRef(pre, sym, args)
+    def apply(pre: Type, sym: Symbol, args: List[Type]): TypeRef = {
+      UniqueTypeRef(pre, sym, args)
     }
+    def unapply(tpe: TypeRef): Option[(Type, Symbol, List[Type])] = Some(
+      (tpe.prefix, tpe.typeSymbol, tpe.typeArgs)
+    )
   }
 
   /**
@@ -580,7 +607,11 @@ trait Types extends api.Types { self: Forest =>
     // override def safeToString = paramString(this) + resultType
   }
 
-  object MethodType extends MethodTypeExtractor
+  object MethodType extends MethodTypeExtractor {
+    def unapply(tpe: MethodType): Option[(List[Symbol], Type)] = Some(
+      (tpe.params, tpe.resultType)
+    )
+  }
 
   class JavaMethodType(ps: List[Symbol], rt: Type) extends MethodType(ps, rt) {
     def isJava = true
@@ -592,7 +623,9 @@ trait Types extends api.Types { self: Forest =>
     override def safeToString = "=> " + resultType
   }
 
-  object NullaryMethodType extends NullaryMethodTypeExtractor
+  object NullaryMethodType extends NullaryMethodTypeExtractor {
+    def unapply(tpe: NullaryMethodType): Option[Type] = Some(tpe.resultType)
+  }
 
   /**
    * A type function or the type of a polymorphic value (and thus of kind *).
@@ -623,7 +656,11 @@ trait Types extends api.Types { self: Forest =>
     // override def safeToString = typeParamsString(this) + resultType
   }
 
-  object PolyType extends PolyTypeExtractor
+  object PolyType extends PolyTypeExtractor {
+    override def unapply(tpe: PolyType): Option[(List[Symbol], Type)] = Some(
+      (tpe.typeParams, tpe.resultType)
+    )
+  }
 
   case class ExistentialType(
       quantified: List[Tree],
@@ -657,7 +694,11 @@ trait Types extends api.Types { self: Forest =>
     }
   }
 
-  object ExistentialType extends ExistentialTypeExtractor
+  object ExistentialType extends ExistentialTypeExtractor {
+    override def unapply(tpe: ExistentialType): Option[(List[Tree], Type)] = Some(
+      (tpe.quantified, tpe.underlying)
+    )
+  }
 
   /**
    * A class containing the alternatives and type prefix of an overloaded
@@ -773,7 +814,11 @@ trait Types extends api.Types { self: Forest =>
     if (annots.isEmpty) underlying
     else AnnotatedType(annots, underlying, selfsym)
 
-  object AnnotatedType extends AnnotatedTypeExtractor
+  object AnnotatedType extends AnnotatedTypeExtractor {
+    override def unapply(tpe: AnnotatedType): Option[(List[AnnotationInfo], Type, Symbol)] = Some(
+      (tpe.annotations, tpe.underlying, tpe.selfsym)
+    )
+  }
 
   /**
    * A class representing types with a name. When an application uses named

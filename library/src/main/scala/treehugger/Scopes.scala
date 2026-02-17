@@ -14,5 +14,5 @@ trait Scopes extends api.Scopes { self: Forest =>
   val EmptyScope = Nil
 
   /** Create a new scope */
-  def newScope = Nil
+  override def newScope(): List[Tree] = List()
 }
