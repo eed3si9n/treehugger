@@ -34,7 +34,7 @@ class DSL_0LexicalSpec extends DSLSpec {
 
   // Symbol#toString changed in Scala 2.13.3, so we cannot hardcode expected result
   def literal3 =
-    LIT('Symbol) must print_as('Symbol.toString)
+    LIT("Symbol") must print_as("Symbol")
 
   def literal4 =
     (TRUE must print_as("true")) and

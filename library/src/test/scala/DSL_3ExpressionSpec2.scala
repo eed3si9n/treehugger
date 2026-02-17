@@ -118,7 +118,7 @@ class DSL_3ExpressionSpec2 extends DSLSpec {
     )
 
   def conditional2 =
-    (IF(REF("sunny")) THEN (Predef_println APPLY LIT("Hi!")) ENDIF) must print_as(
+    (IF(REF("sunny")).THEN(Predef_println.APPLY(LIT("Hi!"))).ENDIF) must print_as(
       "if (sunny) println(\"Hi!\")"
     )
 
@@ -195,7 +195,8 @@ class DSL_3ExpressionSpec2 extends DSLSpec {
 
   def try1 =
     (TRY(REF("something") APPLY LIT(0))
-      CATCH (CASE(WILDCARD) ==> (Predef_println APPLY LIT("error"))) ENDTRY) must print_as(
+      .CATCH(CASE(WILDCARD) ==> (Predef_println APPLY LIT("error")))
+      .ENDTRY) must print_as(
       """try {""",
       """  something(0)""",
       """} catch {""",

@@ -46,7 +46,7 @@ class TreePrinterSpec extends DSLSpec {
       assignGreetStrings(2, "world!\n"),
       FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO
         (Predef_print APPLY (greetStrings APPLY REF("i")))
-    ) withoutPackage
+    ).withoutPackage
 
     val s = treeToString(tree); println(s)
 

@@ -71,9 +71,9 @@ class DSL_8StdLibSpec extends DSLSpec {
   import definitions._
   import treehuggerDSL._
 
-  def root1 = (REF("x") TOSTRING) must print_as("x.toString")
+  def root1 = (REF("x").TOSTRING) must print_as("x.toString")
 
-  def root2 = (REF("x") GETCLASS) must print_as("x.getClass")
+  def root2 = (REF("x").GETCLASS) must print_as("x.getClass")
 
   def root3 = (REF("x") IS IntClass) must print_as("x.isInstanceOf[Int]")
 
@@ -204,7 +204,7 @@ class DSL_8StdLibSpec extends DSLSpec {
 
   def tupletype1 =
     (VAL("x", TYPE_TUPLE(IntClass, IntClass)).tree must print_as("val x: (Int, Int)")) and
-      (VAL("y", TYPE_TUPLE(IntClass :: Nil)).tree must print_as("val y: Int"))
+      (VAL("y", TYPE_TUPLE(IntClass)).tree must print_as("val y: Int"))
 
   def functype1 =
     (VAL("x", TYPE_FUNCTION(IntClass, IntClass)).tree must print_as("val x: Int => Int")) and

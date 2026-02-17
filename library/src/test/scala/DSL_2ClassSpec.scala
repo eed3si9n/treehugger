@@ -118,8 +118,8 @@ sealed classes `withFlags(Flags.SEALED)`.                                     $c
   def constructor1 =
     (CLASSDEF("C")
       withParams (PARAM("s", StringClass)) := BLOCK(
-      DEFTHIS withParams (PARAM("x", IntClass)) := BLOCK(
-        THIS APPLY (REF("x") TOSTRING)
+      DEFTHIS.withParams(PARAM("x", IntClass)) := BLOCK(
+        THIS.APPLY(REF("x").TOSTRING)
       )
     )) must print_as(
       "class C(s: String) {",

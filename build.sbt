@@ -1,8 +1,7 @@
 import Common._
 import Dependencies._
 
-ThisBuild / scalaVersion       := "3.3.7"
-ThisBuild / crossScalaVersions := List("3.3.7")
+ThisBuild / crossScalaVersions := List("2.12.21", "2.13.18", "3.3.7")
 ThisBuild / organization       := "com.eed3si9n"
 ThisBuild / version            := "0.5.0-SNAPSHOT"
 ThisBuild / homepage           := Some(url("http://eed3si9n.com/treehugger"))

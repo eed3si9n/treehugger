@@ -34,7 +34,7 @@ class DSL_6TopLevelDefSpec extends DSLSpec {
     (BLOCK(
       OBJECTDEF("M1"),
       OBJECTDEF("M2")
-    ) withoutPackage) must print_as("object M1", "", "object M2")
+    ).withoutPackage) must print_as("object M1", "", "object M2")
 
   def package1 =
     (PACKAGE("p") := BLOCK(
