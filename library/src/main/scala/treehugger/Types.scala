@@ -401,9 +401,9 @@ trait Types extends api.Types { self: Forest =>
    * A class representing a class info
    */
   case class ClassInfoType(
-      override val parents: List[Type],
-      override val decls: List[Tree],
-      override val typeSymbol: Symbol
+      parents: List[Type],
+      decls: List[Tree],
+      typeSymbol: Symbol
   ) extends CompoundType {
     def customToString: String = ""
   }
@@ -510,7 +510,7 @@ trait Types extends api.Types { self: Forest =>
     )
 
     private def customToString = this match {
-      case TypeRef(_, RepeatedParamClass, arg :: _) => arg + "*"
+      case TypeRef(_, RepeatedParamClass, arg :: _) => arg.toString + "*"
       case TypeRef(_, ByNameParamClass, arg :: _)   => "=> " + arg
       case _                                        =>
         if (isFunctionType(this)) {
@@ -638,7 +638,7 @@ trait Types extends api.Types { self: Forest =>
           case TypeRef(pre, sym, args) if args.nonEmpty =>
             val wargs = Nil // wildcardArgsString(quantified.toSet, args)
             if (sameLength(wargs, args))
-              return TypeRef(pre, sym, List()) + wargs.mkString("[", ", ", "]")
+              return TypeRef(pre, sym, List()).toString + wargs.mkString("[", ", ", "]")
           case _ =>
         }
       var ustr = underlying.toString
@@ -758,7 +758,7 @@ trait Types extends api.Types { self: Forest =>
   ) extends Type {
     override def safeToString =
       if (underlying == NoType) annotations.mkString("@", " @", "")
-      else annotations.mkString(underlying + " @", " @", "")
+      else annotations.mkString(underlying.toString + " @", " @", "")
   }
 
   /**

@@ -36,7 +36,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
     case _                                  => t.toString
   }
 
-  class TreePrinter(out: PrintWriter) extends super.TreePrinter {
+  class TreePrinter(out: PrintWriter) extends TreePrinterBase {
     protected var indentMargin = 0
     protected val indentStep   = 2
     protected var indentString =
@@ -77,8 +77,8 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         sep: String,
         end: String
     ): Unit = {
-      print(start); indent; println()
-      printSeq(ts) { print(_) } { print(sep); println() }; undent; println();
+      print(start); indent(); println()
+      printSeq(ts) { print(_) } { print(sep); println() }; undent(); println();
       print(end)
     }
 
@@ -219,7 +219,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Nil  => tree.asInstanceOf[MemberDef].mods.annotations
         case anns => anns
       }
-      annots foreach (printAnnotation)
+      annots.foreach(printAnnotation)
     }
 
     def printlnAnnotations(tree: Tree): Unit = {
@@ -227,7 +227,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
         case Nil  => tree.asInstanceOf[MemberDef].mods.annotations
         case anns => anns
       }
-      annots foreach (printlnAnnotation)
+      annots.foreach(printlnAnnotation)
     }
 
     def printAnnotation(annot: AnnotationInfo): Unit = {
@@ -236,7 +236,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
       else if (!annot.assocs.isEmpty)
         print(annot.assocs map { case (x, y) =>
-          x + " = " + y
+          x.toString + " = " + y
         } mkString ("(", ", ", ")"))
 
       print(" ")
@@ -248,10 +248,10 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
       if (!annot.args.isEmpty) printRow(annot.args, "(", ", ", ")")
       else if (!annot.assocs.isEmpty)
         print(annot.assocs map { case (x, y) =>
-          x + " = " + y
+          x.toString + " = " + y
         } mkString ("(", ", ", ")"))
 
-      println
+      println()
     }
 
     def printComment(mods: Modifiers, comments: List[String]): Unit = {
@@ -418,7 +418,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               case _        =>
                 if (isinline(rhs)) print(" ", rhs)
                 else {
-                  print(" "); indent; println(); print(rhs); undent
+                  print(" "); indent(); println(); print(rhs); undent()
                 }
             }
 
@@ -438,7 +438,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
               case _        =>
                 if (isinline(rhs)) print(" = ", rhs)
                 else {
-                  print(" ="); indent; println(); print(rhs); undent
+                  print(" ="); indent(); println(); print(rhs); undent()
                 }
             }
 
@@ -628,7 +628,7 @@ trait TreePrinters extends api.TreePrinters { self: Forest =>
             print("[" + mix + "]")
 
         case Super(qual, mix) =>
-          if (!qual.isEmpty) print(qual + ".")
+          if (!qual.isEmpty) print(qual.toString + ".")
           print("super")
           if (!mix.isEmpty)
             print("[" + mix + "]")

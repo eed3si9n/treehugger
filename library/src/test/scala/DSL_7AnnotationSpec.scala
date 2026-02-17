@@ -1,6 +1,7 @@
 import org.specs2._
 
-class DSL_7AnnotationSpec extends DSLSpec { def is =                          s2"""
+class DSL_7AnnotationSpec extends DSLSpec {
+  def is = s2"""
   This is a specification to check Treehugger DSL
 
   Declaration annotations are written as
@@ -10,13 +11,13 @@ class DSL_7AnnotationSpec extends DSLSpec { def is =                          s2
   Expression annotations are written as
     `tree withAnnots(ANNOT(typ), ...)`.                                       $exp1
                                                                               """
-  
+
   import treehugger.forest._
   import definitions._
   import treehuggerDSL._
-  
+
   def declannot1 =
-    (CLASSDEF("C") withAnnots(ANNOT(SerializableAttr)) := BLOCK(
+    (CLASSDEF("C") withAnnots (ANNOT(SerializableAttr)) := BLOCK(
       DEF("get", IntClass)
     )) must print_as(
       """@serializable""",
@@ -27,7 +28,7 @@ class DSL_7AnnotationSpec extends DSLSpec { def is =                          s2
 
   def declannot2 =
     (TRAITDEF("Function0")
-        withTypeParams(TYPEVAR("T") withAnnots(ANNOT("specialized", REF(IntClass)))) := BLOCK(
+      withTypeParams (TYPEVAR("T") withAnnots (ANNOT("specialized", REF(IntClass)))) := BLOCK(
       DEF("apply", "T")
     )) must print_as(
       "trait Function0[@specialized(Int) T] {",
@@ -36,6 +37,6 @@ class DSL_7AnnotationSpec extends DSLSpec { def is =                          s2
     )
 
   def exp1 =
-    ((REF("e") withAnnots(ANNOT(UncheckedClass))) must print_as("(e: @unchecked)")) and
-    ((REF("e") withAnnots(ANNOT("unchecked"))) must print_as("(e: @unchecked)"))
+    ((REF("e") withAnnots (ANNOT(UncheckedClass))) must print_as("(e: @unchecked)")) and
+      ((REF("e") withAnnots (ANNOT("unchecked"))) must print_as("(e: @unchecked)"))
 }

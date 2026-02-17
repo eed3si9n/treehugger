@@ -5,7 +5,7 @@ import java.io.{PrintWriter, StringWriter}
 
 trait TreePrinters { self: Universe =>
 
-  trait TreePrinter {
+  trait TreePrinterBase {
     def print(args: Any*): Unit
     protected var typesPrinted      = false
     protected var uniqueIds         = false
@@ -15,7 +15,7 @@ trait TreePrinters { self: Universe =>
 
   def show(
       tree: Tree,
-      mkPrinter: PrintWriter => TreePrinter = newTreePrinter
+      mkPrinter: PrintWriter => TreePrinterBase = newTreePrinter
   ): String = {
     val buffer  = new StringWriter()
     val writer  = new PrintWriter(buffer)
@@ -30,9 +30,9 @@ trait TreePrinters { self: Universe =>
   /**
    * Hook to define what `show(tree)` means.
    */
-  def newTreePrinter(out: PrintWriter): TreePrinter
+  def newTreePrinter(out: PrintWriter): TreePrinterBase
 
-  class RawTreePrinter(out: PrintWriter) extends TreePrinter {
+  class RawTreePrinter(out: PrintWriter) extends TreePrinterBase {
     def print(args: Any*): Unit = args foreach {
       case EmptyTree =>
         print("EmptyTree")
