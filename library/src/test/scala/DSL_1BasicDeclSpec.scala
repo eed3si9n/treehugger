@@ -1,6 +1,7 @@
 import org.specs2._
 
-class DSL_1BasicDeclSpec extends DSLSpec { def is =                           s2"""
+class DSL_1BasicDeclSpec extends DSLSpec {
+  def is = s2"""
   This is a specification to check Treehugger DSL
 
   Value declarations are written as
@@ -83,149 +84,169 @@ limit them to some members.                                                   $i
     Using `RENAME("x") ==> "y"`, a member can be renamed as
 `IMPORT(sym, RENAME("Map") ==> "MutableMap")` or be suppressed.               $import3
                                                                               """
-  
+
   import treehugger.forest._
   import definitions._
   import treehuggerDSL._
-  
+
   def value1 = {
     // They convert to trees implicitly
     val tree1: Tree = VAL(sym.foo, IntClass)
     val tree2: Tree = VAL("bar", TYPE_LIST(StringClass))
-    
+
     (tree1 must print_as("val foo: Int")) and
-    (tree2 must print_as("val bar: List[String]"))
+      (tree2 must print_as("val bar: List[String]"))
   }
-  
+
   def value2 =
     ((VAL(sym.foo, "Int") := LIT(3)) must print_as("val foo: Int = 3")) and
-    ((VAL("bar") := FALSE) must print_as("val bar = false"))
-  
+      ((VAL("bar") := FALSE) must print_as("val bar = false"))
+
   def lazyvalue1 =
     ((LAZYVAL(sym.foo, IntClass) := LIT(3)) must print_as("lazy val foo: Int = 3")) and
-    ((LAZYVAL("bar") := FALSE) must print_as("lazy val bar = false"))
-      
+      ((LAZYVAL("bar") := FALSE) must print_as("lazy val bar = false"))
+
   def constantvalue1 =
-    ((VAL(sym.foo, IntClass) withFlags(Flags.FINAL) := LIT(3)) must print_as("final val foo: Int = 3")) and
-    ((VAL("bar") withFlags(Flags.FINAL) := FALSE) must print_as("final val bar = false"))
-  
+    ((VAL(sym.foo, IntClass) withFlags (Flags.FINAL) := LIT(3)) must print_as(
+      "final val foo: Int = 3"
+    )) and
+      ((VAL("bar") withFlags (Flags.FINAL) := FALSE) must print_as("final val bar = false"))
+
   def variable1 = {
     // They convert to trees implicitly
     val tree1: Tree = VAR(sym.foo, IntClass)
     val tree2: Tree = VAR("bar", TYPE_LIST(StringClass))
-    
+
     (tree1 must print_as("var foo: Int")) and
-    (tree2 must print_as("var bar: List[String]"))
+      (tree2 must print_as("var bar: List[String]"))
   }
-  
+
   def variable2 =
     ((VAR(sym.foo, IntClass) := LIT(3)) must print_as("var foo: Int = 3")) and
-    ((VAR("bar") := FALSE) must print_as("var bar = false"))
-  
-  // _ initializes var to 0 
+      ((VAR("bar") := FALSE) must print_as("var bar = false"))
+
+  // _ initializes var to 0
   def variable3 = ((VAR(sym.foo, IntClass) := WILDCARD) must print_as("var foo: Int = _"))
-  
+
   def type1 =
     ((TYPEVAR("T"): Tree) must print_as("type T")) and
-    ((TYPEVAR("T") LOWER(IntClass): Tree) must print_as("type T >: Int"))
-  
-  def type2 = {
-    val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T) 
-    val X = RootClass.newAliasType("X")
+      ((TYPEVAR("T") LOWER (IntClass): Tree) must print_as("type T >: Int"))
 
-    ((TYPEVAR("T") UPPER(ComparableTClass): Tree) must print_as("type T <: Comparable[T]")) and
-    ((TYPEVAR("MyCollection") withTypeParams(TYPEVAR(COVARIANT(X))) UPPER(iterableType(X)): Tree) must print_as("type MyCollection[+X] <: Iterable[X]"))
+  def type2 = {
+    val ComparableTClass = appliedType(ComparableClass.typeConstructor, sym.T)
+    val X                = RootClass.newAliasType("X")
+
+    ((TYPEVAR("T") UPPER (ComparableTClass): Tree) must print_as("type T <: Comparable[T]")) and
+      ((TYPEVAR("MyCollection") withTypeParams (TYPEVAR(COVARIANT(X))) UPPER (iterableType(
+        X
+      )): Tree) must print_as("type MyCollection[+X] <: Iterable[X]"))
   }
-  
-  def type3 = (TYPEVAR("T") LOWER(IntClass) UPPER(sym.Addressable): Tree) must print_as("type T >: Int <: Addressable")
-  
+
+  def type3 = (TYPEVAR("T") LOWER (IntClass) UPPER (sym.Addressable): Tree) must print_as(
+    "type T >: Int <: Addressable"
+  )
+
   def type4 = (TYPEVAR("IntList") := listType(IntClass)) must print_as("type IntList = List[Int]")
-  
-  def type5 = (TYPEVAR("Two") withTypeParams(TYPEVAR(sym.A)) := TYPE_TUPLE(sym.A, sym.A)) must print_as("type Two[A] = (A, A)")
-  
+
+  def type5 =
+    (TYPEVAR("Two") withTypeParams (TYPEVAR(sym.A)) := TYPE_TUPLE(sym.A, sym.A)) must print_as(
+      "type Two[A] = (A, A)"
+    )
+
   def variance1 = {
     val A = RootClass.newTypeParameter("A")
-    ((TYPEVAR("M") withTypeParams(TYPEVAR(COVARIANT(A))): Tree) must print_as("type M[+A]")) and
-    ((TYPEVAR("M") withTypeParams(TYPEVAR(CONTRAVARIANT(A))): Tree) must print_as("type M[-A]")) 
+    ((TYPEVAR("M") withTypeParams (TYPEVAR(COVARIANT(A))): Tree) must print_as("type M[+A]")) and
+      ((TYPEVAR("M") withTypeParams (TYPEVAR(CONTRAVARIANT(A))): Tree) must print_as("type M[-A]"))
   }
 
   def function1 =
     DEF("get", IntClass).tree must print_as("def get: Int")
-    
+
   def function2 =
-    ((DEF("put", UnitClass) withParams(PARAM("x", IntClass)): Tree) must print_as("def put(x: Int): Unit")) and
-    ((DEF(sym.run, UnitClass) withParams(PARAM("x", IntClass) := LIT(0)): Tree) must print_as("def run(x: Int = 0): Unit")) and
-    ((DEF("sideEffect", UnitClass).withParams()).tree must print_as("def sideEffect(): Unit"))
+    ((DEF("put", UnitClass) withParams (PARAM("x", IntClass)): Tree) must print_as(
+      "def put(x: Int): Unit"
+    )) and
+      ((DEF(sym.run, UnitClass) withParams (PARAM("x", IntClass) := LIT(0)): Tree) must print_as(
+        "def run(x: Int = 0): Unit"
+      )) and
+      ((DEF("sideEffect", UnitClass).withParams()).tree must print_as("def sideEffect(): Unit"))
 
   def function3 =
     (DEF("compare", BooleanClass)
-      withTypeParams(TYPEVAR(sym.T))
-      withParams(PARAM("a", sym.T) := LIT(0))
-      withParams(PARAM("b", sym.T) := LIT(0)): Tree) must print_as(
-        "def compare[T](a: T = 0)(b: T = 0): Boolean")
+      withTypeParams (TYPEVAR(sym.T))
+      withParams (PARAM("a", sym.T) := LIT(0))
+      withParams (PARAM("b", sym.T) := LIT(0)): Tree) must print_as(
+      "def compare[T](a: T = 0)(b: T = 0): Boolean"
+    )
 
   def bounds1 = {
-    val tree: Tree = DEF("maxList", "T").
-      withTypeParams(TYPEVAR("T") VIEWBOUNDS TYPE_ORDERED("T")).
-      withParams(PARAM("elements", TYPE_LIST("T")))
-    
+    val tree: Tree = DEF("maxList", "T")
+      .withTypeParams(TYPEVAR("T") VIEWBOUNDS TYPE_ORDERED("T"))
+      .withParams(PARAM("elements", TYPE_LIST("T")))
+
     tree must print_as("def maxList[T <% Ordered[T]](elements: List[T]): T")
   }
-    
+
   def bounds2 = {
-    val tree: Tree = DEF("put", UnitClass).
-      withTypeParams(TYPEVAR(sym.A) CONTEXTBOUNDS FullManifestClass).
-      withParams(PARAM("x", sym.A))
-    
+    val tree: Tree = DEF("put", UnitClass)
+      .withTypeParams(TYPEVAR(sym.A) CONTEXTBOUNDS FullManifestClass)
+      .withParams(PARAM("x", sym.A))
+
     tree must print_as("def put[A : Manifest](x: A): Unit")
-  }  
-  
+  }
+
   def function4 = (DEF("get", IntClass) := LIT(0)) must print_as("def get: Int = 0")
-  
-  def function5 = (DEFINFER("get") := BLOCK(LIT(0))) must print_as(
-    """def get = {""",
-    """  0""",
-    """}""")
-  
-  def param1 = (DEF("put", UnitClass) withParams(PARAM("x", IntClass) := LIT(0)) := UNIT) must print_as(
-    "def put(x: Int = 0): Unit = ()")
-  
+
+  def function5 =
+    (DEFINFER("get") := BLOCK(LIT(0))) must print_as("""def get = {""", """  0""", """}""")
+
+  def param1 =
+    (DEF("put", UnitClass) withParams (PARAM("x", IntClass) := LIT(0)) := UNIT) must print_as(
+      "def put(x: Int = 0): Unit = ()"
+    )
+
   def param2 = {
     // This converts to a tree implicitly
-    val tree: Tree = DEF("whileLoop", UnitClass).
-      withParams(PARAM("cond", TYPE_BYNAME(BooleanClass))).
-      withParams(PARAM("stat", TYPE_BYNAME(UnitClass)))
+    val tree: Tree = DEF("whileLoop", UnitClass)
+      .withParams(PARAM("cond", TYPE_BYNAME(BooleanClass)))
+      .withParams(PARAM("stat", TYPE_BYNAME(UnitClass)))
     tree must print_as("def whileLoop(cond: => Boolean)(stat: => Unit): Unit")
   }
-  
+
   def param3 = {
     // This converts to a tree implicitly
-    val tree: Tree = DEF("sum", IntClass) withParams(PARAM("args", TYPE_*(IntClass)))
+    val tree: Tree = DEF("sum", IntClass) withParams (PARAM("args", TYPE_*(IntClass)))
     tree must print_as("def sum(args: Int*): Int")
   }
-  
+
   def procedure1 = {
-    val tree: Tree = PROC("write") withParams(PARAM("str", StringClass))
+    val tree: Tree = PROC("write") withParams (PARAM("str", StringClass))
     tree must print_as("def write(str: String)")
   }
-  
+
   def procedure2 =
-    (PROC("write") withParams(PARAM("str", StringClass)) := BLOCK(
+    (PROC("write") withParams (PARAM("str", StringClass)) := BLOCK(
       UNIT
     )) must print_as(
       """def write(str: String) {""",
       """  ()""",
       """}"""
     )
-  
+
   def import1 =
-    (IMPORT(MutablePackage)             must print_as("import scala.collection.mutable")) and
-    (IMPORT("scala.collection.mutable") must print_as("import scala.collection.mutable"))
-  
+    (IMPORT(MutablePackage) must print_as("import scala.collection.mutable")) and
+      (IMPORT("scala.collection.mutable") must print_as("import scala.collection.mutable"))
+
   def import2 =
-    (IMPORT(MutablePackage, "Map", "Set")      must print_as("import scala.collection.mutable.{Map, Set}")) and
-    (IMPORT("scala.collection.mutable", "Map") must print_as("import scala.collection.mutable.Map"))
-  
+    (IMPORT(MutablePackage, "Map", "Set") must print_as(
+      "import scala.collection.mutable.{Map, Set}"
+    )) and
+      (IMPORT("scala.collection.mutable", "Map") must print_as(
+        "import scala.collection.mutable.Map"
+      ))
+
   def import3 =
-    IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap") must print_as("import scala.collection.mutable.{Map => MutableMap}")
+    IMPORT(MutablePackage, RENAME("Map") ==> "MutableMap") must print_as(
+      "import scala.collection.mutable.{Map => MutableMap}"
+    )
 }

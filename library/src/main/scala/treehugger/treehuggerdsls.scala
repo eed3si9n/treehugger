@@ -775,7 +775,7 @@ trait TreehuggerDSLs { self: Forest =>
     }
 
     class TypeDefSymStart(val sym: Symbol) extends TypeDefStart {
-      def name = sym.name.toTypeName
+      def name: TypeName = sym.name.toTypeName
 
       def mkTree(rhs: Tree): TypeDef =
         TypeDef(
@@ -878,7 +878,7 @@ trait TreehuggerDSLs { self: Forest =>
     def ANONDEF(parents: Iterable[Type]): ClassDefStart =
       ANONDEF(parents.toList map { TypeTree(_) }: _*)
     def ANONDEF(trees: Tree*): ClassDefStart =
-      CLASSDEF(tpnme.ANON_CLASS_NAME) withParents (trees: _*)
+      CLASSDEF(tpnme.ANON_CLASS_NAME).withParents(trees: _*)
 
     def TRAITDEF(name: Name): ClassDefStart  = new TraitDefStart(name.toTypeName)
     def TRAITDEF(sym: Symbol): ClassDefStart = new TraitDefStart(
@@ -1063,7 +1063,7 @@ trait TreehuggerDSLs { self: Forest =>
     def TYPE_TUPLE(typs: Type*): Type                     = tupleType(typs.toList)
     def TYPE_TUPLE(typs: Iterable[Type]): Type            = tupleType(typs.toList)
     def TYPE_ARRAY(typ: Type): Type                       = ArrayClass TYPE_OF typ
-    def TYPE_LIST(typ: Type): Type                        = ListClass TYPE_OF typ
+    def TYPE_LIST(typ: Type): Type                        = ListClass.TYPE_OF(typ)
     def TYPE_SEQ(typ: Type): Type                         = SeqClass TYPE_OF typ
     def TYPE_VECTOR(typ: Type): Type                      = VectorClass TYPE_OF typ
     def TYPE_ITERATOR(typ: Type): Type                    = IteratorClass TYPE_OF typ
@@ -1121,10 +1121,10 @@ trait TreehuggerDSLs { self: Forest =>
     ): Seq[TypeTree] =
       in.toSeq map { x => (x: TypeTree) }
 
-    implicit def mkSeqTreeFromCandidates[A <% Tree, M[A] <: Iterable[A]](
+    implicit def mkSeqTreeFromCandidates[A <: Tree, M[A] <: Iterable[A]](
         in: M[A]
     ): Seq[Tree] =
-      in.toSeq map { x: A => (x: Tree) }
+      in.toSeq.map { (x: A) => (x: Tree) }
 
     /**
      * (foo DOT bar) might be simply a Select, but more likely it is to be
@@ -1157,23 +1157,23 @@ trait TreehuggerDSLs { self: Forest =>
     implicit def mkSeqTreeFromDefStarts[A <: Tree, M[A] <: Iterable[
       A
     ], B <: Tree](in: M[DefStart[A, B]]): Seq[A] =
-      in.toSeq map { x: DefStart[A, B] => (x: A) }
+      in.toSeq.map { (x: DefStart[A, B]) => (x: A) }
 
     implicit def mkTypeFromSymbol(sym: Symbol): Type = TYPE_REF(sym)
     implicit def mkTypeFromString(str: String): Type = TYPE_REF(
       RootClass.newClass(str)
     )
-    implicit def mkSeqTypeFromCandidates[A <% Type, M[A] <: Iterable[A]](
+    implicit def mkSeqTypeFromCandidates[A <: Type, M[A] <: Iterable[A]](
         in: M[A]
     ): Seq[Type] =
-      in.toSeq map { x: A => (x: Type) }
+      in.toSeq.map { (x: A) => (x: Type) }
 
     implicit def mkImportSelectorFromString(name: String): ImportSelector =
       ImportSelector(name, -1, name, -1)
-    implicit def mkSeqImportSelectorFromCandidates[A <% ImportSelector, M[
+    implicit def mkSeqImportSelectorFromCandidates[A <: ImportSelector, M[
         A
     ] <: Iterable[A]](in: M[A]): Seq[ImportSelector] =
-      in.toSeq map { x: A => (x: ImportSelector) }
+      in.toSeq.map { (x: A) => (x: ImportSelector) }
 
     implicit def mkEnumeratorFromIfStart(ifs: IfStart): Enumerator =
       ifs.enumerator

@@ -164,7 +164,7 @@ trait NameManglers { self: Forest =>
 
     def defaultGetterName(name: Name, pos: Int): TermName = {
       val prefix = if (isConstructorName(name)) "init" else name
-      newTermName(prefix + DEFAULT_GETTER_STRING + pos)
+      newTermName(prefix.toString + DEFAULT_GETTER_STRING + pos)
     }
     def defaultGetterToMethod(name: Name): TermName = {
       val p = name.pos(DEFAULT_GETTER_STRING)

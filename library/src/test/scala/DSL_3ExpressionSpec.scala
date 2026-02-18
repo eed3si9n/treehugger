@@ -1,6 +1,7 @@
 import org.specs2._
 
-class DSL_3ExpressionSpec extends DSLSpec { def is =                          s2"""
+class DSL_3ExpressionSpec extends DSLSpec {
+  def is = s2"""
   This is a specification to check Treehugger DSL                       
 
   Named terms can be written as
@@ -59,88 +60,95 @@ class DSL_3ExpressionSpec extends DSLSpec { def is =                          s2
   import treehugger.forest._
   import definitions._
   import treehuggerDSL._
-                                                                             
+
   def term1 = REF("x") must print_as("x")
-  
+
   def term2 = {
     val sym1 = RootClass.newValue("x")
     val sym2 = sym.Addressable.newValue("y")
-    
+
     ((sym1 DOT sym2).tree must print_as("x.y")) and
-    ((sym1 DOT "y": Tree) must print_as("x.y")) and
-    ((REF("x") DOT "y": Tree) must print_as("x.y"))
+      ((sym1 DOT "y": Tree) must print_as("x.y")) and
+      ((REF("x") DOT "y": Tree) must print_as("x.y"))
   }
-  
+
   def this1 = THIS must print_as("this")
-  
+
   def this2 =
     (THIS(sym.T) must print_as("T.this")) and
-    (THIS("T") must print_as("T.this"))
-  
+      (THIS("T") must print_as("T.this"))
+
   def super1 = (SUPER: Tree) must print_as("super")
-  
+
   def super2 =
     ((SUPER(sym.T): Tree) must print_as("T.super")) and
-    ((SUPER("T"): Tree) must print_as("T.super"))
-    
+      ((SUPER("T"): Tree) must print_as("T.super"))
+
   def super3 = (SUPER APPLYTYPE sym.T) must print_as("super[T]")
-  
-  def apply1 = (Predef_println APPLY LIT("Hello, world!")) must print_as("""println("Hello, world!")""")
-  
-  def apply2 = (REF("x") DOT "y" APPLY (LIT(0), LIT(1)))  must print_as("""x.y(0, 1)""")
-  
-  def apply3 = (REF("x") DOT "y" APPLY ((REF("w") DOT "t") :: Nil))  must print_as("""x.y(w.t)""")
+
+  def apply1 =
+    (Predef_println APPLY LIT("Hello, world!")) must print_as("""println("Hello, world!")""")
+
+  def apply2 = (REF("x") DOT "y" APPLY (LIT(0), LIT(1))) must print_as("""x.y(0, 1)""")
+
+  def apply3 = (REF("x") DOT "y" APPLY ((REF("w") DOT "t") :: Nil)) must print_as("""x.y(w.t)""")
 
   def apply4 = {
     val sym1 = RootClass.newValue("x")
     val sym2 = sym.Addressable.newValue("y")
-    
+
     (((sym1 DOT sym2)(LIT("Hello"))) must print_as("""x.y("Hello")"""))
   }
-  
+
   def seqarg1 = (THIS APPLY SEQARG(REF("list"))) must print_as("this((list: _*))")
-  
+
   def namedarg1 = (REF("put") APPLY (REF("x") := LIT(0))) must print_as("put(x = 0)")
-  
+
   def methodvalue1 = (REF("put") APPLY PARTIALLY) must print_as("put _")
 
   def typeapply1 =
-    (REF("put") APPLYTYPE(IntClass) APPLY(LIT(0))) must print_as("put[Int](0)")
-  
+    (REF("put") APPLYTYPE (IntClass) APPLY (LIT(0))) must print_as("put[Int](0)")
+
   def tuple1 = TUPLE(LIT(0), LIT(1)) must print_as("(0, 1)")
 
   def paren1 = PAREN(LIT(0)) must print_as("(0)")
 
   def new1 =
     (NEW(sym.T) must print_as("new T")) and
-    (NEW("C") must print_as("new C")) and
-    (NEW(REF("B") DOT "C") must print_as("new B.C"))
+      (NEW("C") must print_as("new C")) and
+      (NEW(REF("B") DOT "C") must print_as("new B.C"))
 
   def new2 = NEW(sym.T, LIT(0), LIT(1)) must print_as("new T(0, 1)")
 
   def new3 =
-    (NEW(ANONDEF() := BLOCK(
-      DEF("name") := LIT("Robert")
-    )) must print_as(
+    (NEW(
+      ANONDEF() := BLOCK(
+        DEF("name") := LIT("Robert")
+      )
+    ) must print_as(
       "new {",
       "  def name = \"Robert\"",
       "}"
     )) and
-    (NEW(ANONDEF("C") := BLOCK(
-      DEF("name") := LIT("Robert")
-    )) must print_as(
-      "new C {",
-      "  def name = \"Robert\"",
-      "}"    
-    )) and
-    (NEW(ANONDEF("C") withEarlyDefs(
-      VAL("name") := LIT("Robert")
-    )) must print_as(
-      "new {",
-      "  val name = \"Robert\"",
-      "} with C"
-    ))
-  
+      (NEW(
+        ANONDEF("C") := BLOCK(
+          DEF("name") := LIT("Robert")
+        )
+      ) must print_as(
+        "new C {",
+        "  def name = \"Robert\"",
+        "}"
+      )) and
+      (NEW(
+        ANONDEF("C") withEarlyDefs (
+          VAL("name") := LIT("Robert")
+        )
+      ) must print_as(
+        "new {",
+        "  val name = \"Robert\"",
+        "} with C"
+      ))
+
   def block1 =
     BLOCK(
       VAL("x") := LIT(1),

@@ -38,11 +38,14 @@ trait AnnotationInfos extends api.AnnotationInfos { self: Forest =>
     assert(args.isEmpty || assocs.isEmpty, atp)
 
     override def toString = (
-      atp +
+      atp.toString +
         (if (!args.isEmpty) args.mkString("(", ", ", ")") else "") +
-        (if (!assocs.isEmpty) (assocs map { case (x, y) =>
-           x + " = " + y
-         } mkString ("(", ", ", ")"))
+        (if (!assocs.isEmpty)
+           (assocs
+             .map { case (x, y) =>
+               x.toString + " = " + y
+             }
+             .mkString("(", ", ", ")"))
          else "")
     )
   }
