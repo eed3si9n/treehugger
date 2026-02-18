@@ -468,7 +468,7 @@ trait Types extends api.Types { self: Forest =>
    * @param args
    *   ...
    */
-  abstract class TypeRef(pre: Type, sym: Symbol, args: List[Type]) extends Type {
+  abstract class TypeRef(val pre: Type, val sym: Symbol, val args: List[Type]) extends Type {
     private var normalized: Type      = null
     override def prefix: Type         = pre
     override def typeArgs: List[Type] = args
@@ -580,8 +580,11 @@ trait Types extends api.Types { self: Forest =>
     )
   }
 
-  final case class UniqueTypeRef(pre: Type, sym: Symbol, args: List[Type])
-      extends TypeRef(pre, sym, args)
+  final case class UniqueTypeRef(
+      override val pre: Type,
+      override val sym: Symbol,
+      override val args: List[Type]
+  ) extends TypeRef(pre, sym, args)
       with UniqueType {}
 
   object TypeRef extends TypeRefExtractor {
@@ -589,7 +592,7 @@ trait Types extends api.Types { self: Forest =>
       UniqueTypeRef(pre, sym, args)
     }
     def unapply(tpe: TypeRef): Option[(Type, Symbol, List[Type])] = Some(
-      (tpe.prefix, tpe.typeSymbol, tpe.typeArgs)
+      (tpe.pre, tpe.sym, tpe.args)
     )
   }
 

@@ -113,7 +113,7 @@ trait Names {
     def subName(from: Int, to: Int): TypeName =
       newTypeName(name.slice(from, to))
 
-    def append(suffix: String): TypeName = newTypeName(this.toString + suffix)
+    def append(suffix: String): TypeName = newTypeName(name + suffix)
     def append(suffix: Name): TypeName   = append(suffix.toString)
 
     override def toTypeName: TypeName = this
