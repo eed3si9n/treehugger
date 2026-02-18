@@ -3,7 +3,7 @@ import Dependencies._
 
 ThisBuild / crossScalaVersions := List("2.12.21", "2.13.18", "3.3.7")
 ThisBuild / organization       := "com.eed3si9n"
-ThisBuild / version            := "0.5.0-SNAPSHOT"
+ThisBuild / version            := "0.5.1-SNAPSHOT"
 ThisBuild / homepage           := Some(url("http://eed3si9n.com/treehugger"))
 ThisBuild / licenses           := Seq(
   "MIT License" -> url("http://www.opensource.org/licenses/mit-license.php")
