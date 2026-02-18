@@ -17,15 +17,17 @@ trait DSLSpec extends Specification {
 
   def print_as(expected: String*): matcher.Matcher[Tree] =
     (actual: Tree) =>
-      (expected.toList match {
+      expected.toList match {
         case List(x) =>
-          val s = treeToString(actual); println(s)
+          val s = treeToString(actual)
+          println(s)
           (s == x, s + " doesn't equal " + x)
         case list =>
-          val s = treeToString(actual); println(s)
+          val s = treeToString(actual)
+          println(s)
           (
             s.linesIterator.toList == list,
             s.linesIterator.toList.toString() + " doesn't equal " + list
           )
-      })
+      }
 }
